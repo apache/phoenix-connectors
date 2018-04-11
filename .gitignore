@@ -1,5 +1,6 @@
 /target
-/.classpath
-/.project
 /.settings/
 /test-output/
+.classpath
+.project
+*.versionsBackup
