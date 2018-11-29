@@ -1,28 +1,30 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.github.combineads</groupId>
-		<artifactId>presto-phoenix-shaded</artifactId>
-		<version>1.0</version>
-		<relativePath>..</relativePath>
-	</parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>presto-phoenix-shaded</artifactId>
+        <version>4.13.1-HBase-1.3</version>
+        <relativePath>..</relativePath>
+    </parent>
 
-	<name>Presto Hbase Testing Util Shaded</name>
-	<description>apache hbase testing util shaded jar for presto.</description>
+    <name>Presto HBase Testing Util Shaded</name>
+    <description>Shaded version of Apache HBase - Testing Util</description>
 
-	<artifactId>presto-hbase-testing-util-shaded</artifactId>
-	<packaging>jar</packaging>
+    <artifactId>presto-hbase-testing-util-shaded</artifactId>
+    <packaging>jar</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.hbase</groupId>
-			<artifactId>hbase-server</artifactId>
-			<version>${hbase.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hbase</groupId>
-			<artifactId>hbase-testing-util</artifactId>
-			<version>${hbase.version}</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-testing-util</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+    </dependencies>
 </project>
