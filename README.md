@@ -1,2 +1,2 @@
 # Apache Phoenix Shaded
-Apache phoenix and hbase have the dependency problems that guava and jersey are old version library. So I made the shade library for presto.
+Shaded version of Apache Phoenix and HBase - Testing Util for Presto.  This is needed because Phoenix and HBase use different versions of guava and jersey than Presto.
