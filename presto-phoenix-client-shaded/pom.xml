@@ -49,17 +49,57 @@
                                     implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
                             <relocations>
-                                <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>${shadeBase}.com.google</shadedPattern>
+                            <relocation>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.common</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.sun</pattern>
-                                    <shadedPattern>${shadeBase}.com.sun</shadedPattern>
+                                    <pattern>com.google.inject</pattern>
+                                    <shadedPattern>${shadeBase}.com.google.inject</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>javax</pattern>
-                                    <shadedPattern>${shadeBase}.javax</shadedPattern>
+                                    <pattern>com.sun.xml</pattern>
+                                    <shadedPattern>${shadeBase}.com.sun.xml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun.istack</pattern>
+                                    <shadedPattern>${shadeBase}.com.sun.istack</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun.research</pattern>
+                                    <shadedPattern>${shadeBase}.com.sun.research</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun.xml</pattern>
+                                    <shadedPattern>${shadeBase}.com.sun.xml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun.activation</pattern>
+                                    <shadedPattern>${shadeBase}.com.sun.activation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.activation</pattern>
+                                    <shadedPattern>${shadeBase}.javax.activation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.annotation</pattern>
+                                    <shadedPattern>${shadeBase}.javax.annotation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.inject</pattern>
+                                    <shadedPattern>${shadeBase}.javax.inject</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.xml.bind</pattern>
+                                    <shadedPattern>${shadeBase}.javax.xml.bind</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.servlet</pattern>
+                                    <shadedPattern>${shadeBase}.javax.servlet</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax.ws</pattern>
+                                    <shadedPattern>${shadeBase}.javax.ws</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
@@ -78,7 +118,7 @@
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
-                                  <!-- io.airlift:joni minor version difference.  Can't simply exclude -->
+                                  <!-- io.airlift:joni resource files.  Can't simply exclude -->
                                   <!-- the dependency because we are depending on a shaded phoenix-client -->
                                         <exclude>tables/*.bin</exclude>
                                   <!-- skip french localization -->
