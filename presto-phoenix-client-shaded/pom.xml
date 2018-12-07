@@ -19,19 +19,11 @@
         <dependency>
             <groupId>org.apache.phoenix</groupId>
             <artifactId>phoenix-client</artifactId>
-            <version>${phoenix.version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.phoenix</groupId>
-                    <artifactId>phoenix-flume</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.phoenix</groupId>
-                    <artifactId>phoenix-pig</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.phoenix</groupId>
-                    <artifactId>phoenix-spark</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -42,7 +34,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -3,11 +3,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix</artifactId>
+        <version>4.15.0-HBase-1.4-SNAPSHOT</version>
+    </parent>
+
     <name>Presto Apache Phoenix Shaded</name>
     <description>Shaded version of Apache Phoenix for Presto</description>
-    <groupId>org.apache.phoenix</groupId>
     <artifactId>presto-phoenix-shaded</artifactId>
-    <version>4.15.0-HBase-1.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -19,8 +23,10 @@
     </licenses>
 
     <properties>
-        <phoenix.version>4.15.0-HBase-1.4-SNAPSHOT</phoenix.version>
-        <hbase.version>1.3.1</hbase.version>
+        <!-- Don't make a test-jar -->
+        <maven.test.skip>true</maven.test.skip>
+        <!-- Don't make a source-jar -->
+        <source.skip>true</source.skip>
         <shadeBase>com.facebook.presto.phoenix.shaded</shadeBase>
     </properties>
 
@@ -34,7 +40,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -47,7 +52,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>javadoc-jar</id>
