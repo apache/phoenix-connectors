@@ -5,15 +5,23 @@
     <parent>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>presto-phoenix-shaded</artifactId>
-        <version>4.15.0-HBase-1.4-SNAPSHOT</version>
+        <version>4.14.1-HBase-1.4</version>
         <relativePath>..</relativePath>
     </parent>
 
+    <artifactId>presto-phoenix-client-shaded</artifactId>
     <name>Presto Apache Phoenix Client Shaded</name>
     <description>Shaded version of Apache Phoenix Client for Presto</description>
-
-    <artifactId>presto-phoenix-client-shaded</artifactId>
     <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments />
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>
@@ -49,7 +57,7 @@
                                     implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
                             <relocations>
-                            <relocation>
+                                <relocation>
                                     <pattern>com.google.common</pattern>
                                     <shadedPattern>${shadeBase}.com.google.common</shadedPattern>
                                 </relocation>

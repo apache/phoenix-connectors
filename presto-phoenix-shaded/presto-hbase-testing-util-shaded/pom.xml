@@ -5,15 +5,23 @@
     <parent>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>presto-phoenix-shaded</artifactId>
-        <version>4.15.0-HBase-1.4-SNAPSHOT</version>
+        <version>4.14.1-HBase-1.4</version>
         <relativePath>..</relativePath>
     </parent>
 
+    <artifactId>presto-hbase-testing-util-shaded</artifactId>
     <name>Presto HBase Testing Util Shaded</name>
     <description>Shaded version of Apache HBase - Testing Util</description>
-
-    <artifactId>presto-hbase-testing-util-shaded</artifactId>
     <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments />
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>
