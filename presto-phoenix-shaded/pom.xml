@@ -25,7 +25,7 @@
     <properties>
         <!-- Don't make a test-jar -->
         <maven.test.skip>true</maven.test.skip>
-        <shadeBase>com.facebook.presto.phoenix.shaded</shadeBase>
+        <shadeBase>org.apache.phoenix.shaded</shadeBase>
     </properties>
 
     <modules>

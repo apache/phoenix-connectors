@@ -26,12 +26,26 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix-client</artifactId>
+            <artifactId>phoenix-core</artifactId>
             <version>${project.version}</version>
             <exclusions>
+            <!-- Presto uses jcl-over-slf4j and log4j-over-slf4j
+            to route to slf4j-jdk14 -->
                 <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -52,18 +66,53 @@
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <dependencyReducedPomLocation>${project.build.directory}/pom.xml</dependencyReducedPomLocation>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <transformers>
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
+                            <artifactSet>
+                                <includes>
+                                    <include>*:*</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>xom:xom</exclude>
+                                    <exclude>log4j:log4j</exclude>
+                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    <exclude>commons-logging:commons-logging</exclude>
+                                </excludes>
+                            </artifactSet>
+
                             <relocations>
+                                <!-- COM relocation -->
                                 <relocation>
-                                    <pattern>com.google.common</pattern>
-                                    <shadedPattern>${shadeBase}.com.google.common</shadedPattern>
+                                    <pattern>com.beust.jcommander</pattern>
+                                    <shadedPattern>${shadeBase}.com.beust.jcommander</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.google.inject</pattern>
-                                    <shadedPattern>${shadeBase}.com.google.inject</shadedPattern>
+                                    <pattern>com.codahale</pattern>
+                                    <shadedPattern>${shadeBase}.com.codahale</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml</pattern>
+                                    <shadedPattern>${shadeBase}.com.fasterxml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>${shadeBase}.com.google</shadedPattern>
+                                </relocation>
+
+                                <relocation>
+                                    <pattern>com.jamesmurty</pattern>
+                                    <shadedPattern>${shadeBase}.com.jamesmurty</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.jcraft</pattern>
+                                    <shadedPattern>${shadeBase}.com.jcraft</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.lmax</pattern>
+                                    <shadedPattern>${shadeBase}.com.lmax</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.sun.xml</pattern>
@@ -78,12 +127,181 @@
                                     <shadedPattern>${shadeBase}.com.sun.research</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.sun.xml</pattern>
-                                    <shadedPattern>${shadeBase}.com.sun.xml</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>com.sun.activation</pattern>
                                     <shadedPattern>${shadeBase}.com.sun.activation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.thoughtworks</pattern>
+                                    <shadedPattern>${shadeBase}.com.thoughtworks</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.yammer</pattern>
+                                    <shadedPattern>${shadeBase}.com.yammer</shadedPattern>
+                                </relocation>
+
+                                <!-- IO relocations -->
+                                <relocation>
+                                    <pattern>io.netty</pattern>
+                                    <shadedPattern>${shadeBase}.io.netty</shadedPattern>
+                                </relocation>
+
+                                <!-- ORG relocations -->
+                                <relocation>
+                                    <pattern>org.antlr</pattern>
+                                    <shadedPattern>${shadeBase}.org.antlr</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.aopalliance</pattern>
+                                    <shadedPattern>${shadeBase}.org.aopalliance</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.codehaus</pattern>
+                                    <shadedPattern>${shadeBase}.org.codehaus</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.fusesource</pattern>
+                                    <shadedPattern>${shadeBase}.org.fusesource</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.hamcrest</pattern>
+                                    <shadedPattern>${shadeBase}.org.hamcrest</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.hsqldb</pattern>
+                                    <shadedPattern>${shadeBase}.org.hsqldb</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.iq80</pattern>
+                                    <shadedPattern>${shadeBase}.org.iq80</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jamon</pattern>
+                                    <shadedPattern>${shadeBase}.org.jamon</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jboss</pattern>
+                                    <shadedPattern>${shadeBase}.org.jboss</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jcodings</pattern>
+                                    <shadedPattern>${shadeBase}.org.jcodings</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.jets3t</pattern>
+                                    <shadedPattern>${shadeBase}.org.jets3t</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.joda</pattern>
+                                    <shadedPattern>${shadeBase}.org.joda</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.joni</pattern>
+                                    <shadedPattern>${shadeBase}.org.joni</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.junit</pattern>
+                                    <shadedPattern>${shadeBase}.org.junit</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.kosmix</pattern>
+                                    <shadedPattern>${shadeBase}.org.kosmix</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.mortbay</pattern>
+                                    <shadedPattern>${shadeBase}.org.mortbay</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb</pattern>
+                                    <shadedPattern>${shadeBase}.org.objectweb</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.stringtemplate</pattern>
+                                    <shadedPattern>${shadeBase}.org.stringtemplate</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.tukaani</pattern>
+                                    <shadedPattern>${shadeBase}.org.tukaani</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.znerd</pattern>
+                                    <shadedPattern>${shadeBase}.org.znerd</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.avro</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.avro</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.commons</shadedPattern>
+                                    <excludes>
+                                        <exclude>org.apache.commons.csv.**</exclude>
+                                        <exclude>org.apache.commons.logging.**</exclude>
+                                        <exclude>org.apache.commons.configuration.**</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.directory</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.directory</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.http</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.http</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.jasper</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.jasper</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.jute</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.jute</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.mina</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.mina</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.oro</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.oro</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.taglibs</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.taglibs</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.thrift</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.thrift</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.tools</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.tools</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.twill</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.twill</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.velocity</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.velocity</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.zookeeper</pattern>
+                                    <shadedPattern>${shadeBase}.org.apache.zookeeper</shadedPattern>
+                                </relocation>
+
+                                <!-- NET relocations -->
+                                <relocation>
+                                    <pattern>net</pattern>
+                                    <shadedPattern>${shadeBase}.net</shadedPattern>
+                                </relocation>
+
+                                <!-- Misc relocations -->
+                                <relocation>
+                                    <pattern>antlr</pattern>
+                                    <shadedPattern>${shadeBase}.antlr</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>it.unimi</pattern>
+                                    <shadedPattern>${shadeBase}.it.unimi</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>javax.activation</pattern>
@@ -110,26 +328,21 @@
                                     <shadedPattern>${shadeBase}.javax.ws</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.slf4j</pattern>
-                                    <shadedPattern>${shadeBase}.org.slf4j</shadedPattern>
+                                    <pattern>jline</pattern>
+                                    <shadedPattern>${shadeBase}.jline</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.commons</pattern>
-                                    <shadedPattern>${shadeBase}.org.apache.commons</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.apache.log4j</pattern>
-                                    <shadedPattern>${shadeBase}.org.apache.log4j</shadedPattern>
+                                    <pattern>junit</pattern>
+                                    <shadedPattern>${shadeBase}.junit</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
-                                  <!-- io.airlift:joni resource files.  Can't simply exclude -->
-                                  <!-- the dependency because we are depending on a shaded phoenix-client -->
+                                          <!-- io.airlift:joni resource files -->
                                         <exclude>tables/*.bin</exclude>
-                                  <!-- skip french localization -->
+                                        <!-- skip french localization -->
                                         <exclude>assets/org/apache/commons/math3/**/*</exclude>
                                     </excludes>
                                 </filter>
