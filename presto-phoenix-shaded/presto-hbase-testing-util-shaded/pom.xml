@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>presto-phoenix-shaded</artifactId>
-        <version>4.14.1-HBase-1.4-PPS-0.1</version>
+        <version>4.15.0-HBase-1.4-PPS-0.3-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
