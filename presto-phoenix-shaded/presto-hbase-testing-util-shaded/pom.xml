@@ -23,6 +23,11 @@
         </license>
     </licenses>
 
+    <properties>
+      <maven.test.skip>true</maven.test.skip>
+      <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.hbase</groupId>

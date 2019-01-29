@@ -29,8 +29,8 @@
             <artifactId>phoenix-core</artifactId>
             <version>${phoenix.version}</version>
             <exclusions>
-            <!-- Presto uses jcl-over-slf4j and log4j-over-slf4j
-            to route to slf4j-jdk14 -->
+                <!-- Presto uses jcl-over-slf4j and log4j-over-slf4j
+                to route to slf4j-jdk14 -->
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
@@ -52,7 +52,73 @@
     </dependencies>
 
     <build>
+        <testSourceDirectory>
+        ${project.build.directory}/test-sources
+      </testSourceDirectory>
+
         <plugins>
+        <!-- We use the test source from presto-hbase-testing-util-shaded -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.phoenix</groupId>
+                                    <artifactId>presto-hbase-testing-util-shaded</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/test-sources</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.phoenix</groupId>
+                                    <artifactId>presto-hbase-testing-util-shaded</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-test-sources</id>
+                        <goals>
+                            <goal>test-jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
