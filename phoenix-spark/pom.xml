@@ -475,12 +475,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-        <groupId>org.apache.tephra</groupId>
-        <artifactId>tephra-core</artifactId>
-        <type>test-jar</type>
-        <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -555,9 +549,6 @@
             <goals>
               <goal>test</goal>
             </goals>
-            <configuration>
-              <skipTests>true</skipTests>
-            </configuration>
           </execution>
           <execution>
             <id>integration-test</id>
