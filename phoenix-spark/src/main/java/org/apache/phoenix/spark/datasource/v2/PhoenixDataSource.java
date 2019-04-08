@@ -18,7 +18,9 @@
 package org.apache.phoenix.spark.datasource.v2;
 
 import java.util.Optional;
+import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
 import org.apache.phoenix.spark.datasource.v2.reader.PhoenixDataSourceReader;
 import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDataSourceWriteOptions;
@@ -39,8 +41,10 @@ import org.apache.spark.sql.types.StructType;
  */
 public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupport, DataSourceRegister {
 
+    private static final Logger logger = Logger.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
     public static final String ZOOKEEPER_URL = "zkUrl";
+    public static final String PHOENIX_CONFIGS = "phoenixconfigs";
 
     @Override
     public DataSourceReader createReader(DataSourceOptions options) {
@@ -64,6 +68,40 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
         return Optional.of(new PhoenixDatasourceWriter(writeOptions));
     }
 
+    /**
+     * Extract HBase and Phoenix properties that need to be set in both the driver and workers.
+     * We expect these properties to be passed against the key
+     * {@link PhoenixDataSource#PHOENIX_CONFIGS}. The corresponding value should be a
+     * comma-separated string containing property names and property values. For example:
+     * prop1=val1,prop2=val2,prop3=val3
+     * @param options DataSource options passed in
+     * @return Properties map
+     */
+    public static Properties extractPhoenixHBaseConfFromOptions(final DataSourceOptions options) {
+        Properties confToSet = new Properties();
+        if (options != null) {
+            Optional phoenixConfigs = options.get(PHOENIX_CONFIGS);
+            if (phoenixConfigs.isPresent()) {
+                String phoenixConf = String.valueOf(phoenixConfigs.get());
+                String[] confs = phoenixConf.split(",");
+                for (String conf : confs) {
+                    String[] confKeyVal = conf.split("=");
+                    try {
+                        confToSet.setProperty(confKeyVal[0], confKeyVal[1]);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        throw new RuntimeException("Incorrect format for phoenix/HBase configs. "
+                                + "Expected format: <prop1>=<val1>,<prop2>=<val2>,<prop3>=<val3>..",
+                                e);
+                    }
+                }
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Got the following Phoenix/HBase config:\n" + confToSet);
+            }
+        }
+        return confToSet;
+    }
+
     private PhoenixDataSourceWriteOptions createPhoenixDataSourceWriteOptions(DataSourceOptions options,
             StructType schema) {
         String scn = options.get(PhoenixConfigurationUtil.CURRENT_SCN_VALUE).orElse(null);
@@ -72,7 +110,9 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
         boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
         return new PhoenixDataSourceWriteOptions.Builder().setTableName(options.tableName().get())
                 .setZkUrl(zkUrl).setScn(scn).setTenantId(tenantId).setSchema(schema)
-                .setSkipNormalizingIdentifier(skipNormalizingIdentifier).build();
+                .setSkipNormalizingIdentifier(skipNormalizingIdentifier)
+                .setOverriddenProps(extractPhoenixHBaseConfFromOptions(options))
+                .build();
     }
 
     @Override

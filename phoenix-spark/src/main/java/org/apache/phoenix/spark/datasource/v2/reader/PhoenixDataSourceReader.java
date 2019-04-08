@@ -58,6 +58,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
+
 public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDownFilters,
         SupportsPushDownRequiredColumns {
 
@@ -65,6 +69,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
     private final String tableName;
     private final String zkUrl;
     private final boolean dateAsTimestamp;
+    private final Properties overriddenProps;
 
     private StructType schema;
     private Filter[] pushedFilters = new Filter[]{};
@@ -82,6 +87,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         this.tableName = options.tableName().get();
         this.zkUrl = options.get("zkUrl").get();
         this.dateAsTimestamp = options.getBoolean("dateAsTimestamp", false);
+        this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         setSchema();
     }
 
@@ -89,7 +95,8 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
      * Sets the schema using all the table columns before any column pruning has been done
      */
     private void setSchema() {
-        try (Connection conn = DriverManager.getConnection("jdbc:phoenix:" + zkUrl)) {
+        try (Connection conn = DriverManager.getConnection(
+                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
             schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
@@ -119,14 +126,14 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         // Generate splits based off statistics, or just region splits?
         boolean splitByStats = options.getBoolean(
                 PhoenixConfigurationUtil.MAPREDUCE_SPLIT_BY_STATS, PhoenixConfigurationUtil.DEFAULT_SPLIT_BY_STATS);
-        Properties overridingProps = new Properties();
         if(currentScnValue.isPresent()) {
-            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue.get());
+            overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue.get());
         }
         if (tenantId.isPresent()){
-            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId.get());
+            overriddenProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId.get());
         }
-        try (Connection conn = DriverManager.getConnection("jdbc:phoenix:" + zkUrl, overridingProps)) {
+        try (Connection conn = DriverManager.getConnection(
+                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, Lists.newArrayList(schema.names()));
             final Statement statement = conn.createStatement();
             final String selectStatement = QueryUtil.constructSelectStatement(tableName, columnInfos, whereClause);
@@ -171,8 +178,9 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
                         location.getRegionInfo().getRegionName()
                 );
 
-                PhoenixDataSourceReadOptions phoenixDataSourceOptions = new PhoenixDataSourceReadOptions(zkUrl,
-                        currentScnValue.orElse(null), tenantId.orElse(null), selectStatement);
+                PhoenixDataSourceReadOptions phoenixDataSourceOptions =
+                        new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
+                                tenantId.orElse(null), selectStatement, overriddenProps);
                 if (splitByStats) {
                     for (Scan aScan : scans) {
                         partitions.add(new PhoenixInputPartition(phoenixDataSourceOptions, schema,

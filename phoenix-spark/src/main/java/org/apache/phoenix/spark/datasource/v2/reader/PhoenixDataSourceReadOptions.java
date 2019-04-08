@@ -17,7 +17,10 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Serializable;
+import java.util.Properties;
 
 public class PhoenixDataSourceReadOptions implements Serializable {
 
@@ -25,12 +28,16 @@ public class PhoenixDataSourceReadOptions implements Serializable {
     private final String zkUrl;
     private final String scn;
     private final String selectStatement;
+    private final Properties overriddenProps;
 
-    public PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId, String selectStatement) {
+    public PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
+            String selectStatement, Properties overriddenProps) {
+        Preconditions.checkNotNull(overriddenProps);
         this.zkUrl = zkUrl;
         this.scn = scn;
         this.tenantId = tenantId;
         this.selectStatement = selectStatement;
+        this.overriddenProps = overriddenProps;
     }
 
     public String getSelectStatement() {
@@ -47,5 +54,9 @@ public class PhoenixDataSourceReadOptions implements Serializable {
 
     public String getTenantId() {
         return tenantId;
+    }
+
+    public Properties getOverriddenProps() {
+        return overriddenProps;
     }
 }
