@@ -57,6 +57,9 @@ import com.google.common.collect.Lists;
 
 import scala.collection.Iterator;
 
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
+
 public class PhoenixInputPartitionReader implements InputPartitionReader<InternalRow>  {
 
     private SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
@@ -77,14 +80,15 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         String scn = options.getScn();
         String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
-        Properties overridingProps = new Properties();
+        Properties overridingProps = options.getOverriddenProps();
         if (scn != null) {
             overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
         }
         if (tenantId != null) {
             overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         }
-        try (Connection conn = DriverManager.getConnection("jdbc:phoenix:" + zkUrl, overridingProps)) {
+        try (Connection conn = DriverManager.getConnection(
+                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
             final Statement statement = conn.createStatement();
             final String selectStatement = options.getSelectStatement();
             Preconditions.checkNotNull(selectStatement);

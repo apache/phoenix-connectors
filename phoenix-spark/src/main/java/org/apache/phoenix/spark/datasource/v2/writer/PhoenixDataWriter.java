@@ -40,6 +40,8 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 import com.google.common.collect.Lists;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
 public class PhoenixDataWriter implements DataWriter<InternalRow> {
 
@@ -51,7 +53,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
-        Properties overridingProps = new Properties();
+        Properties overridingProps = options.getOverriddenProps();
         if (scn != null) {
             overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
         }
@@ -60,7 +62,8 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         }
         this.schema = options.getSchema();
         try {
-            this.conn = DriverManager.getConnection("jdbc:phoenix:" + zkUrl, overridingProps);
+            this.conn = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl,
+                    overridingProps);
             List<String> colNames = Lists.newArrayList(options.getSchema().names());
             if (!options.skipNormalizingIdentifier()){
                 colNames = colNames.stream().map(colName -> SchemaUtil.normalizeIdentifier(colName)).collect(Collectors.toList());

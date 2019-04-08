@@ -17,9 +17,11 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
+import jline.internal.Preconditions;
 import org.apache.spark.sql.types.StructType;
 
 import java.io.Serializable;
+import java.util.Properties;
 
 public class PhoenixDataSourceWriteOptions implements Serializable {
 
@@ -29,15 +31,19 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
     private final String scn;
     private final StructType schema;
     private final boolean skipNormalizingIdentifier;
+    private final Properties overriddenProps;
 
-    private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn, String tenantId,
-                                          StructType schema, boolean skipNormalizingIdentifier) {
+    private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
+            String tenantId, StructType schema, boolean skipNormalizingIdentifier,
+            Properties overriddenProps) {
+        Preconditions.checkNotNull(overriddenProps);
         this.tableName = tableName;
         this.zkUrl = zkUrl;
         this.scn = scn;
         this.tenantId = tenantId;
         this.schema = schema;
         this.skipNormalizingIdentifier = skipNormalizingIdentifier;
+        this.overriddenProps = overriddenProps;
     }
 
     public String getScn() {
@@ -64,6 +70,10 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
         return skipNormalizingIdentifier;
     }
 
+    public Properties getOverriddenProps() {
+        return overriddenProps;
+    }
+
     public static class Builder {
         private String tableName;
         private String zkUrl;
@@ -71,6 +81,7 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
         private String tenantId;
         private StructType schema;
         private boolean skipNormalizingIdentifier;
+        private Properties overriddenProps = new Properties();
 
         public Builder setTableName(String tableName) {
             this.tableName = tableName;
@@ -102,8 +113,14 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
             return this;
         }
 
+        public Builder setOverriddenProps(Properties overriddenProps) {
+            this.overriddenProps = overriddenProps;
+            return this;
+        }
+
         public PhoenixDataSourceWriteOptions build() {
-            return new PhoenixDataSourceWriteOptions(tableName, zkUrl, scn, tenantId, schema, skipNormalizingIdentifier);
+            return new PhoenixDataSourceWriteOptions(tableName, zkUrl, scn, tenantId, schema,
+                    skipNormalizingIdentifier, overriddenProps);
         }
     }
 }

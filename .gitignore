@@ -1,0 +1,30 @@
+#general java
+*.class
+*.war
+*.jar
+
+# python
+*.pyc
+.checkstyle
+
+# eclipse stuffs
+.settings/*
+*/.settings/
+.classpath
+.project
+*/.externalToolBuilders
+*/maven-eclipse.xml
+
+# intellij stuff
+.idea/
+*.iml
+*.ipr
+*.iws
+
+#maven stuffs
+target/
+release/
+RESULTS/
+CSV_EXPORT/
+.DS_Store
+
