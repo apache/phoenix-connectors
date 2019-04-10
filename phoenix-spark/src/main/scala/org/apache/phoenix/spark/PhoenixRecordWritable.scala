@@ -15,7 +15,7 @@ package org.apache.phoenix.spark
 
 import java.sql.{PreparedStatement, ResultSet}
 import org.apache.hadoop.mapreduce.lib.db.DBWritable
-import org.apache.phoenix.schema.types._
+import org.apache.phoenix.schema.types.{PBinary, PDataType, PDate, PVarbinary, PhoenixArray}
 import org.apache.phoenix.util.ColumnInfo
 import org.joda.time.DateTime
 import scala.collection.{mutable, immutable}

@@ -17,24 +17,22 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.writer.DataWriter;
-import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
+import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 
-public class PhoenixDataWriterFactory implements DataWriterFactory<InternalRow> {
+class PhoenixTestingWriterCommitMessage implements WriterCommitMessage {
 
-    private final PhoenixDataSourceWriteOptions options;
+    private final long numBatchesCommitted;
 
-    PhoenixDataWriterFactory(PhoenixDataSourceWriteOptions options) {
-        this.options = options;
+    PhoenixTestingWriterCommitMessage(long numBatchesCommitted) {
+        this.numBatchesCommitted = numBatchesCommitted;
     }
 
-    PhoenixDataSourceWriteOptions getOptions() {
-        return options;
-    }
-
+    // Override to keep track of the number of batches committed by the corresponding DataWriter
+    // in the WriterCommitMessage, so we can observe this value in the driver when we call
+    // {@link PhoenixTestingDataSourceWriter#commit(WriterCommitMessage[])}
     @Override
-    public DataWriter<InternalRow> createDataWriter(int partitionId, long taskId, long epochId) {
-        return new PhoenixDataWriter(options);
+    public String toString() {
+        return String.valueOf(this.numBatchesCommitted);
     }
+
 }

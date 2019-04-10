@@ -23,7 +23,8 @@ import java.text.Format
 
 import org.apache.phoenix.util.{DateUtil, SchemaUtil}
 import org.apache.phoenix.util.StringUtil.escapeStringConstant
-import org.apache.spark.sql.sources._
+import org.apache.spark.sql.sources.{And, EqualTo, Filter, GreaterThan, GreaterThanOrEqual, In,
+IsNotNull, IsNull, LessThan, LessThanOrEqual, Not, Or, StringContains, StringEndsWith, StringStartsWith}
 
 class FilterExpressionCompiler() {
 

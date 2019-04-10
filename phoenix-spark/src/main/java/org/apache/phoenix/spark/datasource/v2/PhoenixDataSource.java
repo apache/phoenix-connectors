@@ -21,11 +21,8 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
 import org.apache.phoenix.spark.datasource.v2.reader.PhoenixDataSourceReader;
-import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDataSourceWriteOptions;
-import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDatasourceWriter;
-import org.apache.phoenix.util.PhoenixRuntime;
+import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDataSourceWriter;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.sources.DataSourceRegister;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
@@ -52,20 +49,9 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
     }
 
     @Override
-    public Optional<DataSourceWriter> createWriter(String writeUUID, StructType schema, SaveMode mode,
-            DataSourceOptions options) {
-        if (!mode.equals(SaveMode.Overwrite)) {
-            throw new RuntimeException("SaveMode other than SaveMode.OverWrite is not supported");
-        }
-        if (!options.tableName().isPresent()) {
-            throw new RuntimeException("No Phoenix option " + DataSourceOptions.TABLE_KEY + " defined");
-        }
-        if (!options.get(PhoenixDataSource.ZOOKEEPER_URL).isPresent()) {
-            throw new RuntimeException("No Phoenix option " + PhoenixDataSource.ZOOKEEPER_URL + " defined");
-        }
-
-        PhoenixDataSourceWriteOptions writeOptions = createPhoenixDataSourceWriteOptions(options, schema);
-        return Optional.of(new PhoenixDatasourceWriter(writeOptions));
+    public Optional<DataSourceWriter> createWriter(String writeUUID, StructType schema,
+            SaveMode mode, DataSourceOptions options) {
+        return Optional.of(new PhoenixDataSourceWriter(mode, schema, options));
     }
 
     /**
@@ -100,19 +86,6 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
             }
         }
         return confToSet;
-    }
-
-    private PhoenixDataSourceWriteOptions createPhoenixDataSourceWriteOptions(DataSourceOptions options,
-            StructType schema) {
-        String scn = options.get(PhoenixConfigurationUtil.CURRENT_SCN_VALUE).orElse(null);
-        String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB).orElse(null);
-        String zkUrl = options.get(ZOOKEEPER_URL).get();
-        boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
-        return new PhoenixDataSourceWriteOptions.Builder().setTableName(options.tableName().get())
-                .setZkUrl(zkUrl).setScn(scn).setTenantId(tenantId).setSchema(schema)
-                .setSkipNormalizingIdentifier(skipNormalizingIdentifier)
-                .setOverriddenProps(extractPhoenixHBaseConfFromOptions(options))
-                .build();
     }
 
     @Override

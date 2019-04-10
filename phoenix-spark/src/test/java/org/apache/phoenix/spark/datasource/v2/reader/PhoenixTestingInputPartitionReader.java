@@ -20,37 +20,26 @@ package org.apache.phoenix.spark.datasource.v2.reader;
 import org.apache.phoenix.mapreduce.PhoenixInputSplit;
 import org.apache.spark.SerializableWritable;
 import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.reader.InputPartition;
-import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
 import org.apache.spark.sql.types.StructType;
 
-public class PhoenixInputPartition implements InputPartition<InternalRow> {
+import java.util.Properties;
 
-    private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
-    private final StructType schema;
-    private final PhoenixDataSourceReadOptions options;
+public class PhoenixTestingInputPartitionReader extends PhoenixInputPartitionReader {
 
-    PhoenixInputPartition(PhoenixDataSourceReadOptions options, StructType schema, PhoenixInputSplit phoenixInputSplit) {
-        this.phoenixInputSplit = new SerializableWritable<>(phoenixInputSplit);
-        this.schema = schema;
-        this.options = options;
+    // A test property which is used to modify the current row returned by the test input
+    // partition reader in order to check properties passed from the driver to executors
+    public static final String RETURN_NULL_CURR_ROW = "return.null.curr.row";
+
+    PhoenixTestingInputPartitionReader(PhoenixDataSourceReadOptions options, StructType schema,
+            SerializableWritable<PhoenixInputSplit> phoenixInputSplit) {
+        super(options, schema, phoenixInputSplit);
     }
 
-    PhoenixDataSourceReadOptions getOptions() {
-        return options;
-    }
-
-    StructType getSchema() {
-        return schema;
-    }
-
-    SerializableWritable<PhoenixInputSplit> getPhoenixInputSplit() {
-        return phoenixInputSplit;
-    }
-
+    // Override to return null rather than the actual row based on a property passed to the executor
     @Override
-    public InputPartitionReader<InternalRow> createPartitionReader() {
-        return new PhoenixInputPartitionReader(options, schema, phoenixInputSplit);
+    public InternalRow get() {
+        Properties props = getOverriddenPropsFromOptions();
+        return Boolean.valueOf(props.getProperty(RETURN_NULL_CURR_ROW)) ? null : super.get();
     }
 
 }

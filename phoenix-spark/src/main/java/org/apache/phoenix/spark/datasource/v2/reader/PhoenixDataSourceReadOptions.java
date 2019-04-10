@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.util.Properties;
 
-public class PhoenixDataSourceReadOptions implements Serializable {
+class PhoenixDataSourceReadOptions implements Serializable {
 
     private final String tenantId;
     private final String zkUrl;
@@ -30,7 +30,7 @@ public class PhoenixDataSourceReadOptions implements Serializable {
     private final String selectStatement;
     private final Properties overriddenProps;
 
-    public PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
+    PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
             String selectStatement, Properties overriddenProps) {
         Preconditions.checkNotNull(overriddenProps);
         this.zkUrl = zkUrl;
@@ -40,23 +40,23 @@ public class PhoenixDataSourceReadOptions implements Serializable {
         this.overriddenProps = overriddenProps;
     }
 
-    public String getSelectStatement() {
+    String getSelectStatement() {
         return selectStatement;
     }
 
-    public String getScn() {
+    String getScn() {
         return scn;
     }
 
-    public String getZkUrl() {
+    String getZkUrl() {
         return zkUrl;
     }
 
-    public String getTenantId() {
+    String getTenantId() {
         return tenantId;
     }
 
-    public Properties getOverriddenProps() {
+    Properties getOverriddenProps() {
         return overriddenProps;
     }
 }

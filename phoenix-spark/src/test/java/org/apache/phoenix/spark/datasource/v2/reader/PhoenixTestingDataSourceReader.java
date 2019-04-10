@@ -15,26 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.spark.datasource.v2.writer;
+package org.apache.phoenix.spark.datasource.v2.reader;
 
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.writer.DataWriter;
-import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
+import org.apache.phoenix.mapreduce.PhoenixInputSplit;
+import org.apache.spark.sql.sources.v2.DataSourceOptions;
 
-public class PhoenixDataWriterFactory implements DataWriterFactory<InternalRow> {
+public class PhoenixTestingDataSourceReader extends PhoenixDataSourceReader {
 
-    private final PhoenixDataSourceWriteOptions options;
-
-    PhoenixDataWriterFactory(PhoenixDataSourceWriteOptions options) {
-        this.options = options;
+    public PhoenixTestingDataSourceReader(DataSourceOptions options) {
+        super(options);
     }
 
-    PhoenixDataSourceWriteOptions getOptions() {
-        return options;
-    }
-
+    // Override to return a test InputPartition
     @Override
-    public DataWriter<InternalRow> createDataWriter(int partitionId, long taskId, long epochId) {
-        return new PhoenixDataWriter(options);
+    PhoenixInputPartition getInputPartition(PhoenixDataSourceReadOptions readOptions,
+            PhoenixInputSplit inputSplit) {
+        return new PhoenixTestingInputPartition(readOptions, readSchema(), inputSplit);
     }
 }
