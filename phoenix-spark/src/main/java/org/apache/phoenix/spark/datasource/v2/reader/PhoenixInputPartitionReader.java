@@ -62,25 +62,30 @@ import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
 public class PhoenixInputPartitionReader implements InputPartitionReader<InternalRow>  {
 
-    private SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
-    private StructType schema;
+    private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
+    private final StructType schema;
+    private final PhoenixDataSourceReadOptions options;
     private Iterator<InternalRow> iterator;
     private PhoenixResultSet resultSet;
     private InternalRow currentRow;
-    private PhoenixDataSourceReadOptions options;
 
-    public PhoenixInputPartitionReader(PhoenixDataSourceReadOptions options, StructType schema, SerializableWritable<PhoenixInputSplit> phoenixInputSplit) {
+    PhoenixInputPartitionReader(PhoenixDataSourceReadOptions options, StructType schema,
+            SerializableWritable<PhoenixInputSplit> phoenixInputSplit) {
         this.options = options;
         this.phoenixInputSplit = phoenixInputSplit;
         this.schema = schema;
         initialize();
     }
 
+    Properties getOverriddenPropsFromOptions() {
+        return options.getOverriddenProps();
+    }
+
     private QueryPlan getQueryPlan() throws SQLException {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
-        Properties overridingProps = options.getOverriddenProps();
+        Properties overridingProps = getOverriddenPropsFromOptions();
         if (scn != null) {
             overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
         }
@@ -95,8 +100,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
 
             final PhoenixStatement pstmt = statement.unwrap(PhoenixStatement.class);
             // Optimize the query plan so that we potentially use secondary indexes
-            final QueryPlan queryPlan = pstmt.optimizeQuery(selectStatement);
-            return queryPlan;
+            return pstmt.optimizeQuery(selectStatement);
         }
     }
 
@@ -114,7 +118,8 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
             ConnectionQueryServices services = queryPlan.getContext().getConnection().getQueryServices();
             services.clearTableRegionCache(tableNameBytes);
 
-            long renewScannerLeaseThreshold = queryPlan.getContext().getConnection().getQueryServices().getRenewLeaseThresholdMilliSeconds();
+            long renewScannerLeaseThreshold = queryPlan.getContext().getConnection()
+                    .getQueryServices().getRenewLeaseThresholdMilliSeconds();
             for (Scan scan : scans) {
                 // For MR, skip the region boundary check exception if we encounter a split. ref: PHOENIX-2599
                 scan.setAttribute(BaseScannerRegionObserver.SKIP_REGION_BOUNDARY_CHECK, Bytes.toBytes(true));
@@ -131,13 +136,16 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
                 peekingResultIterator = LookAheadResultIterator.wrap(tableResultIterator);
                 iterators.add(peekingResultIterator);
             }
-            ResultIterator iterator = queryPlan.useRoundRobinIterator() ? RoundRobinResultIterator.newIterator(iterators, queryPlan) : ConcatResultIterator.newIterator(iterators);
+            ResultIterator iterator = queryPlan.useRoundRobinIterator() ?
+                    RoundRobinResultIterator.newIterator(iterators, queryPlan) :
+                    ConcatResultIterator.newIterator(iterators);
             if (queryPlan.getContext().getSequenceManager().getSequenceCount() > 0) {
                 iterator = new SequenceResultIterator(iterator, queryPlan.getContext().getSequenceManager());
             }
             // Clone the row projector as it's not thread safe and would be used simultaneously by
             // multiple threads otherwise.
-            this.resultSet = new PhoenixResultSet(iterator, queryPlan.getProjector().cloneIfNecessary(), queryPlan.getContext());
+            this.resultSet = new PhoenixResultSet(iterator, queryPlan.getProjector().cloneIfNecessary(),
+                    queryPlan.getContext());
             this.iterator = SparkJdbcUtil.resultSetToSparkInternalRows(resultSet, schema, new InputMetrics());
         }
         catch (SQLException e) {

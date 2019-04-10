@@ -17,17 +17,35 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
+import org.apache.phoenix.util.PhoenixRuntime;
+import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.sources.v2.DataSourceOptions;
 import org.apache.spark.sql.sources.v2.writer.DataSourceWriter;
 import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
 import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
+import org.apache.spark.sql.types.StructType;
 
-public class PhoenixDatasourceWriter implements DataSourceWriter {
+import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.CURRENT_SCN_VALUE;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
+
+public class PhoenixDataSourceWriter implements DataSourceWriter {
 
     private final PhoenixDataSourceWriteOptions options;
 
-    public PhoenixDatasourceWriter(PhoenixDataSourceWriteOptions options) {
-        this.options = options;
+    public PhoenixDataSourceWriter(SaveMode mode, StructType schema, DataSourceOptions options) {
+        if (!mode.equals(SaveMode.Overwrite)) {
+            throw new RuntimeException("SaveMode other than SaveMode.OverWrite is not supported");
+        }
+        if (!options.tableName().isPresent()) {
+            throw new RuntimeException("No Phoenix option " + DataSourceOptions.TABLE_KEY + " defined");
+        }
+        if (!options.get(ZOOKEEPER_URL).isPresent()) {
+            throw new RuntimeException("No Phoenix option " + ZOOKEEPER_URL + " defined");
+        }
+        this.options = createPhoenixDataSourceWriteOptions(options, schema);
     }
 
     @Override
@@ -46,5 +64,26 @@ public class PhoenixDatasourceWriter implements DataSourceWriter {
 
     @Override
     public void abort(WriterCommitMessage[] messages) {
+    }
+
+    PhoenixDataSourceWriteOptions getOptions() {
+        return options;
+    }
+
+    private PhoenixDataSourceWriteOptions createPhoenixDataSourceWriteOptions(DataSourceOptions options,
+                                                                              StructType schema) {
+        String scn = options.get(CURRENT_SCN_VALUE).orElse(null);
+        String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB).orElse(null);
+        String zkUrl = options.get(ZOOKEEPER_URL).get();
+        boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
+        return new PhoenixDataSourceWriteOptions.Builder()
+                .setTableName(options.tableName().get())
+                .setZkUrl(zkUrl)
+                .setScn(scn)
+                .setTenantId(tenantId)
+                .setSchema(schema)
+                .setSkipNormalizingIdentifier(skipNormalizingIdentifier)
+                .setOverriddenProps(extractPhoenixHBaseConfFromOptions(options))
+                .build();
     }
 }

@@ -23,7 +23,7 @@ import org.apache.spark.sql.types.StructType;
 import java.io.Serializable;
 import java.util.Properties;
 
-public class PhoenixDataSourceWriteOptions implements Serializable {
+class PhoenixDataSourceWriteOptions implements Serializable {
 
     private final String tableName;
     private final String zkUrl;
@@ -36,6 +36,9 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
     private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
             String tenantId, StructType schema, boolean skipNormalizingIdentifier,
             Properties overriddenProps) {
+        Preconditions.checkNotNull(tableName);
+        Preconditions.checkNotNull(zkUrl);
+        Preconditions.checkNotNull(schema);
         Preconditions.checkNotNull(overriddenProps);
         this.tableName = tableName;
         this.zkUrl = zkUrl;
@@ -46,35 +49,35 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
         this.overriddenProps = overriddenProps;
     }
 
-    public String getScn() {
+    String getScn() {
         return scn;
     }
 
-    public String getZkUrl() {
+    String getZkUrl() {
         return zkUrl;
     }
 
-    public String getTenantId() {
+    String getTenantId() {
         return tenantId;
     }
 
-    public StructType getSchema() {
+    StructType getSchema() {
         return schema;
     }
 
-    public String getTableName() {
+    String getTableName() {
         return tableName;
     }
 
-    public boolean skipNormalizingIdentifier() {
+    boolean skipNormalizingIdentifier() {
         return skipNormalizingIdentifier;
     }
 
-    public Properties getOverriddenProps() {
+    Properties getOverriddenProps() {
         return overriddenProps;
     }
 
-    public static class Builder {
+    static class Builder {
         private String tableName;
         private String zkUrl;
         private String scn;
@@ -83,42 +86,42 @@ public class PhoenixDataSourceWriteOptions implements Serializable {
         private boolean skipNormalizingIdentifier;
         private Properties overriddenProps = new Properties();
 
-        public Builder setTableName(String tableName) {
+        Builder setTableName(String tableName) {
             this.tableName = tableName;
             return this;
         }
 
-        public Builder setZkUrl(String zkUrl) {
+        Builder setZkUrl(String zkUrl) {
             this.zkUrl = zkUrl;
             return this;
         }
 
-        public Builder setScn(String scn) {
+        Builder setScn(String scn) {
             this.scn = scn;
             return this;
         }
 
-        public Builder setTenantId(String tenantId) {
+        Builder setTenantId(String tenantId) {
             this.tenantId = tenantId;
             return this;
         }
 
-        public Builder setSchema(StructType schema) {
+        Builder setSchema(StructType schema) {
             this.schema = schema;
             return this;
         }
 
-        public Builder setSkipNormalizingIdentifier(boolean skipNormalizingIdentifier) {
+        Builder setSkipNormalizingIdentifier(boolean skipNormalizingIdentifier) {
             this.skipNormalizingIdentifier = skipNormalizingIdentifier;
             return this;
         }
 
-        public Builder setOverriddenProps(Properties overriddenProps) {
+        Builder setOverriddenProps(Properties overriddenProps) {
             this.overriddenProps = overriddenProps;
             return this;
         }
 
-        public PhoenixDataSourceWriteOptions build() {
+        PhoenixDataSourceWriteOptions build() {
             return new PhoenixDataSourceWriteOptions(tableName, zkUrl, scn, tenantId, schema,
                     skipNormalizingIdentifier, overriddenProps);
         }

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.SchemaUtil;
@@ -40,16 +41,22 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 import com.google.common.collect.Lists;
+
+import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.DEFAULT_UPSERT_BATCH_SIZE;
+import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.UPSERT_BATCH_SIZE;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
 public class PhoenixDataWriter implements DataWriter<InternalRow> {
 
+    private static final Logger logger = Logger.getLogger(PhoenixDataWriter.class);
     private final StructType schema;
     private final Connection conn;
     private final PreparedStatement statement;
+    private final long batchSize;
+    private long numRecords = 0;
 
-    public PhoenixDataWriter(PhoenixDataSourceWriteOptions options) {
+    PhoenixDataWriter(PhoenixDataSourceWriteOptions options) {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
@@ -66,13 +73,19 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
                     overridingProps);
             List<String> colNames = Lists.newArrayList(options.getSchema().names());
             if (!options.skipNormalizingIdentifier()){
-                colNames = colNames.stream().map(colName -> SchemaUtil.normalizeIdentifier(colName)).collect(Collectors.toList());
+                colNames = colNames.stream().map(SchemaUtil::normalizeIdentifier).collect(Collectors.toList());
             }
             String upsertSql = QueryUtil.constructUpsertStatement(options.getTableName(), colNames, null);
             this.statement = this.conn.prepareStatement(upsertSql);
+            this.batchSize = Long.valueOf(overridingProps.getProperty(UPSERT_BATCH_SIZE,
+                    String.valueOf(DEFAULT_UPSERT_BATCH_SIZE)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    void commitBatchUpdates() throws SQLException {
+        conn.commit();
     }
 
     @Override
@@ -90,14 +103,21 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
                 }
                 ++i;
             }
+            numRecords++;
             statement.execute();
+            if (numRecords % batchSize == 0) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("commit called on a batch of size : " + batchSize);
+                }
+                commitBatchUpdates();
+            }
         } catch (SQLException e) {
             throw new IOException("Exception while executing Phoenix prepared statement", e);
         }
     }
 
     @Override
-    public WriterCommitMessage commit() throws IOException {
+    public WriterCommitMessage commit() {
         try {
             conn.commit();
         } catch (SQLException e) {
@@ -115,6 +135,6 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     }
 
     @Override
-    public void abort() throws IOException {
+    public void abort() {
     }
 }

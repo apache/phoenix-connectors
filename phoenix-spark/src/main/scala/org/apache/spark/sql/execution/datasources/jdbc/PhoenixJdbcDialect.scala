@@ -19,7 +19,7 @@
 package org.apache.spark.sql.execution.datasources.jdbc
 
 import org.apache.spark.sql.jdbc.{JdbcDialect, JdbcType}
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{BinaryType, ByteType, DataType, StringType}
 
 private object PhoenixJdbcDialect  extends JdbcDialect {
 

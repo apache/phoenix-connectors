@@ -85,7 +85,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         }
         this.options = options;
         this.tableName = options.tableName().get();
-        this.zkUrl = options.get("zkUrl").get();
+        this.zkUrl = options.get(PhoenixDataSource.ZOOKEEPER_URL).get();
         this.dateAsTimestamp = options.getBoolean("dateAsTimestamp", false);
         this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         setSchema();
@@ -104,6 +104,11 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    PhoenixInputPartition getInputPartition(PhoenixDataSourceReadOptions readOptions,
+            PhoenixInputSplit inputSplit) {
+        return new PhoenixInputPartition(readOptions, schema, inputSplit);
     }
 
     @Override
@@ -175,19 +180,18 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
 
                 // Get the region size
                 long regionSize = sizeCalculator.getRegionSize(
-                        location.getRegionInfo().getRegionName()
-                );
+                        location.getRegionInfo().getRegionName());
 
                 PhoenixDataSourceReadOptions phoenixDataSourceOptions =
                         new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
                                 tenantId.orElse(null), selectStatement, overriddenProps);
                 if (splitByStats) {
                     for (Scan aScan : scans) {
-                        partitions.add(new PhoenixInputPartition(phoenixDataSourceOptions, schema,
+                        partitions.add(getInputPartition(phoenixDataSourceOptions,
                                 new PhoenixInputSplit(Collections.singletonList(aScan), regionSize, regionLocation)));
                     }
                 } else {
-                    partitions.add(new PhoenixInputPartition(phoenixDataSourceOptions, schema,
+                    partitions.add(getInputPartition(phoenixDataSourceOptions,
                             new PhoenixInputSplit(scans, regionSize, regionLocation)));
                 }
             }

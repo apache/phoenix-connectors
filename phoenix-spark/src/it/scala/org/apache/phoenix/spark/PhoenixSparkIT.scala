@@ -16,12 +16,17 @@ package org.apache.phoenix.spark
 import java.sql.DriverManager
 import java.util.Date
 
+import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil
 import org.apache.phoenix.schema.types.PVarchar
-import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource
+import org.apache.phoenix.spark.datasource.v2.{PhoenixDataSource, PhoenixTestingDataSource}
+import org.apache.phoenix.spark.datasource.v2.reader.PhoenixTestingInputPartitionReader
+import org.apache.phoenix.spark.datasource.v2.writer.PhoenixTestingDataSourceWriter
 import org.apache.phoenix.util.{ColumnInfo, SchemaUtil}
-import org.apache.spark.sql.types._
+import org.apache.spark.SparkException
+import org.apache.spark.sql.types.{ArrayType, BinaryType, ByteType, DateType, IntegerType, LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SaveMode}
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -249,6 +254,30 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     count shouldEqual 1L
   }
 
+  test("Can use extraOptions to set configs for workers during reads") {
+    // Pass in true, so we will get null when fetching the current row, leading to an NPE
+    var extraOptions = PhoenixTestingInputPartitionReader.RETURN_NULL_CURR_ROW + "=true"
+    var rdd = spark.sqlContext.read
+      .format(PhoenixTestingDataSource.TEST_SOURCE)
+      .options( Map("table" -> "TABLE1", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
+        PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions)).load
+
+    // Expect to get a NullPointerException in the executors
+    var error = intercept[SparkException] {
+      rdd.take(2)(0)(1)
+    }
+    assert(error.getCause.isInstanceOf[NullPointerException])
+
+    // Pass in false, so we will get the expected rows
+    extraOptions = PhoenixTestingInputPartitionReader.RETURN_NULL_CURR_ROW + "=false"
+    rdd = spark.sqlContext.read
+      .format(PhoenixTestingDataSource.TEST_SOURCE)
+      .options( Map("table" -> "TABLE1", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
+        PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions)).load
+    val stringValue = rdd.take(2)(0)(1)
+    stringValue shouldEqual "test_row_1"
+  }
+
   test("Can save to phoenix table") {
     val dataSet = List(Row(1L, "1", 1), Row(2L, "2", 2), Row(3L, "3", 3))
 
@@ -280,6 +309,47 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     (0 to results.size - 1).foreach { i =>
       dataSet(i) shouldEqual results(i)
     }
+  }
+
+  test("Can use extraOptions to set configs for workers during writes") {
+    val totalRecords = 100
+    val upsertBatchSize = 5
+
+    val records = new mutable.MutableList[Row]
+    for (x <- 1 to totalRecords) {
+      records += Row(x.toLong, x.toString, x)
+    }
+    val dataSet = records.toList
+
+    val schema = StructType(
+      Seq(StructField("ID", LongType, nullable = false),
+        StructField("COL1", StringType),
+        StructField("COL2", IntegerType)))
+
+    // Distribute the dataset into an RDD with just 1 partition so we use only 1 executor.
+    // This makes it easy to deterministically count the batched commits from that executor
+    // since it corresponds to exactly 1 input partition. In case of multiple executors with
+    // an uneven distribution of input partitions, if
+    // (number of records in that partition) % batchSize != 0, some updates would also be committed
+    // via PhoenixDataWriter#commit rather than the batch commits via PhoenixDataWriter#write
+    // and those would thus, not be counted by PhoenixTestingDataWriter.
+    val rowRDD = spark.sparkContext.parallelize(dataSet, 1)
+
+    // Apply the schema to the RDD.
+    val df = spark.sqlContext.createDataFrame(rowRDD, schema)
+    val extraOptions =  PhoenixConfigurationUtil.UPSERT_BATCH_SIZE + "=" + upsertBatchSize.toString
+
+    // Initially, this should be zero
+    PhoenixTestingDataSourceWriter.TOTAL_BATCHES_COMMITTED_COUNT shouldEqual 0
+    df.write
+      .format(PhoenixTestingDataSource.TEST_SOURCE)
+      .options(Map("table" -> "OUTPUT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
+        PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
+      .mode(SaveMode.Overwrite)
+      .save()
+
+    // Verify the number of times batched updates are committed via DataWriters
+    PhoenixTestingDataSourceWriter.TOTAL_BATCHES_COMMITTED_COUNT shouldEqual totalRecords/upsertBatchSize
   }
 
   test("Can save dates to Phoenix using java.sql.Date") {

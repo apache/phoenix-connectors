@@ -15,26 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.spark.datasource.v2.writer;
+package org.apache.phoenix.spark.datasource.v2.reader;
 
+import org.apache.phoenix.mapreduce.PhoenixInputSplit;
 import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.writer.DataWriter;
-import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
+import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
+import org.apache.spark.sql.types.StructType;
 
-public class PhoenixDataWriterFactory implements DataWriterFactory<InternalRow> {
+public class PhoenixTestingInputPartition extends PhoenixInputPartition {
 
-    private final PhoenixDataSourceWriteOptions options;
-
-    PhoenixDataWriterFactory(PhoenixDataSourceWriteOptions options) {
-        this.options = options;
+    PhoenixTestingInputPartition(PhoenixDataSourceReadOptions options, StructType schema,
+            PhoenixInputSplit phoenixInputSplit) {
+        super(options, schema, phoenixInputSplit);
     }
 
-    PhoenixDataSourceWriteOptions getOptions() {
-        return options;
-    }
-
+    // Override to return a test InputPartitionReader for testing on the executor-side
     @Override
-    public DataWriter<InternalRow> createDataWriter(int partitionId, long taskId, long epochId) {
-        return new PhoenixDataWriter(options);
+    public InputPartitionReader<InternalRow> createPartitionReader() {
+        return new PhoenixTestingInputPartitionReader(getOptions(), getSchema(),
+                getPhoenixInputSplit());
     }
 }

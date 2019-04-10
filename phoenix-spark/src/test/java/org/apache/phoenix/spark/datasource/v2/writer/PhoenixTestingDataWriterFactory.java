@@ -19,22 +19,16 @@ package org.apache.phoenix.spark.datasource.v2.writer;
 
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.writer.DataWriter;
-import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
 
-public class PhoenixDataWriterFactory implements DataWriterFactory<InternalRow> {
+public class PhoenixTestingDataWriterFactory extends PhoenixDataWriterFactory {
 
-    private final PhoenixDataSourceWriteOptions options;
-
-    PhoenixDataWriterFactory(PhoenixDataSourceWriteOptions options) {
-        this.options = options;
+    PhoenixTestingDataWriterFactory(PhoenixDataSourceWriteOptions options) {
+        super(options);
     }
 
-    PhoenixDataSourceWriteOptions getOptions() {
-        return options;
-    }
-
+    // Override to return a test DataWriter
     @Override
     public DataWriter<InternalRow> createDataWriter(int partitionId, long taskId, long epochId) {
-        return new PhoenixDataWriter(options);
+        return new PhoenixTestingDataWriter(getOptions());
     }
 }
