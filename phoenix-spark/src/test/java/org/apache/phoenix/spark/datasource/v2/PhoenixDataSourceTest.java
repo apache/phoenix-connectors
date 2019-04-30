@@ -38,11 +38,14 @@ public class PhoenixDataSourceTest {
     private static final String V1 = "v1";
     private static final String V2 = "v2";
     private static final String V3 = "v3";
+    private static final String NO_CACHE = "NO_CACHE";
+    private static final String NO_CACHE_VALUE = "true";
     private static final String EQ = "=";
     private static final String COMMA = ",";
     private static final String SINGLE_PHOENIX_PROP = P1 + EQ + V1;
     private static final String VALID_PHOENIX_PROPS_LIST =
-            SINGLE_PHOENIX_PROP + COMMA + P2 + EQ + V2 + COMMA + P3 + EQ + V3;
+            SINGLE_PHOENIX_PROP + COMMA + P2 + EQ + V2 + COMMA + P3 + EQ + V3 + COMMA +
+                    NO_CACHE + EQ + NO_CACHE_VALUE;
     private static final String INVALID_PHOENIX_PROPS_LIST =
             SINGLE_PHOENIX_PROP + COMMA + P2 + V2 + COMMA + P3 + EQ + V3;
 
@@ -64,6 +67,8 @@ public class PhoenixDataSourceTest {
         assertEquals(V1, p.getProperty(P1));
         assertEquals(V2, p.getProperty(P2));
         assertEquals(V3, p.getProperty(P3));
+        assertEquals(V3, p.getProperty(P3));
+        assertEquals(true, Boolean.valueOf(p.getProperty(NO_CACHE)));
     }
 
     @Test
