@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -32,6 +33,8 @@ import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.SchemaUtil;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
+import org.apache.spark.sql.catalyst.encoders.RowEncoder$;
 import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
 import org.apache.spark.sql.execution.datasources.jdbc.PhoenixJdbcDialect$;
 import org.apache.spark.sql.sources.v2.writer.DataWriter;
@@ -39,6 +42,9 @@ import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.catalyst.analysis.SimpleAnalyzer$;
+import org.apache.spark.sql.catalyst.expressions.AttributeReference;
+import org.apache.spark.sql.catalyst.expressions.Attribute;
 
 import com.google.common.collect.Lists;
 
@@ -55,6 +61,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     private final PreparedStatement statement;
     private final long batchSize;
     private long numRecords = 0;
+    private ExpressionEncoder<Row> encoder = null;
 
     PhoenixDataWriter(PhoenixDataSourceWriteOptions options) {
         String scn = options.getScn();
@@ -68,6 +75,13 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
             overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         }
         this.schema = options.getSchema();
+        
+        List<Attribute> attrs = new ArrayList<>();
+        
+        for (AttributeReference ref : scala.collection.JavaConverters.seqAsJavaListConverter(schema.toAttributes()).asJava()) {
+        	  attrs.add(ref.toAttribute());
+        }
+        encoder = RowEncoder$.MODULE$.apply(schema).resolveAndBind( scala.collection.JavaConverters.asScalaIteratorConverter(attrs.iterator()).asScala().toSeq(), SimpleAnalyzer$.MODULE$);
         try {
             this.conn = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl,
                     overridingProps);
@@ -92,14 +106,14 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     public void write(InternalRow internalRow) throws IOException {
         try {
             int i=0;
+            Row row = SparkJdbcUtil.toRow(encoder, internalRow);
             for (StructField field : schema.fields()) {
                 DataType dataType = field.dataType();
                 if (internalRow.isNullAt(i)) {
                     statement.setNull(i + 1, SparkJdbcUtil.getJdbcType(dataType,
                             PhoenixJdbcDialect$.MODULE$).jdbcNullType());
                 } else {
-                    Row row = SparkJdbcUtil.toRow(schema, internalRow);
-                    SparkJdbcUtil.makeSetter(conn, PhoenixJdbcDialect$.MODULE$, dataType).apply(statement, row, i);
+                	SparkJdbcUtil.makeSetter(conn, PhoenixJdbcDialect$.MODULE$, dataType).apply(statement, row, i);
                 }
                 ++i;
             }

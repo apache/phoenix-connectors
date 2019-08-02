@@ -34,11 +34,11 @@ Decimal, DecimalType, DoubleType, FloatType, IntegerType, LongType, Metadata, Sh
 StructType, TimestampType}
 import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.util.NextIterator
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 
 object SparkJdbcUtil {
 
-  def toRow(schema: StructType, internalRow: InternalRow) : Row = {
-    val encoder = RowEncoder(schema).resolveAndBind()
+  def toRow(encoder: ExpressionEncoder[Row], internalRow: InternalRow) : Row = {
     encoder.fromRow(internalRow)
   }
 
