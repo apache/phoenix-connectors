@@ -24,7 +24,6 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,7 +43,6 @@ import org.apache.hadoop.hive.ql.exec.Utilities;
 import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
 import org.apache.hadoop.hive.ql.plan.TableScanDesc;
 import org.apache.hadoop.hive.serde.serdeConstants;
-import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.hive.shims.ShimLoader;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.InputFormat;
@@ -98,35 +96,22 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                     executionEngine);
         }
 
-        if (PhoenixStorageHandlerConstants.MR.equals(executionEngine)) {
-            List<IndexSearchCondition> conditionList = null;
-            String filterExprSerialized = jobConf.get(TableScanDesc.FILTER_EXPR_CONF_STR);
-            if (filterExprSerialized != null) {
-                ExprNodeGenericFuncDesc filterExpr =
-                        Utilities.deserializeExpression(filterExprSerialized);
-                PhoenixPredicateDecomposer predicateDecomposer =
-                        PhoenixPredicateDecomposer.create(Arrays.asList(jobConf.get(serdeConstants.LIST_COLUMNS).split(",")));
-                predicateDecomposer.decomposePredicate(filterExpr);
-                if (predicateDecomposer.isCalledPPD()) {
-                    conditionList = predicateDecomposer.getSearchConditionList();
-                }
+        List<IndexSearchCondition> conditionList = null;
+        String filterExprSerialized = jobConf.get(TableScanDesc.FILTER_EXPR_CONF_STR);
+        if (filterExprSerialized != null) {
+            ExprNodeGenericFuncDesc filterExpr =
+                    Utilities.deserializeExpression(filterExprSerialized);
+            PhoenixPredicateDecomposer predicateDecomposer =
+                    PhoenixPredicateDecomposer
+                      .create(Arrays.asList(jobConf.get(serdeConstants.LIST_COLUMNS).split(",")));
+            predicateDecomposer.decomposePredicate(filterExpr);
+            if (predicateDecomposer.isCalledPPD()) {
+                conditionList = predicateDecomposer.getSearchConditionList();
             }
-
-            query = PhoenixQueryBuilder.getInstance().buildQuery(jobConf, tableName,
-                    PhoenixStorageHandlerUtil.getReadColumnNames(jobConf), conditionList);
-        } else if (PhoenixStorageHandlerConstants.TEZ.equals(executionEngine)) {
-            Map<String, TypeInfo> columnTypeMap =
-                    PhoenixStorageHandlerUtil.createColumnTypeMap(jobConf);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Column type map for TEZ : " + columnTypeMap);
-            }
-
-            String whereClause = jobConf.get(TableScanDesc.FILTER_TEXT_CONF_STR);
-            query = PhoenixQueryBuilder.getInstance().buildQuery(jobConf, tableName,
-                    PhoenixStorageHandlerUtil.getReadColumnNames(jobConf), whereClause, columnTypeMap);
-        } else {
-            throw new IOException(executionEngine + " execution engine unsupported yet.");
         }
+
+        query = PhoenixQueryBuilder.getInstance().buildQuery(jobConf, tableName,
+                PhoenixStorageHandlerUtil.getReadColumnNames(jobConf), conditionList);
 
         final QueryPlan queryPlan = getQueryPlan(jobConf, query);
         final List<KeyRange> allSplits = queryPlan.getSplits();

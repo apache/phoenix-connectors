@@ -170,4 +170,23 @@ public class PhoenixQueryBuilderTest {
                         "\"" + COLUMN_DATE + "\" is not null ",
                 BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
     }
+
+    @Test
+    public void testBuildQueryWithBigintColumns() throws IOException {
+        final String COLUMN_BIGINT = "Column_Bigint";
+        final String tableName = "TEST_TABLE";
+        final String expectedQueryPrefix = "select /*+ NO_CACHE  */ \"" + COLUMN_BIGINT +
+          "\" from " + tableName + " where ";
+
+        JobConf jobConf = new JobConf();
+        List<String> readColumnList = Lists.newArrayList(COLUMN_BIGINT);
+
+        List<IndexSearchCondition> searchConditions = Lists.newArrayList(
+          mockedIndexSearchCondition("GenericUDFOPEqual", 100L,
+            null, COLUMN_BIGINT, "bigint", false)
+        );
+
+        assertEquals(expectedQueryPrefix + "\"" + COLUMN_BIGINT + "\" = 100",
+          BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
+    }
 }
