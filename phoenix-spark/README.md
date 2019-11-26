@@ -153,6 +153,19 @@ optionally specifying a `conf` Hadoop configuration parameter with custom Phoeni
 as well as an optional `zkUrl` parameter for the Phoenix connection URL.
 - If `zkUrl` isn't specified, it's assumed that the "hbase.zookeeper.quorum" property has been set
 in the `conf` parameter. Similarly, if no configuration is passed in, `zkUrl` must be specified.
+- As of [PHOENIX-5197](https://issues.apache.org/jira/browse/PHOENIX-5197), you can pass configurations from the driver
+to executors as a comma-separated list against the key `phoenixConfigs` i.e (PhoenixDataSource.PHOENIX_CONFIGS), for ex:
+    ```scala
+    df = spark
+      .sqlContext
+      .read
+      .format("phoenix")
+      .options(Map("table" -> "Table1", "zkUrl" -> "hosta,hostb,hostc", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
+      .load;
+    ```
+    This list of properties is parsed and populated into a properties map which is passed to `DriverManager.getConnection(connString, propsMap)`.
+    Note that the same property values will be used for both the driver and all executors and
+    these configurations are used each time a connection is made (both on the driver and executors).
 
 ## Limitations
 
