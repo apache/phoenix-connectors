@@ -63,13 +63,44 @@ public class PhoenixSerializer {
     private PhoenixResultWritable pResultWritable;
 
     public PhoenixSerializer(Configuration config, Properties tbl) throws SerDeException {
-        String mapping = tbl.getProperty(PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING, null);
-        if(mapping!=null ) {
+        String mapping = tbl.getProperty(PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING,
+          null);
+        if(mapping != null) {
             config.set(PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING, mapping);
         }
+
+        // Populate the table properties into config, because these values are used in
+        // the initialization of PhoenixResultWritable if the table is transactional
+        String tableName = tbl.getProperty(PhoenixStorageHandlerConstants.PHOENIX_TABLE_NAME);
+        config.set(PhoenixStorageHandlerConstants.PHOENIX_TABLE_NAME, tableName);
+
+        config.set(PhoenixStorageHandlerConstants.PHOENIX_ROWKEYS,
+            tbl.getProperty(PhoenixStorageHandlerConstants.PHOENIX_ROWKEYS));
+
+        String quorum = config.get(PhoenixStorageHandlerConstants.ZOOKEEPER_QUORUM);
+        if (quorum == null) {
+            config.set(PhoenixStorageHandlerConstants.ZOOKEEPER_QUORUM,
+              tbl.getProperty(PhoenixStorageHandlerConstants.ZOOKEEPER_QUORUM,
+                PhoenixStorageHandlerConstants.DEFAULT_ZOOKEEPER_QUORUM));
+        }
+
+        int zooKeeperClientPort =
+          config.getInt(PhoenixStorageHandlerConstants.ZOOKEEPER_PORT, 0);
+        if (zooKeeperClientPort == 0) {
+            config.setInt(PhoenixStorageHandlerConstants.ZOOKEEPER_PORT,
+              Integer.parseInt(tbl.getProperty(PhoenixStorageHandlerConstants.ZOOKEEPER_PORT,
+                String.valueOf(PhoenixStorageHandlerConstants.DEFAULT_ZOOKEEPER_PORT))));
+        }
+
+        String zNodeParent = config.get(PhoenixStorageHandlerConstants.ZOOKEEPER_PARENT);
+        if (zNodeParent == null) {
+            config.set(PhoenixStorageHandlerConstants.ZOOKEEPER_PARENT,
+              tbl.getProperty(PhoenixStorageHandlerConstants.ZOOKEEPER_PARENT,
+                PhoenixStorageHandlerConstants.DEFAULT_ZOOKEEPER_PARENT));
+        }
+
         try (Connection conn = PhoenixConnectionUtil.getInputConnection(config, tbl)) {
-            List<ColumnInfo> columnMetadata = PhoenixUtil.getColumnInfoList(conn, tbl.getProperty
-                    (PhoenixStorageHandlerConstants.PHOENIX_TABLE_NAME));
+            List<ColumnInfo> columnMetadata = PhoenixUtil.getColumnInfoList(conn, tableName);
 
             columnCount = columnMetadata.size();
 
