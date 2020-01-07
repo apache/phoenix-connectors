@@ -91,7 +91,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
             }
             String upsertSql = QueryUtil.constructUpsertStatement(options.getTableName(), colNames, null);
             this.statement = this.conn.prepareStatement(upsertSql);
-            this.batchSize = Long.valueOf(overridingProps.getProperty(UPSERT_BATCH_SIZE,
+            this.batchSize = Long.valueOf(overridingProps.getProperty(UPSERT_BATCH_SIZE
                     String.valueOf(DEFAULT_UPSERT_BATCH_SIZE)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
