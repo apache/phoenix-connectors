@@ -52,7 +52,7 @@
 
   <properties>
     <!-- Phoenix Version -->
-    <phoenix.version>4.15.0-HBase-1.4-SNAPSHOT</phoenix.version>
+    <phoenix.version>4.15.0-HBase-1.4</phoenix.version>
     <!-- Hadoop Versions -->
     <hbase.version>1.4.0</hbase.version>
     <hadoop-two.version>2.7.5</hadoop-two.version>
