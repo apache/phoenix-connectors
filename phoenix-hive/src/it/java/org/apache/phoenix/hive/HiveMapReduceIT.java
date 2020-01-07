@@ -20,14 +20,8 @@ package org.apache.phoenix.hive;
 
 import static org.junit.Assert.fail;
 
-import java.util.Map;
-
-import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
 import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
-import org.junit.Ignore;
 
-@Category(NeedsOwnMiniClusterTest.class)
 public class HiveMapReduceIT extends HivePhoenixStoreIT {
 
     @BeforeClass

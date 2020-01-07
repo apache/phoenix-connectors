@@ -25,29 +25,26 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
+import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
 import org.apache.phoenix.jdbc.PhoenixDriver;
 import org.apache.phoenix.query.QueryServices;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.PropertiesUtil;
 import org.apache.phoenix.util.TestUtil;
 import org.junit.AfterClass;
-import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
 
-import static org.apache.phoenix.query.BaseTest.setUpConfigForMiniCluster;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * Base class for all Hive Phoenix integration tests that may be run with Tez or MR mini cluster
  */
-@Category(NeedsOwnMiniClusterTest.class)
-public class BaseHivePhoenixStoreIT {
+public class BaseHivePhoenixStoreIT extends BaseHBaseManagedTimeIT {
 
     private static final Log LOG = LogFactory.getLog(BaseHivePhoenixStoreIT.class);
     protected static HBaseTestingUtility hbaseTestUtil;
@@ -58,7 +55,6 @@ public class BaseHivePhoenixStoreIT {
     protected static HiveTestUtil qt;
     protected static String hiveOutputDir;
     protected static String hiveLogDir;
-
 
     public static void setup(HiveTestUtil.MiniClusterType clusterType)throws Exception {
         String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
