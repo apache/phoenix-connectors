@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix</artifactId>
-        <version>4.15.0-HBase-1.4</version>
+        <artifactId>phoenix-connectors</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Presto Apache Phoenix Shaded</name>
