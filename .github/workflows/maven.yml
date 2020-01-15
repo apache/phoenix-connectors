@@ -14,5 +14,7 @@ jobs:
         java-version: 1.8
     - name: Build
       run: mvn -B clean install -DskipTests
+    # The build doesn't seem to pick up the result of the install from above, so just re-compile
+    # and the Maven reactor will find it just fine.
     - name: Test
-      run: mvn -B -o verify
+      run: mvn -B verify
