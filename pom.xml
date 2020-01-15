@@ -76,6 +76,7 @@
     <spark.version>2.4.0</spark.version>
     <scala.version>2.11.8</scala.version>
     <scala.binary.version>2.11</scala.binary.version>
+    <tephra.version>0.15.0-incubating</tephra.version>
     <mockito-all.version>1.8.5</mockito-all.version>
     <junit.version>4.12</junit.version>   
 
@@ -702,6 +703,12 @@
         <groupId>com.lmax</groupId>
         <artifactId>disruptor</artifactId>
         <version>${disruptor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tephra</groupId>
+        <artifactId>tephra-core</artifactId>
+        <version>${tephra.version}</version>
+        <type>test-jar</type>
       </dependency>
     </dependencies>
   </dependencyManagement>

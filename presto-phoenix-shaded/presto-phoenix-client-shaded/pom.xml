@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>presto-phoenix-shaded</artifactId>
-        <version>4.15.0-HBase-1.4</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.apache.phoenix</groupId>
             <artifactId>phoenix-core</artifactId>
-            <version>${project.version}</version>
+            <version>${phoenix.version}</version>
             <exclusions>
             <!-- Presto uses jcl-over-slf4j and log4j-over-slf4j
             to route to slf4j-jdk14 -->
