@@ -217,6 +217,7 @@
                 <shutdown>kill</shutdown>
                 <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
                 <groups>org.apache.phoenix.end2end.ParallelStatsEnabledTest</groups>
+                <trimStackTrace>false</trimStackTrace>
               </configuration>
               <goals>
                 <goal>integration-test</goal>
@@ -246,6 +247,7 @@
                 <shutdown>kill</shutdown>
                 <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
                 <groups>org.apache.phoenix.end2end.ParallelStatsDisabledTest</groups>
+                <trimStackTrace>false</trimStackTrace>
               </configuration>
               <goals>
                 <goal>integration-test</goal>
@@ -264,6 +266,7 @@
                 <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
                 <groups>org.apache.phoenix.end2end.HBaseManagedTimeTest</groups>
                 <shutdown>kill</shutdown>
+                <trimStackTrace>false</trimStackTrace>
               </configuration>
               <goals>
                 <goal>integration-test</goal>
@@ -374,6 +377,7 @@
             -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
           <redirectTestOutputToFile>${test.output.tofile}</redirectTestOutputToFile>
           <shutdown>kill</shutdown>
+          <trimStackTrace>false</trimStackTrace>
         </configuration>
       </plugin>
       <!-- All projects create a test jar -->
