@@ -28,7 +28,6 @@
     <module>phoenix-pig</module>
     <module>phoenix-spark</module>
     <module>phoenix-hive</module>
-    <module>presto-phoenix-shaded</module>
   </modules>
 
   <repositories>
