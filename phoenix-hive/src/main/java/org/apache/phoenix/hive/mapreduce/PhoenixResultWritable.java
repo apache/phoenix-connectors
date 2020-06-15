@@ -17,8 +17,7 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configurable;
@@ -39,8 +38,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Serialized class for SerDe
@@ -52,14 +50,14 @@ public class PhoenixResultWritable implements Writable, DBWritable, Configurable
 
     private List<ColumnInfo> columnMetadataList;
     private List<Object> valueList;    // for output
-    private Map<String, Object> rowMap = Maps.newHashMap();  // for input
+    private Map<String, Object> rowMap = new HashMap<>();  // for input
     private Map<String, String> columnMap;
 
     private int columnCount = -1;
 
     private Configuration config;
     private boolean isTransactional;
-    private Map<String, Object> rowKeyMap = Maps.newLinkedHashMap();
+    private Map<String, Object> rowKeyMap = new LinkedHashMap();
     private List<String> primaryKeyColumnList;
 
     public PhoenixResultWritable() {
@@ -73,7 +71,7 @@ public class PhoenixResultWritable implements Writable, DBWritable, Configurable
             throws IOException {
         this(config);
         this.columnMetadataList = columnMetadataList;
-        valueList = Lists.newArrayListWithExpectedSize(columnMetadataList.size());
+        valueList = new ArrayList<>(columnMetadataList.size());
     }
 
     @Override

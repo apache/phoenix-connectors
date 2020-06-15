@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.google.common.base.Joiner;
+
 
 /**
  * 
@@ -68,6 +68,7 @@ public class QuerySchemaParserFunctionTest extends BaseConnectionlessQueryTest {
          
         assertEquals(pair.getFirst(), "EMPLOYEE");
         assertEquals(pair.getSecond(),Joiner.on(',').join("NAME","AGE","LOCATION"));
+        String.join(',', "NAME","AGE","LOCATION");
     }
     
     @Test(expected=RuntimeException.class)

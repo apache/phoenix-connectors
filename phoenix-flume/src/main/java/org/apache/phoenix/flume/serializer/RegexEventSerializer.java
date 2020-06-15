@@ -35,7 +35,7 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+
 
 public class RegexEventSerializer extends BaseEventSerializer {
 
@@ -65,10 +65,16 @@ public class RegexEventSerializer extends BaseEventSerializer {
    
     @Override
     public void upsertEvents(List<Event> events) throws SQLException {
-       Preconditions.checkNotNull(events);
-       Preconditions.checkNotNull(connection);
-       Preconditions.checkNotNull(this.upsertStatement);
-       
+        if (events == null){
+            throw new NullPointerException();
+        }
+        if (connection == null){
+            throw new NullPointerException();
+        }
+        if (this.upsertStatement == null){
+            throw new NullPointerException();
+        }
+
        boolean wasAutoCommit = connection.getAutoCommit();
        connection.setAutoCommit(false);
        try (PreparedStatement colUpsert = connection.prepareStatement(upsertStatement)) {

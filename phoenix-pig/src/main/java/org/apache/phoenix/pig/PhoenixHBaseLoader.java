@@ -52,7 +52,7 @@ import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.util.ObjectSerializer;
 import org.apache.pig.impl.util.UDFContext;
 
-import com.google.common.base.Preconditions;
+
 
 
 /**
@@ -98,8 +98,14 @@ public final class PhoenixHBaseLoader extends LoadFunc implements LoadMetadata {
      */
     public PhoenixHBaseLoader(String zkQuorum) {
         super();
-        Preconditions.checkNotNull(zkQuorum);
-        Preconditions.checkState(zkQuorum.length() > 0, "Zookeeper quorum cannot be empty!");
+        if (zkQuorum == null){
+            throw new NullPointerException();
+        }
+
+        if (!(zkQuorum.length() > 0)) {
+            throw new IllegalStateException("Zookeeper quorum cannot be empty!");
+        }
+
         this.zkQuorum = zkQuorum;
     }
     

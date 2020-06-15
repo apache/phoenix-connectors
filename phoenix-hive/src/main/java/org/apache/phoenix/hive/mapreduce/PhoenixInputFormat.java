@@ -17,11 +17,11 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -123,9 +123,12 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
     private List<InputSplit> generateSplits(final JobConf jobConf, final QueryPlan qplan,
                                             final List<KeyRange> splits, String query) throws
             IOException {
-        Preconditions.checkNotNull(qplan);
-        Preconditions.checkNotNull(splits);
-        final List<InputSplit> psplits = Lists.newArrayListWithExpectedSize(splits.size());
+        if (qplan == null){
+            throw new NullPointerException();
+        }if (splits == null){
+            throw new NullPointerException();
+        }
+        final List<InputSplit> psplits = new ArrayList<>(splits.size());
 
         Path[] tablePaths = FileInputFormat.getInputPaths(ShimLoader.getHadoopShims()
                 .newJobContext(new Job(jobConf)));
@@ -159,7 +162,7 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                                 .getBatch() + "] and  regionLocation : " + regionLocation);
                     }
 
-                    inputSplit = new PhoenixInputSplit(Lists.newArrayList(aScan), tablePaths[0],
+                    inputSplit = new PhoenixInputSplit(new ArrayList<>(Arrays.asList(aScan)), tablePaths[0],
                             regionLocation, regionSize);
                     inputSplit.setQuery(query);
                     psplits.add(inputSplit);
@@ -234,7 +237,9 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
             }
             final Connection connection = PhoenixConnectionUtil.getInputConnection(configuration,
                     overridingProps);
-            Preconditions.checkNotNull(selectStatement);
+            if (selectStatement == null) {
+                throw new NullPointerException();
+            }
             final Statement statement = connection.createStatement();
             final PhoenixStatement pstmt = statement.unwrap(PhoenixStatement.class);
 

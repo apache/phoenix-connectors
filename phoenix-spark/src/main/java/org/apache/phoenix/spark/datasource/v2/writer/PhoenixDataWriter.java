@@ -23,6 +23,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ import org.apache.spark.sql.catalyst.analysis.SimpleAnalyzer$;
 import org.apache.spark.sql.catalyst.expressions.AttributeReference;
 import org.apache.spark.sql.catalyst.expressions.Attribute;
 
-import com.google.common.collect.Lists;
+
 
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.DEFAULT_UPSERT_BATCH_SIZE;
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.UPSERT_BATCH_SIZE;
@@ -85,7 +86,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         try {
             this.conn = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl,
                     overridingProps);
-            List<String> colNames = Lists.newArrayList(options.getSchema().names());
+            List<String> colNames =  new ArrayList<>(Arrays.asList(options.getSchema().names()));
             if (!options.skipNormalizingIdentifier()){
                 colNames = colNames.stream().map(SchemaUtil::normalizeIdentifier).collect(Collectors.toList());
             }

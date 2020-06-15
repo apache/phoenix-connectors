@@ -17,7 +17,7 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-import com.google.common.base.Preconditions;
+
 
 import java.io.Serializable;
 import java.util.Properties;
@@ -32,7 +32,9 @@ class PhoenixDataSourceReadOptions implements Serializable {
 
     PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
             String selectStatement, Properties overriddenProps) {
-        Preconditions.checkNotNull(overriddenProps);
+        if(overriddenProps == null){
+            throw new NullPointerException();
+        }
         this.zkUrl = zkUrl;
         this.scn = scn;
         this.tenantId = tenantId;

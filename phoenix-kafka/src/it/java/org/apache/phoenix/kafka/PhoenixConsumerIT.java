@@ -43,7 +43,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.io.Resources;
+
 
 import kafka.admin.AdminUtils;
 import kafka.server.KafkaConfig;
@@ -243,6 +243,7 @@ public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
 
         KafkaProducerThread(String path, String topic) {
             this.topic = topic;
+
             try (InputStream props = Resources.getResource(path).openStream()) {
                 Properties properties = new Properties();
                 properties.load(props);

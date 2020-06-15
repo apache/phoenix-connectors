@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive;
 
-import com.google.common.collect.ImmutableList;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

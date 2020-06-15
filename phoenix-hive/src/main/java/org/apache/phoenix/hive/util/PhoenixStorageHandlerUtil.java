@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive.util;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -28,13 +26,10 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.naming.NamingException;
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
@@ -160,7 +155,7 @@ public class PhoenixStorageHandlerUtil {
     }
 
     // Copy from org.apache.hadoop.hbase.mapreduce.TableInputFormatBase.reverseDNS
-    private static final Map<InetAddress, String> reverseDNSCacheMap = Maps.newConcurrentMap();
+    private static final Map<InetAddress, String> reverseDNSCacheMap = new ConcurrentHashMap<>();
 
     private static String reverseDNS(InetAddress ipAddress) throws NamingException,
             UnknownHostException {
@@ -195,7 +190,7 @@ public class PhoenixStorageHandlerUtil {
     }
 
     public static Map<String, TypeInfo> createColumnTypeMap(JobConf jobConf) {
-        Map<String, TypeInfo> columnTypeMap = Maps.newHashMap();
+        Map<String, TypeInfo> columnTypeMap = new HashMap();
 
         String[] columnNames = jobConf.get(serdeConstants.LIST_COLUMNS).split
                 (PhoenixStorageHandlerConstants.COMMA);
@@ -247,7 +242,8 @@ public class PhoenixStorageHandlerUtil {
         if (obj instanceof Array) {
             Object[] values = (Object[]) obj;
 
-            content = Joiner.on(PhoenixStorageHandlerConstants.COMMA).join(values);
+            content =
+            String.join(PhoenixStorageHandlerConstants.COMMA, (String[]) values);
         } else {
             content = obj.toString();
         }

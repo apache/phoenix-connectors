@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -52,8 +53,7 @@ import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
 import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
 import org.apache.spark.sql.types.StructType;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+
 
 import scala.collection.Iterator;
 
@@ -96,7 +96,9 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
             final Statement statement = conn.createStatement();
             final String selectStatement = options.getSelectStatement();
-            Preconditions.checkNotNull(selectStatement);
+            if (selectStatement == null){
+                throw new NullPointerException();
+            }
 
             final PhoenixStatement pstmt = statement.unwrap(PhoenixStatement.class);
             // Optimize the query plan so that we potentially use secondary indexes
@@ -108,7 +110,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         try {
             final QueryPlan queryPlan = getQueryPlan();
             final List<Scan> scans = phoenixInputSplit.value().getScans();
-            List<PeekingResultIterator> iterators = Lists.newArrayListWithExpectedSize(scans.size());
+            List<PeekingResultIterator> iterators = new ArrayList<>(scans.size());
             StatementContext ctx = queryPlan.getContext();
             ReadMetricQueue readMetrics = ctx.getReadMetricsQueue();
             String tableName = queryPlan.getTableRef().getTable().getPhysicalName().getString();

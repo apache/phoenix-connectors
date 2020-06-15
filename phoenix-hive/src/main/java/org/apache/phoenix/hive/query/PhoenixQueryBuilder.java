@@ -17,18 +17,14 @@
  */
 package org.apache.phoenix.hive.query;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
@@ -96,7 +92,7 @@ public class PhoenixQueryBuilder {
         Map<String, String> columnMappingMap = getColumnMappingMap(jobConf.get
                 (PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING));
         if(columnMappingMap != null) {
-          List<String> newList = Lists.newArrayList();
+          List<String> newList = new ArrayList<>();
             for(String column:columnList) {
                 if(columnMappingMap.containsKey(column)) {
                     newList.add(columnMappingMap.get(column));
@@ -137,8 +133,8 @@ public class PhoenixQueryBuilder {
 
     private String getSelectColumns(JobConf jobConf, String tableName, List<String>
             readColumnList) throws IOException {
-        String selectColumns = Joiner.on(PhoenixStorageHandlerConstants.COMMA).join(ColumnMappingUtils.quoteColumns(readColumnList));
-
+        String selectColumns = String.join(PhoenixStorageHandlerConstants.COMMA,
+            ColumnMappingUtils.quoteColumns(readColumnList));
         if (PhoenixStorageHandlerConstants.EMPTY_STRING.equals(selectColumns)) {
             selectColumns = "*";
         } else {
@@ -168,7 +164,7 @@ public class PhoenixQueryBuilder {
                     tableName + " search conditions : " + searchConditions + "  hints : " + hints);
         }
 
-        return makeQueryString(jobConf, tableName, Lists.newArrayList(readColumnList),
+        return makeQueryString(jobConf, tableName,  new ArrayList<>(readColumnList),
                 searchConditions, QUERY_TEMPLATE, hints);
     }
 
@@ -196,7 +192,7 @@ public class PhoenixQueryBuilder {
             return Collections.emptyList();
         }
 
-        List<String> columns = Lists.newArrayList();
+        List<String> columns = new ArrayList<>();
         sql.append(" where ");
 
         Iterator<IndexSearchCondition> iter = conditions.iterator();
@@ -346,7 +342,7 @@ public class PhoenixQueryBuilder {
             private String postfix;
 
             ConstantStringWrapper(String type, String prefix, String postfix) {
-                this(Lists.newArrayList(type), prefix, postfix);
+                this(new ArrayList<>(Arrays.asList(type)), prefix, postfix);
             }
 
             ConstantStringWrapper(List<String> types, String prefix, String postfix) {
@@ -356,6 +352,7 @@ public class PhoenixQueryBuilder {
             }
 
             public String apply(final String typeName, String value) {
+                Iterables
                 return Iterables.any(types, new Predicate<String>() {
 
                     @Override

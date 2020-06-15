@@ -20,13 +20,8 @@ package org.apache.phoenix.kafka.consumer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Random;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -45,9 +40,6 @@ import org.apache.phoenix.kafka.KafkaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 public class PhoenixConsumer {
     private static final Logger logger = LoggerFactory.getLogger(PhoenixConsumer.class);
@@ -80,14 +72,16 @@ public class PhoenixConsumer {
     
     /**
      * Initializes the kafka with properties file.
-     * @param path
+     * @param conf
      * @throws IOException 
      */
     public void intializeKafka(Configuration conf) throws IOException {
     	// get the kafka consumer file
     	String file = conf.get("kafka.consumer.file");
-        Preconditions.checkNotNull(file,"File path cannot be empty, please specify in the arguments");
-        
+    	if(file==null){
+    	    throw new NullPointerException("File path cannot be empty, please specify in the arguments");
+      }
+
         Path path = new Path(file);
         FileSystem fs = FileSystem.get(conf);
         try (InputStream props = fs.open(path)) {
@@ -107,7 +101,9 @@ public class PhoenixConsumer {
         this.properties = properties;
         
         String servers = properties.getProperty(KafkaConstants.BOOTSTRAP_SERVERS);
-        Preconditions.checkNotNull(servers,"Bootstrap Servers cannot be empty, please specify in the configuration file");
+        if(servers ==null){
+            throw new NullPointerException("Bootstrap Servers cannot be empty, please specify in the configuration file");
+        }
         properties.setProperty(KafkaConstants.BOOTSTRAP_SERVERS, servers);
         
         if (properties.getProperty(KafkaConstants.GROUP_ID) == null) {
@@ -119,8 +115,10 @@ public class PhoenixConsumer {
         }
 
         String topics = properties.getProperty(KafkaConstants.TOPICS);
-        Preconditions.checkNotNull(topics,"Topics cannot be empty, please specify in the configuration file");
-        
+        if (topics == null) {
+            throw new NullPointerException("Topics cannot be empty, please specify in the configuration file");
+        }
+
         properties.setProperty(KafkaConstants.KEY_DESERIALIZER, KafkaConstants.DEFAULT_KEY_DESERIALIZER);
         
         properties.setProperty(KafkaConstants.VALUE_DESERIALIZER, KafkaConstants.DEFAULT_VALUE_DESERIALIZER);
@@ -147,8 +145,9 @@ public class PhoenixConsumer {
         this.timeout = context.getLong(KafkaConstants.TIMEOUT, KafkaConstants.DEFAULT_TIMEOUT);
         this.batchSize = context.getInteger(FlumeConstants.CONFIG_BATCHSIZE, FlumeConstants.DEFAULT_BATCH_SIZE);
         final String eventSerializerType = context.getString(FlumeConstants.CONFIG_SERIALIZER);
-        
-        Preconditions.checkNotNull(eventSerializerType,"Event serializer cannot be empty, please specify in the configuration file");
+        if (eventSerializerType ==null){
+            throw new NullPointerException("Event serializer cannot be empty, please specify in the configuration file");
+        }
         initializeSerializer(context,eventSerializerType);
     }
     
@@ -171,7 +170,7 @@ public class PhoenixConsumer {
             }
 
             if (!records.isEmpty()) {
-                List<Event> events = Lists.newArrayListWithCapacity(records.count());
+                List<Event> events = new ArrayList<>(records.count());
                 for (ConsumerRecord<String, String> record : records) {
                     Event event = EventBuilder.withBody(Bytes.toBytes(record.value()));
                     events.add(event);

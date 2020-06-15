@@ -18,13 +18,12 @@
 
 package org.apache.phoenix.hive.util;
 
-import com.google.common.base.Splitter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 /**
  * Util class for mapping between Hive and Phoenix column names
@@ -46,14 +45,16 @@ public class ColumnMappingUtils {
             return Collections.emptyMap();
         }
 
-        Map<String, String> columnMappingMap = Splitter.on(PhoenixStorageHandlerConstants.COMMA)
-                .trimResults().withKeyValueSeparator(PhoenixStorageHandlerConstants.COLON).split
-                        (columnMappings);
+        Map<String, String> columnMappingMap  = Arrays.stream(
+            columnMappings.split(PhoenixStorageHandlerConstants.COMMA))
+            .map(String::trim)
+            .map(s -> s.split(PhoenixStorageHandlerConstants.COLON))
+            .collect(Collectors.toMap(a-> a[0],a->a.length >1 ?a[1]:""));
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Column mapping map : " + columnMappingMap);
         }
-
+        
         return columnMappingMap;
     }
 
