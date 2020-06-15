@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive.query;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hive.ql.plan.ExprNodeColumnDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
@@ -26,6 +25,8 @@ import org.apache.phoenix.hive.ql.index.IndexSearchCondition;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -80,42 +81,42 @@ public class PhoenixQueryBuilderTest {
                 "\" from TEST_TABLE where ";
 
         JobConf jobConf = new JobConf();
-        List<String> readColumnList = Lists.newArrayList(COLUMN_CHAR, COLUMN_VARCHAR);
-        List<IndexSearchCondition> searchConditions = Lists.newArrayList(
+        List<String> readColumnList = new ArrayList<>(Arrays.asList(COLUMN_CHAR, COLUMN_VARCHAR));
+        List<IndexSearchCondition> searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFOPEqual", "CHAR_VALUE", null, COLUMN_CHAR, "char(10)", false),
                 mockedIndexSearchCondition("GenericUDFOPEqual", "CHAR_VALUE2", null, COLUMN_VARCHAR, "varchar(10)", false)
-        );
+        ));
 
         assertEquals(expectedQueryPrefix + "\"Column_Char\" = 'CHAR_VALUE' and \"Column_VChar\" = 'CHAR_VALUE2'",
                 BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
 
-        searchConditions = Lists.newArrayList(
+        searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFIn", null,
-                        new Object[]{"CHAR1", "CHAR2", "CHAR3"}, COLUMN_CHAR, "char(10)", false)
+                        new Object[]{"CHAR1", "CHAR2", "CHAR3"}, COLUMN_CHAR, "char(10)", false))
         );
 
         assertEquals(expectedQueryPrefix + "\"Column_Char\" in ('CHAR1', 'CHAR2', 'CHAR3')",
                 BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
 
-        searchConditions = Lists.newArrayList(
+        searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFIn", null,
-                        new Object[]{"CHAR1", "CHAR2", "CHAR3"}, COLUMN_CHAR, "char(10)", true)
+                        new Object[]{"CHAR1", "CHAR2", "CHAR3"}, COLUMN_CHAR, "char(10)", true))
         );
 
         assertEquals(expectedQueryPrefix + "\"Column_Char\" not in ('CHAR1', 'CHAR2', 'CHAR3')",
                 BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
 
-        searchConditions = Lists.newArrayList(
+        searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFBetween", null,
-                        new Object[]{"CHAR1", "CHAR2"}, COLUMN_CHAR, "char(10)", false)
+                        new Object[]{"CHAR1", "CHAR2"}, COLUMN_CHAR, "char(10)", false))
         );
 
         assertEquals(expectedQueryPrefix + "\"Column_Char\" between 'CHAR1' and 'CHAR2'",
                 BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
 
-        searchConditions = Lists.newArrayList(
+        searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFBetween", null,
-                        new Object[]{"CHAR1", "CHAR2"}, COLUMN_CHAR, "char(10)", true)
+                        new Object[]{"CHAR1", "CHAR2"}, COLUMN_CHAR, "char(10)", true))
         );
 
         assertEquals(expectedQueryPrefix + "\"Column_Char\" not between 'CHAR1' and 'CHAR2'",
@@ -130,21 +131,21 @@ public class PhoenixQueryBuilderTest {
                 "\" from " + tableName + " where ";
 
         JobConf jobConf = new JobConf();
-        List<String> readColumnList = Lists.newArrayList(COLUMN_DATE);
+        List<String> readColumnList = new ArrayList<>(Arrays.asList(COLUMN_DATE));
 
-        List<IndexSearchCondition> searchConditions = Lists.newArrayList(
+        List<IndexSearchCondition> searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFBetween", null,
                         new Object[]{"1992-01-02", "1992-02-02"}, COLUMN_DATE, "date", false)
-        );
+        ));
 
         assertEquals(expectedQueryPrefix +
                         "\"" + COLUMN_DATE + "\" between to_date('1992-01-02') and to_date('1992-02-02')",
                 BUILDER.buildQuery(jobConf, TABLE_NAME, readColumnList, searchConditions));
 
-        searchConditions = Lists.newArrayList(
+        searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFBetween", null,
                         new Object[]{"1992-01-02", "1992-02-02"}, COLUMN_DATE, "date", true)
-        );
+        ));
 
         assertEquals(expectedQueryPrefix +
                         "\"" + COLUMN_DATE + "\" not between to_date('1992-01-02') and to_date('1992-02-02')",
@@ -159,11 +160,11 @@ public class PhoenixQueryBuilderTest {
                 "\" from " + tableName + " where ";
 
         JobConf jobConf = new JobConf();
-        List<String> readColumnList = Lists.newArrayList(COLUMN_DATE);
+        List<String> readColumnList =new ArrayList<>(Arrays.asList(COLUMN_DATE));
 
-        List<IndexSearchCondition> searchConditions = Lists.newArrayList(
+        List<IndexSearchCondition> searchConditions = new ArrayList<>(Arrays.asList(
                 mockedIndexSearchCondition("GenericUDFOPNotNull", null,
-                        null, COLUMN_DATE, "date", true)
+                        null, COLUMN_DATE, "date", true))
         );
 
         assertEquals(expectedQueryPrefix +
@@ -179,11 +180,11 @@ public class PhoenixQueryBuilderTest {
           "\" from " + tableName + " where ";
 
         JobConf jobConf = new JobConf();
-        List<String> readColumnList = Lists.newArrayList(COLUMN_BIGINT);
+        List<String> readColumnList = new ArrayList<>(Arrays.asList(COLUMN_BIGINT));
 
-        List<IndexSearchCondition> searchConditions = Lists.newArrayList(
+        List<IndexSearchCondition> searchConditions = new ArrayList<>(Arrays.asList(
           mockedIndexSearchCondition("GenericUDFOPEqual", 100L,
-            null, COLUMN_BIGINT, "bigint", false)
+            null, COLUMN_BIGINT, "bigint", false))
         );
 
         assertEquals(expectedQueryPrefix + "\"" + COLUMN_BIGINT + "\" = 100",

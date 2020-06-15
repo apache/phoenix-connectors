@@ -17,9 +17,7 @@
  */
 package org.apache.phoenix.hive;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.metastore.HiveMetaHook;
@@ -34,10 +32,7 @@ import org.apache.phoenix.hive.util.PhoenixUtil;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.phoenix.hive.util.ColumnMappingUtils.getColumnMappingMap;
 
@@ -52,7 +47,7 @@ public class PhoenixMetaHook implements HiveMetaHook {
     @Override
     public void preCreateTable(Table table) throws MetaException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Precreate  table : " + table.getTableName());
+            LOG.debug("Precreate table : " + table.getTableName());
         }
 
         try (Connection conn = PhoenixConnectionUtil.getConnection(table)) {
@@ -94,8 +89,10 @@ public class PhoenixMetaHook implements HiveMetaHook {
         String phoenixRowKeys = tableParameterMap.get(PhoenixStorageHandlerConstants
                 .PHOENIX_ROWKEYS);
         StringBuilder realRowKeys = new StringBuilder();
-        List<String> phoenixRowKeyList = Lists.newArrayList(Splitter.on
-                (PhoenixStorageHandlerConstants.COMMA).trimResults().split(phoenixRowKeys));
+        List<String> phoenixRowKeyList = new ArrayList<>();
+        for (String key:phoenixRowKeys.split(PhoenixStorageHandlerConstants.COMMA)) {
+            phoenixRowKeyList.add(key.trim());
+        }
         Map<String, String> columnMappingMap = getColumnMappingMap(tableParameterMap.get
                 (PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING));
 
@@ -116,8 +113,11 @@ public class PhoenixMetaHook implements HiveMetaHook {
                 if ("binary".equals(columnType)) {
                     // Phoenix must define max length of binary when type definition. Obtaining
                     // information from the column mapping. ex) phoenix.rowkeys = "r1, r2(100), ..."
-                    List<String> tokenList = Lists.newArrayList(Splitter.on(CharMatcher.is('(')
-                            .or(CharMatcher.is(')'))).trimResults().split(rowKeyName));
+                    List<String> tokenList =
+                       new ArrayList<>();
+                    for (String name: rowKeyName.split("\\(|\\)")) {
+                        tokenList.add(name.trim());
+                    }
                     columnType = columnType + "(" + tokenList.get(1) + ")";
                     rowKeyName = tokenList.get(0);
                 }
@@ -137,8 +137,10 @@ public class PhoenixMetaHook implements HiveMetaHook {
                 if ("binary".equals(columnType)) {
                     // Phoenix must define max length of binary when type definition. Obtaining
                     // information from the column mapping. ex) phoenix.column.mapping=c1:c1(100)
-                    List<String> tokenList = Lists.newArrayList(Splitter.on(CharMatcher.is('(')
-                            .or(CharMatcher.is(')'))).trimResults().split(columnName));
+                    List<String> tokenList = new ArrayList<>();
+                    for(String name: columnName.split("\\(|\\)")){
+                        tokenList.add(name.trim());
+                    }
                     columnType = columnType + "(" + tokenList.get(1) + ")";
                     columnName = tokenList.get(0);
                 }

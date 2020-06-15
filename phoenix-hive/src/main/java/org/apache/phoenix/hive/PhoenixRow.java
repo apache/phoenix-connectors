@@ -17,9 +17,9 @@
  */
 package org.apache.phoenix.hive;
 
-import com.google.common.collect.Lists;
 import org.apache.hadoop.hive.serde2.StructObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public class PhoenixRow implements StructObject {
      */
     @Override
     public List<Object> getFieldsAsList() {
-        return Lists.newArrayList(resultRowMap.values());
+        return new ArrayList<>(resultRowMap.values());
     }
 
 

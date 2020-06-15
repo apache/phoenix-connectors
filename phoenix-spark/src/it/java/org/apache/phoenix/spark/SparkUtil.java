@@ -18,7 +18,6 @@
  */
 package org.apache.phoenix.spark;
 
-import com.google.common.base.Joiner;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.query.QueryServices;
@@ -60,7 +59,7 @@ public class SparkUtil {
         // here we assume that the required columns are in the primary key column order
         String prevOrderBy = queryBuilder.getOrderByClause();
         if (forceRowKeyOrder &&  (queryBuilder.getOrderByClause()==null || queryBuilder.getOrderByClause().isEmpty())) {
-            queryBuilder.setOrderByClause(Joiner.on(", ").join(queryBuilder.getRequiredColumns()));
+            queryBuilder.setOrderByClause(String.join(", ", queryBuilder.getRequiredColumns()));
         }
 
         // create PhoenixRDD using the table name and columns that are required by the query

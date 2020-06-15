@@ -19,6 +19,7 @@ package org.apache.phoenix.hive.mapreduce;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -49,8 +50,6 @@ import org.apache.phoenix.jdbc.PhoenixResultSet;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 /**
  * @RecordReader implementation that iterates over the the records.
@@ -105,7 +104,7 @@ public class PhoenixRecordReader<T extends DBWritable> implements
         }
 
         try {
-            List<PeekingResultIterator> iterators = Lists.newArrayListWithExpectedSize(scans.size
+            List<PeekingResultIterator> iterators = new ArrayList<>(scans.size
                     ());
             StatementContext ctx = queryPlan.getContext();
             ReadMetricQueue readMetrics = ctx.getReadMetricsQueue();
@@ -140,7 +139,7 @@ public class PhoenixRecordReader<T extends DBWritable> implements
         } catch (SQLException e) {
             LOG.error(String.format(" Error [%s] initializing PhoenixRecordReader. ", e
                     .getMessage()));
-            Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 

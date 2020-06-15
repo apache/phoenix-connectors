@@ -17,10 +17,6 @@
  */
 package org.apache.phoenix.hive.util;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -41,7 +37,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -55,8 +54,7 @@ public class PhoenixUtil {
 
     public static String getPhoenixType(String hiveTypeName) {
         if (hiveTypeName.startsWith("array")) {
-            List<String> tokenList = Lists.newArrayList(Splitter.on(CharMatcher.is('<').or
-                    (CharMatcher.is('>'))).split(hiveTypeName));
+            List<String> tokenList = new ArrayList<>(Arrays.asList(hiveTypeName.split("[<>]")));
             return getPhoenixType(tokenList.get(1)) + "[]";
         } else if (hiveTypeName.startsWith("int")) {
             return "integer";
@@ -89,7 +87,7 @@ public class PhoenixUtil {
 
     public static List<String> getPrimaryKeyColumnList(Connection conn, String tableName) throws
             SQLException {
-        Map<Short, String> primaryKeyColumnInfoMap = Maps.newHashMap();
+        Map<Short, String> primaryKeyColumnInfoMap = new HashMap<>();
         DatabaseMetaData dbMeta = conn.getMetaData();
 
         String[] schemaInfo = getTableSchema(tableName.toUpperCase());
@@ -103,7 +101,7 @@ public class PhoenixUtil {
             }
         }
 
-        return Lists.newArrayList(primaryKeyColumnInfoMap.values());
+        return new ArrayList<>(primaryKeyColumnInfoMap.values());
     }
 
     public static List<String> getPrimaryKeyColumnList(Configuration config, String tableName) {

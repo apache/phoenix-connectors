@@ -26,6 +26,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -46,9 +48,6 @@ import org.apache.phoenix.flume.sink.PhoenixSink;
 import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
 
@@ -220,7 +219,7 @@ public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
 		String a1 = "\"aaa,bbb,ccc\"";
 		String a2 = "\"1,2,3,4\"";
 		String eventBody = null;
-		List<Event> eventList = Lists.newArrayListWithCapacity(numEvents);
+		List<Event> eventList = new ArrayList<>(numEvents);
 		for (int i = 0; i < eventList.size(); i++) {
 			eventBody = (col1 + i) + "," + i * 10.5 + "," + a1 + "," + a2;
 			Event event = EventBuilder.withBody(Bytes.toBytes(eventBody));
@@ -277,10 +276,10 @@ public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
 		String hostHeader = "host1";
 		String sourceHeader = "source1";
 		String eventBody = null;
-		List<Event> eventList = Lists.newArrayListWithCapacity(numEvents);
+		List<Event> eventList = new ArrayList<>(numEvents);
 		for (int i = 0; i < numEvents; i++) {
 			eventBody = (col1 + i) + "," + i * 10.5 + "," + a1 + "," + a2;
-			Map<String, String> headerMap = Maps.newHashMapWithExpectedSize(2);
+			Map<String, String> headerMap = new HashMap<>(2);
 			headerMap.put("host", hostHeader);
 			headerMap.put("source", sourceHeader);
 			Event event = EventBuilder.withBody(Bytes.toBytes(eventBody), headerMap);
@@ -337,7 +336,9 @@ public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
 	private void initSinkContext(final String fullTableName, final String ddl, final String columns,
 			final String csvDelimiter, final String csvQuote, final String csvEscape, final String csvArrayDelimiter,
 			final String rowkeyType, final String headers) {
-		Preconditions.checkNotNull(fullTableName);
+		if (fullTableName == null){
+			throw new NullPointerException();
+		}
 		sinkContext = new Context();
 		sinkContext.put(FlumeConstants.CONFIG_TABLE, fullTableName);
 		sinkContext.put(FlumeConstants.CONFIG_JDBC_URL, getUrl());
@@ -370,14 +371,22 @@ public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
 	}
 
 	private void setConfig(final String configName, final String configValue) {
-		Preconditions.checkNotNull(sinkContext);
-		Preconditions.checkNotNull(configName);
-		Preconditions.checkNotNull(configValue);
+		if (sinkContext == null){
+			throw new NullPointerException();
+		}
+		if (configName == null){
+			throw new NullPointerException();
+		}
+		if (configValue == null){
+			throw new NullPointerException();
+		}
 		sinkContext.put(configName, configValue);
 	}
 
 	private int countRows(final String fullTableName) throws SQLException {
-		Preconditions.checkNotNull(fullTableName);
+		if (fullTableName == null){
+			throw new NullPointerException();
+		}
 		Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
 		final Connection conn = DriverManager.getConnection(getUrl(), props);
 		ResultSet rs = null;
@@ -401,7 +410,10 @@ public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
 	}
 
 	private void dropTable(final String fullTableName) throws SQLException {
-		Preconditions.checkNotNull(fullTableName);
+		if (fullTableName == null){
+			throw new NullPointerException();
+		}
+
 		Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
 		final Connection conn = DriverManager.getConnection(getUrl(), props);
 		try {

@@ -17,12 +17,12 @@
  */
 package org.apache.phoenix.hive.objectinspector;
 
-import com.google.common.collect.Lists;
 import org.apache.hadoop.hive.serde2.lazy.objectinspector.primitive.LazyObjectInspectorParameters;
 import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.phoenix.schema.types.PhoenixArray;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -86,7 +86,7 @@ public class PhoenixListObjectInspector implements ListObjectInspector {
 
         PhoenixArray array = (PhoenixArray) data;
         int valueLength = array.getDimensions();
-        List<Object> valueList = Lists.newArrayListWithExpectedSize(valueLength);
+        List<Object> valueList = new ArrayList<>(valueLength);
 
         for (int i = 0; i < valueLength; i++) {
             valueList.add(array.getElement(i));

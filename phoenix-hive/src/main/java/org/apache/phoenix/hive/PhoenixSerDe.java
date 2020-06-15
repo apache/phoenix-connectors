@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -38,6 +36,7 @@ import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 import org.apache.phoenix.hive.mapreduce.PhoenixResultWritable;
 import org.apache.phoenix.hive.objectinspector.PhoenixObjectInspectorFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -137,8 +136,7 @@ public class PhoenixSerDe extends AbstractSerDe {
         List<TypeInfo> columnTypeList = TypeInfoUtils.getTypeInfosFromTypeString(tbl.getProperty
                 (serdeConstants.LIST_COLUMN_TYPES));
 
-        List<ObjectInspector> columnObjectInspectors = Lists.newArrayListWithExpectedSize
-                (columnTypeList.size());
+        List<ObjectInspector> columnObjectInspectors = new ArrayList<>(columnTypeList.size());
 
         for (TypeInfo typeInfo : columnTypeList) {
             columnObjectInspectors.add(PhoenixObjectInspectorFactory.createObjectInspector

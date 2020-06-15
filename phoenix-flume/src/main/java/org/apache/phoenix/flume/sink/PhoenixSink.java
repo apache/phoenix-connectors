@@ -18,6 +18,7 @@
 package org.apache.phoenix.flume.sink;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,10 +38,6 @@ import org.apache.phoenix.flume.serializer.EventSerializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 public class PhoenixSink extends AbstractSink implements Configurable {
     private static final Logger logger = LoggerFactory.getLogger(PhoenixSink.class);
@@ -60,7 +57,9 @@ public class PhoenixSink extends AbstractSink implements Configurable {
         this.batchSize = context.getInteger(FlumeConstants.CONFIG_BATCHSIZE, FlumeConstants.DEFAULT_BATCH_SIZE);
         final String eventSerializerType = context.getString(FlumeConstants.CONFIG_SERIALIZER);
         
-        Preconditions.checkNotNull(eventSerializerType,"Event serializer cannot be empty, please specify in the configuration file");
+        if (eventSerializerType == null) {
+          throw new NullPointerException("Event serializer cannot be empty, please specify in the configuration file");
+        }
         initializeSerializer(context,eventSerializerType);
         this.sinkCounter = new SinkCounter(this.getName());
     }
@@ -98,7 +97,12 @@ public class PhoenixSink extends AbstractSink implements Configurable {
          
        } catch (Exception e) {
          logger.error("Could not instantiate event serializer." , e);
-         Throwables.propagate(e);
+         if (e instanceof RuntimeException){
+           throw (RuntimeException) e;
+         }
+         else {
+           throw new RuntimeException(e);
+         }
        }
     }
 
@@ -121,7 +125,12 @@ public class PhoenixSink extends AbstractSink implements Configurable {
         } catch(Exception ex) {
             sinkCounter.incrementConnectionFailedCount();
             logger.error("Error {} in initializing the serializer.",ex.getMessage());
-            Throwables.propagate(ex);
+          if (ex instanceof RuntimeException){
+            throw (RuntimeException) ex;
+          }
+          else {
+            throw new RuntimeException(ex);
+          }
        }
        super.start();
     }
@@ -144,7 +153,7 @@ public class PhoenixSink extends AbstractSink implements Configurable {
         Status status = Status.READY;
         Channel channel = getChannel();
         Transaction transaction = null;
-        List<Event>  events = Lists.newArrayListWithExpectedSize(this.batchSize); 
+        List<Event>  events = new ArrayList<>(this.batchSize);
         long startTime = System.nanoTime();
         try {
             transaction = channel.getTransaction();

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Iterables;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -48,8 +49,7 @@ import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
+
 
 public class CsvEventSerializer extends BaseEventSerializer {
 
@@ -84,9 +84,15 @@ public class CsvEventSerializer extends BaseEventSerializer {
 
 	@Override
 	public void upsertEvents(List<Event> events) throws SQLException {
-		Preconditions.checkNotNull(events);
-		Preconditions.checkNotNull(connection);
-		Preconditions.checkNotNull(this.upsertStatement);
+		if(events == null){
+			throw new NullPointerException();
+		}
+		if(connection == null){
+			throw new NullPointerException();
+		}
+		if(this.upsertStatement == null){
+			throw new NullPointerException();
+		}
 
 		boolean wasAutoCommit = connection.getAutoCommit();
 		connection.setAutoCommit(false);
@@ -189,7 +195,15 @@ public class CsvEventSerializer extends BaseEventSerializer {
 
 		public CSVRecord parse(String input) throws IOException {
 			CSVParser csvParser = new CSVParser(new StringReader(input), this.csvFormat);
-			return Iterables.getFirst(csvParser, null);
+			CSVRecord record;
+			try{
+				record = csvParser.iterator().next();
+			} catch (Exception e) {
+				record = null;
+			}
+
+			return record;
+
 		}
 	}
 

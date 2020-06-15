@@ -42,7 +42,6 @@ import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JsonOrgJsonProvider;
@@ -94,11 +93,18 @@ public class JsonEventSerializer extends BaseEventSerializer {
 
 	@Override
 	public void upsertEvents(List<Event> events) throws SQLException {
-		Preconditions.checkNotNull(events);
-		Preconditions.checkNotNull(connection);
-		Preconditions.checkNotNull(this.upsertStatement);
-		Preconditions.checkArgument(isProperMapping, "Please verify fields mapping is not properly done..");
-
+		if (events == null){
+			throw new NullPointerException();
+		}
+		if (connection == null){
+			throw new NullPointerException();
+		}
+		if (this.upsertStatement == null){
+			throw new NullPointerException();
+		}
+		if (!isProperMapping) {
+			throw new IllegalArgumentException("Please verify fields mapping is not properly done..");
+		}
 		boolean wasAutoCommit = connection.getAutoCommit();
 		connection.setAutoCommit(false);
 		try (PreparedStatement colUpsert = connection.prepareStatement(upsertStatement)) {

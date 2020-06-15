@@ -25,6 +25,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -38,7 +40,6 @@ import org.apache.pig.ResourceSchema.ResourceFieldSchema;
 import org.apache.pig.data.DataType;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
 
 /**
  * 
@@ -59,7 +60,7 @@ public class PhoenixPigSchemaUtilTest {
 				configuration, new Dependencies() {
 					List<ColumnInfo> getSelectColumnMetadataList(
 							Configuration configuration) throws SQLException {
-						return Lists.newArrayList(ID_COLUMN, NAME_COLUMN);
+						return new ArrayList<>(Arrays.asList(ID_COLUMN, NAME_COLUMN));
 					}
 				});        
         // expected schema.
@@ -84,7 +85,7 @@ public class PhoenixPigSchemaUtilTest {
 				configuration, new Dependencies() {
 					List<ColumnInfo> getSelectColumnMetadataList(
 							Configuration configuration) throws SQLException {
-						return Lists.newArrayList(ID_COLUMN, LOCATION_COLUMN);
+						return new ArrayList<>(Arrays.asList(ID_COLUMN, LOCATION_COLUMN));
 					}
 				});  
         fail("We currently don't support Array type yet. WIP!!");

@@ -26,6 +26,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -45,10 +47,6 @@ import org.apache.phoenix.flume.serializer.EventSerializers;
 import org.apache.phoenix.flume.sink.PhoenixSink;
 import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 
 public class RegexEventSerializerIT extends BaseHBaseManagedTimeIT {
@@ -175,7 +173,7 @@ public class RegexEventSerializerIT extends BaseHBaseManagedTimeIT {
         String col1 = "val1";
         String col2 = "val2";
         String eventBody = null;
-        List<Event> eventList = Lists.newArrayListWithCapacity(numEvents);
+        List<Event> eventList = new ArrayList<>(numEvents);
         for(int i = 0 ; i < eventList.size() ; i++) {
             eventBody = (col1 + i) + "\t" + (col2 + i);
             Event event = EventBuilder.withBody(Bytes.toBytes(eventBody));
@@ -309,10 +307,10 @@ public class RegexEventSerializerIT extends BaseHBaseManagedTimeIT {
         String hostHeader = "host1";
         String sourceHeader = "source1";
         String eventBody = null;
-        List<Event> eventList = Lists.newArrayListWithCapacity(numEvents);
+        List<Event> eventList = new ArrayList<>(numEvents);
         for(int i = 0 ; i < numEvents ; i++) {
             eventBody = (col1 + i) + "\t" + (col2 + i);
-            Map<String, String> headerMap = Maps.newHashMapWithExpectedSize(2);
+            Map<String, String> headerMap = new HashMap<>(2);
             headerMap.put("host",hostHeader);
             headerMap.put("source",sourceHeader);
             Event event = EventBuilder.withBody(Bytes.toBytes(eventBody),headerMap);
@@ -366,7 +364,9 @@ public class RegexEventSerializerIT extends BaseHBaseManagedTimeIT {
     }
     
     private void initSinkContextWithDefaults(final String fullTableName) {
-        Preconditions.checkNotNull(fullTableName);
+        if (fullTableName == null){
+            throw new NullPointerException();
+        }
         sinkContext = new Context ();
         String ddl = "CREATE TABLE " + fullTableName +
                 "  (flume_time timestamp not null, col1 varchar , col2 varchar" +
@@ -383,14 +383,22 @@ public class RegexEventSerializerIT extends BaseHBaseManagedTimeIT {
       }
     
     private void setConfig(final String configName , final String configValue) {
-        Preconditions.checkNotNull(sinkContext);
-        Preconditions.checkNotNull(configName);
-        Preconditions.checkNotNull(configValue);
+        if (sinkContext == null){
+            throw new NullPointerException();
+        }
+        if (configName == null){
+            throw new NullPointerException();
+        }
+        if (configValue == null){
+            throw new NullPointerException();
+        }
         sinkContext.put(configName, configValue);
     }
     
     private int countRows(final String fullTableName) throws SQLException {
-        Preconditions.checkNotNull(fullTableName);
+        if (fullTableName == null){
+            throw new NullPointerException();
+        }
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         final Connection conn = DriverManager.getConnection(getUrl(), props);
         ResultSet rs = null ;

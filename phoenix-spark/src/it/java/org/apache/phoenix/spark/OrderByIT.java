@@ -29,6 +29,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,7 +44,6 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
 
 import scala.Option;
 import scala.collection.JavaConverters;
@@ -123,7 +124,8 @@ public class OrderByIT extends BaseOrderByIT {
             conn.commit();
 
             // create two PhoenixRDDs  using the table names and columns that are required for the JOIN query
-            List<String> table1Columns = Lists.newArrayList("A_STRING", "CF1.A", "CF1.B", "COL1", "CF2.C", "CF2.D");
+            List<String> table1Columns = new ArrayList(
+                Arrays.asList("A_STRING", "CF1.A", "CF1.B", "COL1", "CF2.C", "CF2.D"));
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
                     .option(DataSourceOptions.TABLE_KEY, tableName1)

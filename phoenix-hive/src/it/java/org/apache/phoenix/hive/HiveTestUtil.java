@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive;
 
-import com.google.common.collect.ImmutableList;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -72,16 +71,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1160,7 +1150,7 @@ public class HiveTestUtil {
     }
 
     private static String[] cachedQvFileList = null;
-    private static ImmutableList<String> cachedDefaultQvFileList = null;
+    private static List<String> cachedDefaultQvFileList = null;
     private static Pattern qvSuffix = Pattern.compile("_[0-9]+.qv$", Pattern.CASE_INSENSITIVE);
 
     public static List<String> getVersionFiles(String queryDir, String tname) {
@@ -1186,7 +1176,7 @@ public class HiveTestUtil {
         Arrays.sort(cachedQvFileList, String.CASE_INSENSITIVE_ORDER);
         List<String> defaults = getVersionFilesInternal("default");
         cachedDefaultQvFileList = (defaults != null)
-                ? ImmutableList.copyOf(defaults) : ImmutableList.<String>of();
+                ? Collections.unmodifiableList(new ArrayList<String>(defaults)) : Collections.unmodifiableList(new ArrayList<String>());
     }
 
     private static List<String> getVersionFilesInternal(String tname) {

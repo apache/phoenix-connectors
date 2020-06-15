@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.protobuf.ProtobufUtil;
@@ -31,6 +29,7 @@ import org.apache.phoenix.query.KeyRange;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,8 +54,12 @@ public class PhoenixInputSplit extends FileSplit implements InputSplit {
 
         regionSize = length;
 
-        Preconditions.checkNotNull(scans);
-        Preconditions.checkState(!scans.isEmpty());
+        if(scans == null) {
+            throw new NullPointerException();
+        }
+        if (scans.isEmpty()) {
+            throw new IllegalStateException();
+        }
         this.scans = scans;
         init();
     }
@@ -86,7 +89,9 @@ public class PhoenixInputSplit extends FileSplit implements InputSplit {
     public void write(DataOutput out) throws IOException {
         super.write(out);
 
-        Preconditions.checkNotNull(scans);
+        if (scans == null) {
+            throw new NullPointerException();
+        }
         WritableUtils.writeVInt(out, scans.size());
         for (Scan scan : scans) {
             ClientProtos.Scan protoScan = ProtobufUtil.toScan(scan);
@@ -104,7 +109,7 @@ public class PhoenixInputSplit extends FileSplit implements InputSplit {
         super.readFields(in);
 
         int count = WritableUtils.readVInt(in);
-        scans = Lists.newArrayListWithExpectedSize(count);
+        scans = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             byte[] protoScanBytes = new byte[WritableUtils.readVInt(in)];
             in.readFully(protoScanBytes);

@@ -69,7 +69,7 @@
     <disruptor.version>3.3.6</disruptor.version>
     <slf4j.version>1.6.4</slf4j.version>
     <commons-csv.version>1.0</commons-csv.version>
-    <guava.version>13.0.1</guava.version>
+
     <flume.version>1.4.0</flume.version>
     <kafka.version>0.9.0.0</kafka.version>
     <spark.version>2.4.0</spark.version>

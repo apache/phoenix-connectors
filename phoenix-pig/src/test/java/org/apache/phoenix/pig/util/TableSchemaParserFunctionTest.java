@@ -24,7 +24,8 @@ import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.pig.util.TableSchemaParserFunction;
 import org.junit.Test;
 
-import com.google.common.base.Joiner;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TableSchemaParserFunctionTest {
 
@@ -35,7 +36,8 @@ public class TableSchemaParserFunctionTest {
         final String loadTableSchema = "EMPLOYEE/col1,col2";
         final Pair<String,String> pair = function.apply(loadTableSchema);
         assertEquals("EMPLOYEE", pair.getFirst());
-        assertEquals(pair.getSecond(),Joiner.on(',').join("col1","col2"));
+        assertEquals(pair.getSecond(),
+        String.join(",","col1","col2" ));
     }
     
     @Test(expected=IllegalArgumentException.class)

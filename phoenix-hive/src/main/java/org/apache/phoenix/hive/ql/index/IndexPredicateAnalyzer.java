@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive.ql.index;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
@@ -244,7 +243,7 @@ public class IndexPredicateAnalyzer {
         String[] fields = null;
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Processing In Operator. nodeOutputs : " + Lists.newArrayList(nodeOutputs));
+            LOG.trace("Processing In Operator. nodeOutputs : " + new ArrayList<>(Arrays.asList(nodeOutputs)));
         }
 
         if (nodeOutputs[0] instanceof ExprNodeFieldDesc) {
@@ -261,7 +260,7 @@ public class IndexPredicateAnalyzer {
 
             if (LOG.isTraceEnabled()) {
                 LOG.trace("nodeOutputs[0] : " + nodeOutputs[0] + ", nodeOutputs[1] : " +
-                        nodeOutputs[1] + " => " + Lists.newArrayList(extracted));
+                        nodeOutputs[1] + " => " + new ArrayList<>(Arrays.asList(extracted)));
             }
 
             columnDesc = (ExprNodeColumnDesc) extracted[0];

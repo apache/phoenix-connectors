@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.RegionLocator;
@@ -53,6 +51,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -139,10 +139,13 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         }
         try (Connection conn = DriverManager.getConnection(
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
-            List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, Lists.newArrayList(schema.names()));
+            List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, new ArrayList<>(
+                Arrays.asList(schema.names())));
             final Statement statement = conn.createStatement();
             final String selectStatement = QueryUtil.constructSelectStatement(tableName, columnInfos, whereClause);
-            Preconditions.checkNotNull(selectStatement);
+            if (selectStatement == null){
+                throw new NullPointerException();
+            }
 
             final PhoenixStatement pstmt = statement.unwrap(PhoenixStatement.class);
             // Optimize the query plan so that we potentially use secondary indexes
@@ -168,7 +171,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
             RegionSizeCalculator sizeCalculator = new RegionSizeCalculator(regionLocator, connection
                     .getAdmin());
 
-            final List<InputPartition<InternalRow>> partitions = Lists.newArrayListWithExpectedSize(allSplits.size());
+            final List<InputPartition<InternalRow>> partitions = new ArrayList<>(allSplits.size());
             for (List<Scan> scans : queryPlan.getScans()) {
                 // Get the region location
                 HRegionLocation location = regionLocator.getRegionLocation(

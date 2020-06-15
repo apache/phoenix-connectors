@@ -17,18 +17,15 @@
  */
 package org.apache.phoenix.hive.query;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
@@ -44,7 +41,7 @@ import org.apache.phoenix.util.StringUtil;
 import static org.apache.phoenix.hive.util.ColumnMappingUtils.getColumnMappingMap;
 
 /**
- * Query builder. Produces a query depending on the colummn list and conditions
+ * Query builder. Produces a query depending on the column list and conditions
  */
 
 public class PhoenixQueryBuilder {
@@ -96,7 +93,7 @@ public class PhoenixQueryBuilder {
         Map<String, String> columnMappingMap = getColumnMappingMap(jobConf.get
                 (PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING));
         if(columnMappingMap != null) {
-          List<String> newList = Lists.newArrayList();
+          List<String> newList = new ArrayList<>();
             for(String column:columnList) {
                 if(columnMappingMap.containsKey(column)) {
                     newList.add(columnMappingMap.get(column));
@@ -137,8 +134,8 @@ public class PhoenixQueryBuilder {
 
     private String getSelectColumns(JobConf jobConf, String tableName, List<String>
             readColumnList) throws IOException {
-        String selectColumns = Joiner.on(PhoenixStorageHandlerConstants.COMMA).join(ColumnMappingUtils.quoteColumns(readColumnList));
-
+        String selectColumns = String.join(PhoenixStorageHandlerConstants.COMMA,
+            ColumnMappingUtils.quoteColumns(readColumnList));
         if (PhoenixStorageHandlerConstants.EMPTY_STRING.equals(selectColumns)) {
             selectColumns = "*";
         } else {
@@ -168,7 +165,7 @@ public class PhoenixQueryBuilder {
                     tableName + " search conditions : " + searchConditions + "  hints : " + hints);
         }
 
-        return makeQueryString(jobConf, tableName, Lists.newArrayList(readColumnList),
+        return makeQueryString(jobConf, tableName,  new ArrayList<>(readColumnList),
                 searchConditions, QUERY_TEMPLATE, hints);
     }
 
@@ -196,7 +193,7 @@ public class PhoenixQueryBuilder {
             return Collections.emptyList();
         }
 
-        List<String> columns = Lists.newArrayList();
+        List<String> columns = new ArrayList<>();
         sql.append(" where ");
 
         Iterator<IndexSearchCondition> iter = conditions.iterator();
@@ -225,18 +222,28 @@ public class PhoenixQueryBuilder {
     }
 
     private Expression findExpression(final IndexSearchCondition condition) {
-        return Iterables.tryFind(Arrays.asList(Expression.values()), new Predicate<Expression>() {
-            @Override
-            public boolean apply(@Nullable Expression expr) {
-                return expr.isFor(condition);
+        for (Expression exp:Expression.values()) {
+            if(exp.isFor(condition)){
+                return exp;
             }
-        }).orNull();
+        }
+        return null;
     }
 
-    private static final Joiner JOINER_COMMA = Joiner.on(", ");
-    private static final Joiner JOINER_AND = Joiner.on(" and ");
-    private static final Joiner JOINER_SPACE = Joiner.on(" ");
+    private static final StrJoiner JOINER_COMMA = new StrJoiner(", ");
+    private static final StrJoiner JOINER_AND = new StrJoiner(" and ");
+    private static final StrJoiner JOINER_SPACE = new StrJoiner(" ");
 
+    private static class StrJoiner{
+        private String delimiter;
+
+        StrJoiner(String delimiter){
+            this.delimiter = delimiter;
+        }
+        public String join(List<String> list){
+            return String.join(this.delimiter,list);
+        }
+    }
     private enum Expression {
         EQUAL("UDFOPEqual", "="),
         GREATER_THAN_OR_EQUAL_TO("UDFOPEqualOrGreaterThan", ">="),
@@ -244,12 +251,12 @@ public class PhoenixQueryBuilder {
         LESS_THAN_OR_EQUAL_TO("UDFOPEqualOrLessThan", "<="),
         LESS_THAN("UDFOPLessThan", "<"),
         NOT_EQUAL("UDFOPNotEqual", "!="),
-        BETWEEN("GenericUDFBetween", "between", JOINER_AND, true) {
+        BETWEEN("GenericUDFBetween", "between", JOINER_AND,true) {
             public boolean checkCondition(IndexSearchCondition condition) {
                 return condition.getConstantDescs() != null;
             }
         },
-        IN("GenericUDFIn", "in", JOINER_COMMA, true) {
+        IN("GenericUDFIn", "in", JOINER_COMMA,true) {
             public boolean checkCondition(IndexSearchCondition condition) {
                 return condition.getConstantDescs() != null;
             }
@@ -271,18 +278,18 @@ public class PhoenixQueryBuilder {
 
         private final String hiveCompOp;
         private final String sqlCompOp;
-        private final Joiner joiner;
+        private final StrJoiner joiner;
         private final boolean supportNotOperator;
 
         Expression(String hiveCompOp, String sqlCompOp) {
-            this(hiveCompOp, sqlCompOp, null);
+            this(hiveCompOp, sqlCompOp, null,null);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner) {
-            this(hiveCompOp, sqlCompOp, joiner, false);
+        Expression(String hiveCompOp, String sqlCompOp, StrJoiner joiner, String joiner2) {
+            this(hiveCompOp, sqlCompOp, joiner,false);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner, boolean supportNotOp) {
+        Expression(String hiveCompOp, String sqlCompOp, StrJoiner joiner, boolean supportNotOp) {
             this.hiveCompOp = hiveCompOp;
             this.sqlCompOp = sqlCompOp;
             this.joiner = joiner;
@@ -304,7 +311,7 @@ public class PhoenixQueryBuilder {
             if(rColumn != null) {
                 column = rColumn;
             }
-            return JOINER_SPACE.join(
+            return String.join(" ",
                     "\"" + column + "\"",
                     getSqlCompOpString(condition),
                     joiner != null ? createConstants(type, condition.getConstantDescs()) :
@@ -328,16 +335,11 @@ public class PhoenixQueryBuilder {
             if (constantDesc == null) {
                 return StringUtil.EMPTY_STRING;
             }
-
-            return joiner.join(Iterables.transform(Arrays.asList(constantDesc),
-                    new Function<ExprNodeConstantDesc, String>() {
-                        @Nullable
-                        @Override
-                        public String apply(@Nullable ExprNodeConstantDesc desc) {
-                            return createConstantString(typeName, String.valueOf(desc.getValue()));
-                        }
-                    }
-            ));
+            List<String> constants = new ArrayList<>();
+            for (ExprNodeConstantDesc s:constantDesc) {
+                constants.add(createConstantString(typeName, String.valueOf(s.getValue())));
+            }
+            return joiner.join(constants);
         }
 
         private static class ConstantStringWrapper {
@@ -346,7 +348,7 @@ public class PhoenixQueryBuilder {
             private String postfix;
 
             ConstantStringWrapper(String type, String prefix, String postfix) {
-                this(Lists.newArrayList(type), prefix, postfix);
+                this(new ArrayList<>(Arrays.asList(type)), prefix, postfix);
             }
 
             ConstantStringWrapper(List<String> types, String prefix, String postfix) {
@@ -356,25 +358,26 @@ public class PhoenixQueryBuilder {
             }
 
             public String apply(final String typeName, String value) {
-                return Iterables.any(types, new Predicate<String>() {
-
-                    @Override
-                    public boolean apply(@Nullable String type) {
-                        return typeName.startsWith(type);
+                boolean hasMatch = false;
+                for (String type:types){
+                    if (typeName.startsWith(type)) {
+                        hasMatch = true;
+                        break;
                     }
-                }) ? prefix + value + postfix : value;
+                }
+                return hasMatch ? prefix + value + postfix : value;
             }
         }
 
         private static final String SINGLE_QUOTATION = "'";
-        private static List<ConstantStringWrapper> WRAPPERS = Lists.newArrayList(
-                new ConstantStringWrapper(Lists.newArrayList(
+        private static List<ConstantStringWrapper> WRAPPERS =  new ArrayList<>(Arrays.asList(
+                new ConstantStringWrapper(new ArrayList<>(Arrays.asList(
                         serdeConstants.STRING_TYPE_NAME, serdeConstants.CHAR_TYPE_NAME,
                         serdeConstants.VARCHAR_TYPE_NAME, serdeConstants.DATE_TYPE_NAME,
-                        serdeConstants.TIMESTAMP_TYPE_NAME
+                        serdeConstants.TIMESTAMP_TYPE_NAME)
                 ), SINGLE_QUOTATION, SINGLE_QUOTATION),
                 new ConstantStringWrapper(serdeConstants.DATE_TYPE_NAME, "to_date(", ")"),
-                new ConstantStringWrapper(serdeConstants.TIMESTAMP_TYPE_NAME, "to_timestamp(", ")")
+                new ConstantStringWrapper(serdeConstants.TIMESTAMP_TYPE_NAME, "to_timestamp(", ")"))
         );
 
         private String createConstantString(String typeName, String value) {

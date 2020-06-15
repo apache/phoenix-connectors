@@ -23,25 +23,26 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-
 public class SchemaHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SchemaHandler.class);
 
     public static boolean createTable(Connection connection, String createTableDdl) {
-        Preconditions.checkNotNull(connection);
-        Preconditions.checkNotNull(createTableDdl); 
+        if (connection == null) {
+            throw new NullPointerException();
+        }
+        if (createTableDdl == null) {
+            throw new NullPointerException();
+        }
         boolean status  = true;
         try {
             status = connection.createStatement().execute(createTableDdl);
         } catch (SQLException e) {
             logger.error("An error occurred during executing the create table ddl {} ",createTableDdl);
-            Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
         return status;
-        
+
     }
 
 }

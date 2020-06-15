@@ -80,7 +80,7 @@ public class PhoenixSinkIT extends BaseHBaseManagedTimeIT {
     
     
     
-    @Test(expected= NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testInvalidConfiguration () {
         
         sinkContext = new Context ();
