@@ -39,7 +39,7 @@ public class SchemaHandler {
       status = connection.createStatement().execute(createTableDdl);
     } catch (SQLException e) {
       logger.error("An error occurred during executing the create table ddl {} ",createTableDdl);
-      throw new RuntimeException(e)
+      throw new RuntimeException(e);
     }
     return status;
 
