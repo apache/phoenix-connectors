@@ -29,17 +29,17 @@ public class SchemaHandler {
 
     public static boolean createTable(Connection connection, String createTableDdl) {
         if (connection == null) {
-          throw new NullPointerException();
+            throw new NullPointerException();
         }
         if (createTableDdl == null) {
-          throw new NullPointerException();
+            throw new NullPointerException();
         }
         boolean status  = true;
         try {
-          status = connection.createStatement().execute(createTableDdl);
+            status = connection.createStatement().execute(createTableDdl);
         } catch (SQLException e) {
-          logger.error("An error occurred during executing the create table ddl {} ",createTableDdl);
-          throw new RuntimeException(e);
+            logger.error("An error occurred during executing the create table ddl {} ",createTableDdl);
+            throw new RuntimeException(e);
         }
         return status;
 
