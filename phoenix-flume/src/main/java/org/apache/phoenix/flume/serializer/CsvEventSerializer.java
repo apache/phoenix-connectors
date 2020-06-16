@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Iterables;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -195,7 +196,8 @@ public class CsvEventSerializer extends BaseEventSerializer {
 		public CSVRecord parse(String input) throws IOException {
 			CSVParser csvParser = new CSVParser(new StringReader(input), this.csvFormat);
 			csvParser.iterator().next();
-			return Iterables.getFirst(csvParser, null);
+			return csvParser.iterator().hasNext() ? csvParser.iterator().next() : null;
+		//	return Iterables.getFirst(csvParser, null);
 		}
 	}
 
