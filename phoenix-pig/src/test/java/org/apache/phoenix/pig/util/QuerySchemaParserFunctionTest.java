@@ -67,8 +67,7 @@ public class QuerySchemaParserFunctionTest extends BaseConnectionlessQueryTest {
         Pair<String,String> pair = function.apply(selectQuery);
          
         assertEquals(pair.getFirst(), "EMPLOYEE");
-        assertEquals(pair.getSecond(),Joiner.on(',').join("NAME","AGE","LOCATION"));
-        String.join(',', "NAME","AGE","LOCATION");
+        assertEquals(pair.getSecond(), String.join(",", "NAME","AGE","LOCATION"));
     }
     
     @Test(expected=RuntimeException.class)

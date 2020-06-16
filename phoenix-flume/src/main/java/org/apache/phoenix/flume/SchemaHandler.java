@@ -23,8 +23,6 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 public class SchemaHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(SchemaHandler.class);
@@ -36,13 +34,12 @@ public class SchemaHandler {
     if (createTableDdl == null) {
       throw new NullPointerException();
     }
-    boolean status = true;
+    boolean status  = true;
     try {
       status = connection.createStatement().execute(createTableDdl);
     } catch (SQLException e) {
-      logger.error("An error occurred during executing the create table ddl {} ", createTableDdl);
-      Throwables.propagate(e);
-
+      logger.error("An error occurred during executing the create table ddl {} ",createTableDdl);
+      throw new RuntimeException(e)
     }
     return status;
 

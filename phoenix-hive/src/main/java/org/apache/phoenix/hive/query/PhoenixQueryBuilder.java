@@ -20,11 +20,14 @@ package org.apache.phoenix.hive.query;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
+
+
 import javax.annotation.Nullable;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
@@ -232,6 +235,9 @@ public class PhoenixQueryBuilder {
     private static final Joiner JOINER_COMMA = Joiner.on(", ");
     private static final Joiner JOINER_AND = Joiner.on(" and ");
     private static final Joiner JOINER_SPACE = Joiner.on(" ");
+    private static final String JOINER_COMMA_delimiter = ", ";
+    private static final String JOINER_AND_delimiter = " and ";
+    private static final String JOINER_SPACE_delimiter = " ";
 
     private enum Expression {
         EQUAL("UDFOPEqual", "="),
@@ -240,12 +246,12 @@ public class PhoenixQueryBuilder {
         LESS_THAN_OR_EQUAL_TO("UDFOPEqualOrLessThan", "<="),
         LESS_THAN("UDFOPLessThan", "<"),
         NOT_EQUAL("UDFOPNotEqual", "!="),
-        BETWEEN("GenericUDFBetween", "between", JOINER_AND, true) {
+        BETWEEN("GenericUDFBetween", "between", JOINER_AND, JOINER_AND_delimiter,true) {
             public boolean checkCondition(IndexSearchCondition condition) {
                 return condition.getConstantDescs() != null;
             }
         },
-        IN("GenericUDFIn", "in", JOINER_COMMA, true) {
+        IN("GenericUDFIn", "in", JOINER_COMMA, JOINER_COMMA_delimiter,true) {
             public boolean checkCondition(IndexSearchCondition condition) {
                 return condition.getConstantDescs() != null;
             }
@@ -268,20 +274,22 @@ public class PhoenixQueryBuilder {
         private final String hiveCompOp;
         private final String sqlCompOp;
         private final Joiner joiner;
+        private final String joiner2;
         private final boolean supportNotOperator;
 
         Expression(String hiveCompOp, String sqlCompOp) {
-            this(hiveCompOp, sqlCompOp, null);
+            this(hiveCompOp, sqlCompOp, null,null);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner) {
-            this(hiveCompOp, sqlCompOp, joiner, false);
+        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner, String joiner2) {
+            this(hiveCompOp, sqlCompOp, joiner,joiner2, false);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner, boolean supportNotOp) {
+        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner,String joiner2, boolean supportNotOp) {
             this.hiveCompOp = hiveCompOp;
             this.sqlCompOp = sqlCompOp;
             this.joiner = joiner;
+            this.joiner2 = joiner2;
             this.supportNotOperator = supportNotOp;
         }
 
@@ -352,7 +360,7 @@ public class PhoenixQueryBuilder {
             }
 
             public String apply(final String typeName, String value) {
-                Iterables
+
                 return Iterables.any(types, new Predicate<String>() {
 
                     @Override
@@ -364,14 +372,14 @@ public class PhoenixQueryBuilder {
         }
 
         private static final String SINGLE_QUOTATION = "'";
-        private static List<ConstantStringWrapper> WRAPPERS = Lists.newArrayList(
-                new ConstantStringWrapper(Lists.newArrayList(
+        private static List<ConstantStringWrapper> WRAPPERS =  new ArrayList<>(Arrays.asList(
+                new ConstantStringWrapper(new ArrayList<>(Arrays.asList(
                         serdeConstants.STRING_TYPE_NAME, serdeConstants.CHAR_TYPE_NAME,
                         serdeConstants.VARCHAR_TYPE_NAME, serdeConstants.DATE_TYPE_NAME,
-                        serdeConstants.TIMESTAMP_TYPE_NAME
+                        serdeConstants.TIMESTAMP_TYPE_NAME)
                 ), SINGLE_QUOTATION, SINGLE_QUOTATION),
                 new ConstantStringWrapper(serdeConstants.DATE_TYPE_NAME, "to_date(", ")"),
-                new ConstantStringWrapper(serdeConstants.TIMESTAMP_TYPE_NAME, "to_timestamp(", ")")
+                new ConstantStringWrapper(serdeConstants.TIMESTAMP_TYPE_NAME, "to_timestamp(", ")"))
         );
 
         private String createConstantString(String typeName, String value) {

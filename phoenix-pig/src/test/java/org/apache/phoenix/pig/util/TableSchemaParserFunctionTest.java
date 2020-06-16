@@ -37,7 +37,8 @@ public class TableSchemaParserFunctionTest {
         final Pair<String,String> pair = function.apply(loadTableSchema);
         assertEquals("EMPLOYEE", pair.getFirst());
         assertEquals(pair.getSecond(),
-        String.join(',', "col1","col2"));
+        String.join(",","col1","col2" ));
+
     }
     
     @Test(expected=IllegalArgumentException.class)

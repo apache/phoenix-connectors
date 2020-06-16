@@ -140,7 +140,7 @@ public class PhoenixRecordReader<T extends DBWritable> implements
         } catch (SQLException e) {
             LOG.error(String.format(" Error [%s] initializing PhoenixRecordReader. ", e
                     .getMessage()));
-            Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 

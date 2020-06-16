@@ -26,7 +26,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -462,7 +466,6 @@ public class JsonEventSerializerIT extends BaseHBaseManagedTimeIT {
 
 	private void initSinkContext(final String fullTableName, final String ddl, final String columns,
 			final String columnsMapping, final String rowkeyType, final String headers) {
-
 		if (fullTableName == null) {
 			throw new NullPointerException();
 		}
