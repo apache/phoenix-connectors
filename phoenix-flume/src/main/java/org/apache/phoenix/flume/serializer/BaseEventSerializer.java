@@ -65,7 +65,8 @@ public abstract class BaseEventSerializer implements EventSerializer {
     private Integer batchSize;
     private String createTableDdl;
 
-    @Override public void configure(Context context) {
+    @Override
+    public void configure(Context context) {
 
         this.createTableDdl = context.getString(FlumeConstants.CONFIG_TABLE_DDL);
         this.fullTableName = context.getString(FlumeConstants.CONFIG_TABLE);
@@ -122,12 +123,14 @@ public abstract class BaseEventSerializer implements EventSerializer {
         doConfigure(context);
     }
 
-    @Override public void configure(ComponentConfiguration conf) {
+    @Override
+    public void configure(ComponentConfiguration conf) {
     // NO-OP
 
     }
 
-    @Override public void initialize() throws SQLException {
+    @Override
+    public void initialize() throws SQLException {
         final Properties props = new Properties();
         props.setProperty(UPSERT_BATCH_SIZE_ATTRIB, String.valueOf(this.batchSize));
         ResultSet rs = null;
@@ -239,7 +242,8 @@ public abstract class BaseEventSerializer implements EventSerializer {
 
     public abstract void doInitialize() throws SQLException;
 
-    @Override public void close() {
+    @Override
+    public void close() {
         if (connection != null) {
         try {
             connection.close();
