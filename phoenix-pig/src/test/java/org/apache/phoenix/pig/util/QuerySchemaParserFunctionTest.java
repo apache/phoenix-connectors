@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 
-
 /**
  * 
  * Unit tests to validate the query passed to LOAD .

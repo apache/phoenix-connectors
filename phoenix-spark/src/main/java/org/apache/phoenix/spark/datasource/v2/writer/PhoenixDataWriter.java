@@ -47,8 +47,6 @@ import org.apache.spark.sql.catalyst.analysis.SimpleAnalyzer$;
 import org.apache.spark.sql.catalyst.expressions.AttributeReference;
 import org.apache.spark.sql.catalyst.expressions.Attribute;
 
-
-
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.DEFAULT_UPSERT_BATCH_SIZE;
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.UPSERT_BATCH_SIZE;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;

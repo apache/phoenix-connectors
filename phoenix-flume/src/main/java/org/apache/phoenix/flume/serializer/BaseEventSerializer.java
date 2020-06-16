@@ -140,7 +140,6 @@ public abstract class BaseEventSerializer implements EventSerializer {
             if (this.createTableDdl != null) {
                  SchemaHandler.createTable(connection, createTableDdl);
             }
-
             final Map<String, Integer> qualifiedColumnMap = new LinkedHashMap<>();
             final Map<String, Integer> unqualifiedColumnMap = new LinkedHashMap<>();
             final String schemaName = SchemaUtil.getSchemaNameFromFullName(fullTableName);
@@ -178,7 +177,6 @@ public abstract class BaseEventSerializer implements EventSerializer {
             int headersSize = headers.size();
             int totalSize = colSize + headersSize + (autoGenerateKey ? 1 : 0);
             columnMetadata = new ColumnInfo[totalSize];
-
             int position = 0;
             position = this.addToColumnMetadataInfo(colNames, qualifiedColumnMap, unqualifiedColumnMap,
                 position);
@@ -221,7 +219,6 @@ public abstract class BaseEventSerializer implements EventSerializer {
         if (unqualifiedColumnsInfoMap == null) {
             throw new NullPointerException();
         }
-
         for (int i = 0; i < columns.size(); i++) {
             String columnName = SchemaUtil.normalizeIdentifier(columns.get(i).trim());
             Integer sqlType = unqualifiedColumnsInfoMap.get(columnName);

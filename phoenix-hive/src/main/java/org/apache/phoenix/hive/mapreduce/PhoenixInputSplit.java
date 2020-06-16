@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.protobuf.ProtobufUtil;
@@ -54,6 +53,7 @@ public class PhoenixInputSplit extends FileSplit implements InputSplit {
         super(dummyPath, 0, 0, new String[]{regionLocation});
 
         regionSize = length;
+
         if(scans == null) {
             throw new NullPointerException();
         }
@@ -88,6 +88,7 @@ public class PhoenixInputSplit extends FileSplit implements InputSplit {
     @Override
     public void write(DataOutput out) throws IOException {
         super.write(out);
+
         if (scans == null) {
             throw new NullPointerException();
         }

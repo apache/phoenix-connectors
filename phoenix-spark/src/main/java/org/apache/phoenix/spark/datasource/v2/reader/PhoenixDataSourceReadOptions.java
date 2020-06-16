@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-
-
 import java.io.Serializable;
 import java.util.Properties;
 

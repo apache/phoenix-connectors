@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;

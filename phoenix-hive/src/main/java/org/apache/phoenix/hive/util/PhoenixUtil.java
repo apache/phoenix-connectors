@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive.util;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -38,7 +37,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Misc utils
@@ -49,7 +54,6 @@ public class PhoenixUtil {
 
     public static String getPhoenixType(String hiveTypeName) {
         if (hiveTypeName.startsWith("array")) {
-
             List<String> tokenList = new ArrayList<>(Arrays.asList(hiveTypeName.split("[<>]")));
             return getPhoenixType(tokenList.get(1)) + "[]";
         } else if (hiveTypeName.startsWith("int")) {

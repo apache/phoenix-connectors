@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
 public class PhoenixSink extends AbstractSink implements Configurable {
     private static final Logger logger = LoggerFactory.getLogger(PhoenixSink.class);
     private static AtomicInteger counter = new AtomicInteger();

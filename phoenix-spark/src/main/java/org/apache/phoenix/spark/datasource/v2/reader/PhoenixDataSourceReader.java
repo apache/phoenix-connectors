@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.RegionLocator;
@@ -52,7 +51,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
@@ -142,6 +146,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
             if (selectStatement == null){
                 throw new NullPointerException();
             }
+
             final PhoenixStatement pstmt = statement.unwrap(PhoenixStatement.class);
             // Optimize the query plan so that we potentially use secondary indexes
             final QueryPlan queryPlan = pstmt.optimizeQuery(selectStatement);

@@ -18,6 +18,7 @@
 package org.apache.phoenix.hive;
 
 import junit.framework.Assert;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -1159,7 +1160,7 @@ public class HiveTestUtil {
     }
 
     private static String[] cachedQvFileList = null;
-    private static ImmutableList<String> cachedDefaultQvFileList = null;
+    private static List<String> cachedDefaultQvFileList = List.of();
     private static Pattern qvSuffix = Pattern.compile("_[0-9]+.qv$", Pattern.CASE_INSENSITIVE);
 
     public static List<String> getVersionFiles(String queryDir, String tname) {
@@ -1185,7 +1186,7 @@ public class HiveTestUtil {
         Arrays.sort(cachedQvFileList, String.CASE_INSENSITIVE_ORDER);
         List<String> defaults = getVersionFilesInternal("default");
         cachedDefaultQvFileList = (defaults != null)
-                ? ImmutableList.copyOf(defaults) : ImmutableList.<String>of();
+                ? List.copyOf(defaults) : List.<String>of();
     }
 
     private static List<String> getVersionFilesInternal(String tname) {

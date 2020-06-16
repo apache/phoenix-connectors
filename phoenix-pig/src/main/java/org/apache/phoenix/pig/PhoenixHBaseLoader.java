@@ -54,7 +54,6 @@ import org.apache.pig.impl.util.UDFContext;
 
 
 
-
 /**
  * LoadFunc to load data from HBase using Phoenix .
  * 

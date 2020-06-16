@@ -38,7 +38,6 @@ public class TableSchemaParserFunctionTest {
         assertEquals("EMPLOYEE", pair.getFirst());
         assertEquals(pair.getSecond(),
         String.join(",","col1","col2" ));
-
     }
     
     @Test(expected=IllegalArgumentException.class)

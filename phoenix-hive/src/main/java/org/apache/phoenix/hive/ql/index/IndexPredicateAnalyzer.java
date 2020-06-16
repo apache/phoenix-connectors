@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.hive.ql.index;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;

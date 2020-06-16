@@ -51,7 +51,6 @@ import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 
 
-
 /**
  * @RecordReader implementation that iterates over the the records.
  */

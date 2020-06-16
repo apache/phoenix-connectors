@@ -53,8 +53,6 @@ import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
 import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
 import org.apache.spark.sql.types.StructType;
 
-
-
 import scala.collection.Iterator;
 
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;

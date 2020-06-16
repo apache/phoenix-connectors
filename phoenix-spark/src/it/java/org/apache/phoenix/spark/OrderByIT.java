@@ -45,7 +45,6 @@ import org.apache.spark.sql.sources.v2.DataSourceOptions;
 import org.junit.Test;
 
 
-
 import scala.Option;
 import scala.collection.JavaConverters;
 

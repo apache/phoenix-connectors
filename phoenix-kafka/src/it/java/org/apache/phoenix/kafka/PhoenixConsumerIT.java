@@ -243,7 +243,6 @@ public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
 
         KafkaProducerThread(String path, String topic) {
             this.topic = topic;
-
             try (InputStream props = Resources.getResource(path).openStream()) {
                 Properties properties = new Properties();
                 properties.load(props);
