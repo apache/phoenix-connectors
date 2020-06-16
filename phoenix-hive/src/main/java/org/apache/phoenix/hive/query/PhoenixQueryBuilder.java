@@ -24,6 +24,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -231,9 +234,9 @@ public class PhoenixQueryBuilder {
         }).orNull();
     }
 
-    private static final Joiner JOINER_COMMA = Joiner.on(", ");
-    private static final Joiner JOINER_AND = Joiner.on(" and ");
-    private static final Joiner JOINER_SPACE = Joiner.on(" ");
+    private static final StringJoiner JOINER_COMMA = new StringJoiner(", ");
+    private static final StringJoiner JOINER_AND = new StringJoiner(" and ");
+    private static final StringJoiner JOINER_SPACE = new StringJoiner(" ");
     private static final String JOINER_COMMA_delimiter = ", ";
     private static final String JOINER_AND_delimiter = " and ";
     private static final String JOINER_SPACE_delimiter = " ";
@@ -245,12 +248,12 @@ public class PhoenixQueryBuilder {
         LESS_THAN_OR_EQUAL_TO("UDFOPEqualOrLessThan", "<="),
         LESS_THAN("UDFOPLessThan", "<"),
         NOT_EQUAL("UDFOPNotEqual", "!="),
-        BETWEEN("GenericUDFBetween", "between", JOINER_AND, JOINER_AND_delimiter,true) {
+        BETWEEN("GenericUDFBetween", "between", JOINER_AND,true) {
             public boolean checkCondition(IndexSearchCondition condition) {
                 return condition.getConstantDescs() != null;
             }
         },
-        IN("GenericUDFIn", "in", JOINER_COMMA, JOINER_COMMA_delimiter,true) {
+        IN("GenericUDFIn", "in", JOINER_COMMA,true) {
             public boolean checkCondition(IndexSearchCondition condition) {
                 return condition.getConstantDescs() != null;
             }
@@ -272,23 +275,21 @@ public class PhoenixQueryBuilder {
 
         private final String hiveCompOp;
         private final String sqlCompOp;
-        private final Joiner joiner;
-        private final String joiner2;
+        private final StringJoiner joiner;
         private final boolean supportNotOperator;
 
         Expression(String hiveCompOp, String sqlCompOp) {
             this(hiveCompOp, sqlCompOp, null,null);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner, String joiner2) {
-            this(hiveCompOp, sqlCompOp, joiner,joiner2, false);
+        Expression(String hiveCompOp, String sqlCompOp, StringJoiner joiner, String joiner2) {
+            this(hiveCompOp, sqlCompOp, joiner,false);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, Joiner joiner,String joiner2, boolean supportNotOp) {
+        Expression(String hiveCompOp, String sqlCompOp, StringJoiner joiner, boolean supportNotOp) {
             this.hiveCompOp = hiveCompOp;
             this.sqlCompOp = sqlCompOp;
             this.joiner = joiner;
-            this.joiner2 = joiner2;
             this.supportNotOperator = supportNotOp;
         }
 
@@ -307,7 +308,7 @@ public class PhoenixQueryBuilder {
             if(rColumn != null) {
                 column = rColumn;
             }
-            return JOINER_SPACE.join(
+            return String.join(" ",
                     "\"" + column + "\"",
                     getSqlCompOpString(condition),
                     joiner != null ? createConstants(type, condition.getConstantDescs()) :
@@ -332,15 +333,11 @@ public class PhoenixQueryBuilder {
                 return StringUtil.EMPTY_STRING;
             }
 
-            return joiner.join(Iterables.transform(Arrays.asList(constantDesc),
-                    new Function<ExprNodeConstantDesc, String>() {
-                        @Nullable
-                        @Override
-                        public String apply(@Nullable ExprNodeConstantDesc desc) {
-                            return createConstantString(typeName, String.valueOf(desc.getValue()));
-                        }
-                    }
-            ));
+            List<String> list = Arrays.asList(constantDesc).stream()
+                .map(s-> createConstantString(typeName,String.valueOf(s.getValue())))
+                .collect(Collectors.toList());
+
+            return joiner.add(list);
         }
 
         private static class ConstantStringWrapper {

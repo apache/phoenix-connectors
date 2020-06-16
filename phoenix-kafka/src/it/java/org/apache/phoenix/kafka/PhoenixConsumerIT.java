@@ -20,6 +20,7 @@ package org.apache.phoenix.kafka;
 import static org.apache.phoenix.util.TestUtil.TEST_PROPERTIES;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -30,6 +31,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.I0Itec.zkclient.ZkClient;
+import org.apache.commons.io.FileUtils;
 import org.apache.flume.Context;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -206,7 +208,7 @@ public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
 
         PhoenixConsumerThread(PhoenixConsumer pConsumer, String path) {
             this.pConsumer = pConsumer;
-            try (InputStream props = Resources.getResource(path).openStream()) {
+            try (InputStream props = FileUtils.openInputStream(new File(path))) {
                 Properties properties = new Properties();
                 properties.load(props);
                 this.properties = properties;
@@ -243,7 +245,7 @@ public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
 
         KafkaProducerThread(String path, String topic) {
             this.topic = topic;
-            try (InputStream props = Resources.getResource(path).openStream()) {
+            try (InputStream props = FileUtils.openInputStream(new File(path))) {
                 Properties properties = new Properties();
                 properties.load(props);
                 producer = new KafkaProducer<>(properties);
