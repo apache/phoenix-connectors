@@ -49,6 +49,7 @@ import org.apache.phoenix.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public abstract class BaseEventSerializer implements EventSerializer {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseEventSerializer.class);
@@ -57,13 +58,17 @@ public abstract class BaseEventSerializer implements EventSerializer {
     protected String fullTableName;
     protected ColumnInfo[] columnMetadata;
     protected boolean autoGenerateKey = false;
-    protected KeyGenerator keyGenerator;
-    protected List<String> colNames = new ArrayList<>(10);
-    protected List<String> headers = new ArrayList<>(5);
+    protected KeyGenerator  keyGenerator;
+    protected List<String>  colNames = new ArrayList<>(10);
+    protected List<String>  headers  = new ArrayList<>(5);
     protected String upsertStatement;
-    private String jdbcUrl;
-    private Integer batchSize;
-    private String createTableDdl;
+    private   String jdbcUrl;
+    private   Integer batchSize;
+    private   String  createTableDdl;
+
+
+
+
 
     @Override
     public void configure(Context context) {
@@ -72,62 +77,60 @@ public abstract class BaseEventSerializer implements EventSerializer {
         this.fullTableName = context.getString(FlumeConstants.CONFIG_TABLE);
         final String zookeeperQuorum = context.getString(FlumeConstants.CONFIG_ZK_QUORUM);
         final String ipJdbcURL = context.getString(FlumeConstants.CONFIG_JDBC_URL);
-        this.batchSize =
-            context.getInteger(FlumeConstants.CONFIG_BATCHSIZE, FlumeConstants.DEFAULT_BATCH_SIZE);
+        this.batchSize = context.getInteger(FlumeConstants.CONFIG_BATCHSIZE, FlumeConstants.DEFAULT_BATCH_SIZE);
         final String columnNames = context.getString(CONFIG_COLUMN_NAMES);
         final String headersStr = context.getString(CONFIG_HEADER_NAMES);
         final String keyGeneratorType = context.getString(CONFIG_ROWKEY_TYPE_GENERATOR);
 
         if (this.fullTableName == null) {
-          throw new NullPointerException(
-              "Table name cannot be empty, please specify in the configuration file");
+            throw new NullPointerException(
+                "Table name cannot be empty, please specify in the configuration file");
         }
-        if (zookeeperQuorum != null && !zookeeperQuorum.isEmpty()) {
-          this.jdbcUrl = QueryUtil.getUrl(zookeeperQuorum);
+        if(zookeeperQuorum != null && !zookeeperQuorum.isEmpty()) {
+            this.jdbcUrl = QueryUtil.getUrl(zookeeperQuorum);
         }
-        if (ipJdbcURL != null && !ipJdbcURL.isEmpty()) {
-          this.jdbcUrl = ipJdbcURL;
+        if(ipJdbcURL != null && !ipJdbcURL.isEmpty()) {
+            this.jdbcUrl = ipJdbcURL;
         }
         if (this.jdbcUrl == null) {
-          throw new NullPointerException(
-              "Please specify either the zookeeper quorum or the jdbc url in the configuration file");
+            throw new NullPointerException(
+                "Please specify either the zookeeper quorum or the jdbc url in the configuration file");
         }
         if (columnNames == null) {
-          throw new NullPointerException(
-              "Column names cannot be empty, please specify in configuration file");
+            throw new NullPointerException(
+                "Column names cannot be empty, please specify in configuration file");
         }
-
         colNames.addAll(Arrays.asList(columnNames.split(DEFAULT_COLUMNS_DELIMITER)));
 
-        if (headersStr != null && !headersStr.isEmpty()) {
-          headers.addAll(Arrays.asList(headersStr.split(DEFAULT_COLUMNS_DELIMITER)));
+        if(headersStr != null && !headersStr.isEmpty()) {
+            headers.addAll(Arrays.asList(headersStr.split(DEFAULT_COLUMNS_DELIMITER)));
         }
 
-        if (keyGeneratorType != null && !keyGeneratorType.isEmpty()) {
-          try {
-            keyGenerator = DefaultKeyGenerator.valueOf(keyGeneratorType.toUpperCase());
-            this.autoGenerateKey = true;
-          } catch (IllegalArgumentException iae) {
-            logger.error(
-                "An invalid key generator {} was specified in configuration file. Specify one of {}",
-                keyGeneratorType, DefaultKeyGenerator.values());
-            throw new RuntimeException(iae);
-          }
+        if(keyGeneratorType != null && !keyGeneratorType.isEmpty()) {
+            try {
+                keyGenerator =  DefaultKeyGenerator.valueOf(keyGeneratorType.toUpperCase());
+                this.autoGenerateKey = true;
+            } catch(IllegalArgumentException iae) {
+                logger.error("An invalid key generator {} was specified in configuration file. Specify one of {}",keyGeneratorType,DefaultKeyGenerator.values());
+                throw new RuntimeException(iae);
+            }
         }
 
-        logger.debug(" the jdbcUrl configured is {}", jdbcUrl);
-        logger.debug(" columns configured are {}", colNames.toString());
-        logger.debug(" headers configured are {}", headersStr);
-        logger.debug(" the keyGenerator configured is {} ", keyGeneratorType);
+        logger.debug(" the jdbcUrl configured is {}",jdbcUrl);
+        logger.debug(" columns configured are {}",colNames.toString());
+        logger.debug(" headers configured are {}",headersStr);
+        logger.debug(" the keyGenerator configured is {} ",keyGeneratorType);
 
         doConfigure(context);
+
     }
 
     @Override
     public void configure(ComponentConfiguration conf) {
-    // NO-OP
+        // NO-OP
 
     }
+
 
     @Override
     public void initialize() throws SQLException {
@@ -137,79 +140,75 @@ public abstract class BaseEventSerializer implements EventSerializer {
         try {
             this.connection = DriverManager.getConnection(this.jdbcUrl, props);
             this.connection.setAutoCommit(false);
-            if (this.createTableDdl != null) {
-                 SchemaHandler.createTable(connection, createTableDdl);
+            if(this.createTableDdl != null) {
+                SchemaHandler.createTable(connection,createTableDdl);
             }
-            final Map<String, Integer> qualifiedColumnMap = new LinkedHashMap<>();
-            final Map<String, Integer> unqualifiedColumnMap = new LinkedHashMap<>();
+
+
+            final Map<String,Integer> qualifiedColumnMap = new LinkedHashMap<>();
+            final Map<String,Integer> unqualifiedColumnMap = new LinkedHashMap<>();
             final String schemaName = SchemaUtil.getSchemaNameFromFullName(fullTableName);
-            final String tableName = SchemaUtil.getTableNameFromFullName(fullTableName);
+            final String tableName  = SchemaUtil.getTableNameFromFullName(fullTableName);
 
             String rowkey = null;
-            String cq = null;
-            String cf = null;
+            String  cq = null;
+            String  cf = null;
             Integer dt = null;
-            rs = connection.getMetaData()
-                .getColumns("", StringUtil.escapeLike(SchemaUtil.normalizeIdentifier(schemaName)),
-                    StringUtil.escapeLike(SchemaUtil.normalizeIdentifier(tableName)), null);
+            rs = connection.getMetaData().getColumns("", StringUtil.escapeLike(SchemaUtil.normalizeIdentifier(schemaName)), StringUtil.escapeLike(SchemaUtil.normalizeIdentifier(tableName)), null);
             while (rs.next()) {
                 cf = rs.getString(QueryUtil.COLUMN_FAMILY_POSITION);
                 cq = rs.getString(QueryUtil.COLUMN_NAME_POSITION);
                 // TODO: Fix this .. change `DATA_TYPE_POSITION` value 5 to 26
                 // dt = rs.getInt(QueryUtil.DATA_TYPE_POSITION);
                 dt = rs.getInt(26);
-                if (cf != null && !cf.isEmpty()) {
-                  rowkey = cq; // this is required only when row key is auto generated
+                if(cf != null && !cf.isEmpty()) {
+                    rowkey = cq; // this is required only when row key is auto generated
                 } else {
-                  qualifiedColumnMap.put(SchemaUtil.getColumnDisplayName(cf, cq), dt);
+                    qualifiedColumnMap.put(SchemaUtil.getColumnDisplayName(cf, cq), dt);
                 }
                 unqualifiedColumnMap.put(SchemaUtil.getColumnDisplayName(null, cq), dt);
             }
 
             //can happen when table not found in Hbase.
-            if (unqualifiedColumnMap.isEmpty()) {
+            if(unqualifiedColumnMap.isEmpty()) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.TABLE_UNDEFINED)
-                    .setTableName(tableName)
-                    .build().buildException();
+                    .setTableName(tableName).build().buildException();
             }
 
             int colSize = colNames.size();
             int headersSize = headers.size();
-            int totalSize = colSize + headersSize + (autoGenerateKey ? 1 : 0);
-            columnMetadata = new ColumnInfo[totalSize];
-            int position = 0;
-            position = this.addToColumnMetadataInfo(colNames, qualifiedColumnMap, unqualifiedColumnMap,
-                position);
-            position =
-                this.addToColumnMetadataInfo(headers, qualifiedColumnMap, unqualifiedColumnMap, position);
+            int totalSize = colSize + headersSize + ( autoGenerateKey ? 1 : 0);
+            columnMetadata = new ColumnInfo[totalSize] ;
 
-            if (autoGenerateKey) {
+            int position = 0;
+            position = this.addToColumnMetadataInfo(colNames, qualifiedColumnMap, unqualifiedColumnMap, position);
+            position = this.addToColumnMetadataInfo(headers,  qualifiedColumnMap, unqualifiedColumnMap, position);
+
+            if(autoGenerateKey) {
                 Integer sqlType = unqualifiedColumnMap.get(rowkey);
                 if (sqlType == null) {
-                   throw new SQLExceptionInfo.Builder(SQLExceptionCode.PRIMARY_KEY_MISSING)
-                      .setColumnName(rowkey).setTableName(fullTableName).build().buildException();
+                    throw new SQLExceptionInfo.Builder(SQLExceptionCode.PRIMARY_KEY_MISSING)
+                        .setColumnName(rowkey).setTableName(fullTableName).build().buildException();
                 }
                 columnMetadata[position] = new ColumnInfo(rowkey, sqlType);
                 position++;
             }
 
-            this.upsertStatement =
-                QueryUtil.constructUpsertStatement(fullTableName, Arrays.asList(columnMetadata));
-            logger.info(" the upsert statement is {} ", this.upsertStatement);
+            this.upsertStatement = QueryUtil.constructUpsertStatement(fullTableName, Arrays.asList(columnMetadata));
+            logger.info(" the upsert statement is {} " ,this.upsertStatement);
 
-          } catch (SQLException e) {
-              logger.error("error {} occurred during initializing connection ", e.getMessage());
-              throw e;
-          } finally {
-              if (rs != null) {
-                  rs.close();
-              }
-          }
-          doInitialize();
+        }  catch (SQLException e) {
+            logger.error("error {} occurred during initializing connection ",e.getMessage());
+            throw e;
+        } finally {
+            if(rs != null) {
+                rs.close();
+            }
+        }
+        doInitialize();
     }
 
-    private int addToColumnMetadataInfo(final List<String> columns, final Map<String, Integer> qualifiedColumnsInfoMap,
-        Map<String, Integer> unqualifiedColumnsInfoMap, int position) throws SQLException {
+    private int addToColumnMetadataInfo(final List<String> columns , final Map<String,Integer> qualifiedColumnsInfoMap, Map<String, Integer> unqualifiedColumnsInfoMap, int position) throws SQLException {
         if (columns == null) {
             throw new NullPointerException();
         }
@@ -219,14 +218,14 @@ public abstract class BaseEventSerializer implements EventSerializer {
         if (unqualifiedColumnsInfoMap == null) {
             throw new NullPointerException();
         }
-        for (int i = 0; i < columns.size(); i++) {
+        for (int i = 0 ; i < columns.size() ; i++) {
             String columnName = SchemaUtil.normalizeIdentifier(columns.get(i).trim());
             Integer sqlType = unqualifiedColumnsInfoMap.get(columnName);
             if (sqlType == null) {
                 sqlType = qualifiedColumnsInfoMap.get(columnName);
                 if (sqlType == null) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.COLUMN_NOT_FOUND)
-                      .setColumnName(columnName).setTableName(this.fullTableName).build().buildException();
+                        .setColumnName(columnName).setTableName(this.fullTableName).build().buildException();
                 }
             }
             columnMetadata[position] = new ColumnInfo(columnName, sqlType);
@@ -239,14 +238,15 @@ public abstract class BaseEventSerializer implements EventSerializer {
 
     public abstract void doInitialize() throws SQLException;
 
+
     @Override
     public void close() {
-        if (connection != null) {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            logger.error(" Error while closing connection {} ");
+        if(connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                logger.error(" Error while closing connection {} ");
+            }
         }
-      }
     }
 }

@@ -1160,7 +1160,7 @@ public class HiveTestUtil {
     }
 
     private static String[] cachedQvFileList = null;
-    private static List<String> cachedDefaultQvFileList = List.of();
+    private static List<String> cachedDefaultQvFileList = null;
     private static Pattern qvSuffix = Pattern.compile("_[0-9]+.qv$", Pattern.CASE_INSENSITIVE);
 
     public static List<String> getVersionFiles(String queryDir, String tname) {

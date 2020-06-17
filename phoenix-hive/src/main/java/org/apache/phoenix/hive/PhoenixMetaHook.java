@@ -89,12 +89,10 @@ public class PhoenixMetaHook implements HiveMetaHook {
         String phoenixRowKeys = tableParameterMap.get(PhoenixStorageHandlerConstants
                 .PHOENIX_ROWKEYS);
         StringBuilder realRowKeys = new StringBuilder();
-        List<String> phoenixRowKeyList = new ArrayList<>(
-            Arrays.asList(
-                Arrays.stream(phoenixRowKeys
-                    .split(PhoenixStorageHandlerConstants.COMMA))
-                    .map(String::trim)
-                    .toArray(String[]::new)));
+        List<String> phoenixRowKeyList = new ArrayList<>();
+        for (String key:phoenixRowKeys.split(PhoenixStorageHandlerConstants.COMMA)) {
+            phoenixRowKeyList.add(key.trim());
+        }
         Map<String, String> columnMappingMap = getColumnMappingMap(tableParameterMap.get
                 (PhoenixStorageHandlerConstants.PHOENIX_COLUMN_MAPPING));
 

@@ -45,11 +45,11 @@ public class ColumnMappingUtils {
             return Collections.emptyMap();
         }
 
-        Map<String, String> columnMappingMap  = Arrays.stream(
-            columnMappings.split(PhoenixStorageHandlerConstants.COMMA))
-            .map(String::trim)
-            .map(s -> s.split(PhoenixStorageHandlerConstants.COLON))
-            .collect(Collectors.toMap(a-> a[0],a->a.length >1 ?a[1]:""));
+        Map<String, String> columnMappingMap  = new HashMap<>();
+        for (String item:columnMappings.split(PhoenixStorageHandlerConstants.COMMA)) {
+            String[] kv= item.trim().split(PhoenixStorageHandlerConstants.COLON);
+            columnMappingMap.put(kv[0],kv[1].length()>1?kv[1]:"");
+        }
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Column mapping map : " + columnMappingMap);

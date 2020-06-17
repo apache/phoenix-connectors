@@ -222,9 +222,12 @@ public class PhoenixQueryBuilder {
     }
 
     private Expression findExpression(final IndexSearchCondition condition) {
-        return Arrays.stream(Expression.values())
-            .filter(expr -> expr.isFor(condition))
-            .findAny().orElse(null);
+        for (Expression exp:Expression.values()) {
+            if(exp.isFor(condition)){
+                return exp;
+            }
+        }
+        return null;
     }
 
     private static final StrJoiner JOINER_COMMA = new StrJoiner(", ");
@@ -332,9 +335,11 @@ public class PhoenixQueryBuilder {
             if (constantDesc == null) {
                 return StringUtil.EMPTY_STRING;
             }
-            return joiner.join(Arrays.asList(constantDesc).stream()
-                .map(s-> createConstantString(typeName,String.valueOf(s.getValue())))
-                .collect(Collectors.toList()));
+            List<String> constants = new ArrayList<>();
+            for (ExprNodeConstantDesc s:constantDesc) {
+                constants.add(createConstantString(typeName, String.valueOf(s.getValue())));
+            }
+            return joiner.join(constants);
         }
 
         private static class ConstantStringWrapper {
@@ -353,8 +358,14 @@ public class PhoenixQueryBuilder {
             }
 
             public String apply(final String typeName, String value) {
-                return types.stream().anyMatch(type -> typeName.startsWith(type))
-                    ? prefix + value + postfix : value;
+                boolean hasMatch = false;
+                for (String type:types){
+                    if (typeName.startsWith(type)) {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+                return hasMatch ? prefix + value + postfix : value;
             }
         }
 
