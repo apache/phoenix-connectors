@@ -24,11 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,7 +41,7 @@ import org.apache.phoenix.util.StringUtil;
 import static org.apache.phoenix.hive.util.ColumnMappingUtils.getColumnMappingMap;
 
 /**
- * Query builder. Produces a query depending on the colummn list and conditions
+ * Query builder. Produces a query depending on the column list and conditions
  */
 
 public class PhoenixQueryBuilder {
@@ -226,21 +222,25 @@ public class PhoenixQueryBuilder {
     }
 
     private Expression findExpression(final IndexSearchCondition condition) {
-        return Iterables.tryFind(Arrays.asList(Expression.values()), new Predicate<Expression>() {
-            @Override
-            public boolean apply(@Nullable Expression expr) {
-                return expr.isFor(condition);
-            }
-        }).orNull();
+        return Arrays.stream(Expression.values())
+            .filter(expr -> expr.isFor(condition))
+            .findAny().orElse(null);
     }
 
-    private static final StringJoiner JOINER_COMMA = new StringJoiner(", ");
-    private static final StringJoiner JOINER_AND = new StringJoiner(" and ");
-    private static final StringJoiner JOINER_SPACE = new StringJoiner(" ");
-    private static final String JOINER_COMMA_delimiter = ", ";
-    private static final String JOINER_AND_delimiter = " and ";
-    private static final String JOINER_SPACE_delimiter = " ";
+    private static final StrJoiner JOINER_COMMA = new StrJoiner(", ");
+    private static final StrJoiner JOINER_AND = new StrJoiner(" and ");
+    private static final StrJoiner JOINER_SPACE = new StrJoiner(" ");
 
+    private static class StrJoiner{
+        private String delimiter;
+
+        StrJoiner(String delimiter){
+            this.delimiter = delimiter;
+        }
+        public String join(List<String> list){
+            return String.join(this.delimiter,list);
+        }
+    }
     private enum Expression {
         EQUAL("UDFOPEqual", "="),
         GREATER_THAN_OR_EQUAL_TO("UDFOPEqualOrGreaterThan", ">="),
@@ -275,18 +275,18 @@ public class PhoenixQueryBuilder {
 
         private final String hiveCompOp;
         private final String sqlCompOp;
-        private final StringJoiner joiner;
+        private final StrJoiner joiner;
         private final boolean supportNotOperator;
 
         Expression(String hiveCompOp, String sqlCompOp) {
             this(hiveCompOp, sqlCompOp, null,null);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, StringJoiner joiner, String joiner2) {
+        Expression(String hiveCompOp, String sqlCompOp, StrJoiner joiner, String joiner2) {
             this(hiveCompOp, sqlCompOp, joiner,false);
         }
 
-        Expression(String hiveCompOp, String sqlCompOp, StringJoiner joiner, boolean supportNotOp) {
+        Expression(String hiveCompOp, String sqlCompOp, StrJoiner joiner, boolean supportNotOp) {
             this.hiveCompOp = hiveCompOp;
             this.sqlCompOp = sqlCompOp;
             this.joiner = joiner;
@@ -332,12 +332,9 @@ public class PhoenixQueryBuilder {
             if (constantDesc == null) {
                 return StringUtil.EMPTY_STRING;
             }
-
-            List<String> list = Arrays.asList(constantDesc).stream()
+            return joiner.join(Arrays.asList(constantDesc).stream()
                 .map(s-> createConstantString(typeName,String.valueOf(s.getValue())))
-                .collect(Collectors.toList());
-
-            return joiner.add(list);
+                .collect(Collectors.toList()));
         }
 
         private static class ConstantStringWrapper {
@@ -356,14 +353,8 @@ public class PhoenixQueryBuilder {
             }
 
             public String apply(final String typeName, String value) {
-
-                return Iterables.any(types, new Predicate<String>() {
-
-                    @Override
-                    public boolean apply(@Nullable String type) {
-                        return typeName.startsWith(type);
-                    }
-                }) ? prefix + value + postfix : value;
+                return types.stream().anyMatch(type -> typeName.startsWith(type))
+                    ? prefix + value + postfix : value;
             }
         }
 
