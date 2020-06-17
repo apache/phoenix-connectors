@@ -114,10 +114,10 @@ public class PhoenixMetaHook implements HiveMetaHook {
                     // Phoenix must define max length of binary when type definition. Obtaining
                     // information from the column mapping. ex) phoenix.rowkeys = "r1, r2(100), ..."
                     List<String> tokenList =
-                       new ArrayList<>(Arrays.asList(Arrays.stream(rowKeyName
-                           .split("\\(|\\)"))
-                           .map(String::trim)
-                           .toArray(String[]::new)));
+                       new ArrayList<>();
+                    for (String name: rowKeyName.split("\\(|\\)")) {
+                        tokenList.add(name.trim());
+                    }
                     columnType = columnType + "(" + tokenList.get(1) + ")";
                     rowKeyName = tokenList.get(0);
                 }
@@ -137,10 +137,10 @@ public class PhoenixMetaHook implements HiveMetaHook {
                 if ("binary".equals(columnType)) {
                     // Phoenix must define max length of binary when type definition. Obtaining
                     // information from the column mapping. ex) phoenix.column.mapping=c1:c1(100)
-                    List<String> tokenList = new ArrayList<>(Arrays.asList(Arrays.stream(columnName
-                        .split("\\(|\\)"))
-                        .map(String::trim)
-                        .toArray(String[]::new)));
+                    List<String> tokenList = new ArrayList<>();
+                    for(String name: columnName.split("\\(|\\)")){
+                        tokenList.add(name.trim());
+                    }
                     columnType = columnType + "(" + tokenList.get(1) + ")";
                     columnName = tokenList.get(0);
                 }
