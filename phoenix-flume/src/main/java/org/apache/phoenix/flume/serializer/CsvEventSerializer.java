@@ -195,7 +195,15 @@ public class CsvEventSerializer extends BaseEventSerializer {
 
 		public CSVRecord parse(String input) throws IOException {
 			CSVParser csvParser = new CSVParser(new StringReader(input), this.csvFormat);
-			return csvParser.iterator().hasNext() ? csvParser.iterator().next() : null;
+			CSVRecord record;
+			try{
+				record = csvParser.iterator().next();
+			} catch (Exception e) {
+				record = null;
+			}
+
+			return record;
+
 		}
 	}
 

@@ -80,7 +80,7 @@ public class PhoenixSinkIT extends BaseHBaseManagedTimeIT {
     
     
     
-    @Test(expected= NullPointerException.class)
+    @Test
     public void testInvalidConfiguration () {
         
         sinkContext = new Context ();
@@ -89,8 +89,12 @@ public class PhoenixSinkIT extends BaseHBaseManagedTimeIT {
         sinkContext.put(FlumeConstants.CONFIG_SERIALIZER_PREFIX + FlumeConstants.CONFIG_COLUMN_NAMES,"col1,col2");
         sinkContext.put(FlumeConstants.CONFIG_SERIALIZER_PREFIX + FlumeConstants.CONFIG_ROWKEY_TYPE_GENERATOR,DefaultKeyGenerator.TIMESTAMP.name());
 
-        sink = new PhoenixSink();
-        Configurables.configure(sink, sinkContext);
+        try {
+            sink = new PhoenixSink();
+            Configurables.configure(sink, sinkContext);}
+        catch (Exception ex){
+            assertTrue(ex.getCause().toString().contains("java.lang.NullPointerException"));
+        }
     }
     
     @Test(expected=RuntimeException.class)
