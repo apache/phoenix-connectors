@@ -97,7 +97,12 @@ public class PhoenixSink extends AbstractSink implements Configurable {
          
        } catch (Exception e) {
          logger.error("Could not instantiate event serializer." , e);
-         throw new RuntimeException(e);
+         if (e instanceof RuntimeException){
+           throw (RuntimeException) e;
+         }
+         else {
+           throw new RuntimeException(e);
+         }
        }
     }
 
@@ -120,7 +125,12 @@ public class PhoenixSink extends AbstractSink implements Configurable {
         } catch(Exception ex) {
             sinkCounter.incrementConnectionFailedCount();
             logger.error("Error {} in initializing the serializer.",ex.getMessage());
+          if (ex instanceof RuntimeException){
+            throw (RuntimeException) ex;
+          }
+          else {
             throw new RuntimeException(ex);
+          }
        }
        super.start();
     }

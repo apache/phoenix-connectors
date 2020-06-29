@@ -201,7 +201,12 @@ public class PhoenixConsumer {
             serializer.initialize();
         } catch (Exception ex) {
             logger.error("Error {} in initializing the serializer.", ex.getMessage());
-            throw new RuntimeException(ex);
+            if (ex instanceof RuntimeException){
+                throw RuntimeException.class.cast(ex);
+            }
+            else {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -262,7 +267,12 @@ public class PhoenixConsumer {
             serializer.configure(serializerContext);
         } catch (Exception e) {
             logger.error("Could not instantiate event serializer.", e);
-            throw new RuntimeException(e);
+            if (e instanceof RuntimeException){
+                throw (RuntimeException)e;
+            }
+            else {
+                throw new RuntimeException(e);
+            }
         }
     }
     
