@@ -1,0 +1,10 @@
+<configuration>
+  <property>
+    <name>hbase.wal.provider</name>
+    <value>filesystem</value>
+  </property>
+  <property>
+    <name>hbase.wal.meta_provider</name>
+    <value>filesystem</value>
+  </property>
+</configuration>
