@@ -270,7 +270,7 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <executions>
 	    <execution>
-              <id>NeedTheirOwnClusterTests</id>
+              <id>HBaseManagedTimeTests</id>
               <configuration>
                  <encoding>UTF-8</encoding>
                  <forkCount>1</forkCount>
@@ -279,8 +279,9 @@
                  <argLine>-enableassertions -Xmx2000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/ -Dorg.apache.hadoop.hbase.shaded.io.netty.packagePrefix=org.apache.hadoop.hbase.shaded.</argLine>
                  <redirectTestOutputToFile>${test.output.tofile}</redirectTestOutputToFile>
                  <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
-                 <groups>org.apache.phoenix.end2end.NeedsOwnMiniClusterTest</groups>
+                 <groups>org.apache.phoenix.end2end.HBaseManagedTimeTest</groups>
                  <shutdown>kill</shutdown>
+                 <useSystemClassLoader>false</useSystemClassLoader>
               </configuration>
               <goals>
                  <goal>integration-test</goal>
