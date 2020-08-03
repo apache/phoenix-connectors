@@ -70,6 +70,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
     private final String zkUrl;
     private final boolean dateAsTimestamp;
     private final Properties overriddenProps;
+    private final boolean disableBlockCache;
 
     private StructType schema;
     private Filter[] pushedFilters = new Filter[]{};
@@ -87,6 +88,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         this.tableName = options.tableName().get();
         this.zkUrl = options.get(PhoenixDataSource.ZOOKEEPER_URL).get();
         this.dateAsTimestamp = options.getBoolean("dateAsTimestamp", false);
+        this.disableBlockCache = options.getBoolean("NO_CACHE", false);
         this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         setSchema();
     }
@@ -151,6 +153,9 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
             // Optimize the query plan so that we potentially use secondary indexes
             final QueryPlan queryPlan = pstmt.optimizeQuery(selectStatement);
             final Scan scan = queryPlan.getContext().getScan();
+            if (this.disableBlockCache) {
+                scan.setCacheBlocks(false);
+            }
 
             // setting the snapshot configuration
             Optional<String> snapshotName = options.get(PhoenixConfigurationUtil.SNAPSHOT_NAME_KEY);
