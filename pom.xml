@@ -23,10 +23,12 @@
   </organization>
 
   <modules>
-    <module>phoenix-flume</module>
-    <module>phoenix-kafka</module>
-    <module>phoenix-pig</module>
-    <module>phoenix-spark</module>
+    <module>phoenix4-compat</module>
+    <module>phoenix5-compat</module>
+    <module>phoenix-flume-base</module>
+    <module>phoenix-pig-base</module>
+    <module>phoenix-kafka-base</module>
+    <module>phoenix-spark-base</module>
     <module>phoenix-hive</module>
     <module>phoenix-hive3</module>
   </modules>
@@ -37,7 +39,6 @@
       <url>https://repository.apache.org/content/repositories/releases/</url>
     </repository>
   </repositories>
-
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
@@ -52,10 +53,17 @@
 
   <properties>
     <!-- Phoenix Version -->
-    <phoenix.version>4.15.0-HBase-1.4</phoenix.version>
+    <phoenix-four.version>4.15.0-HBase-1.4</phoenix-four.version>
+    <phoenix-five.version>5.1.0-SNAPSHOT</phoenix-five.version>
     <!-- Hadoop Versions -->
-    <hbase.version>1.4.0</hbase.version>
+    <hbase-one.version>1.4.0</hbase-one.version>
+    <hbase-two.version>2.2.4</hbase-two.version>
     <hadoop-two.version>2.7.5</hadoop-two.version>
+    <hadoop-three.version>3.0.3</hadoop-three.version>
+
+    <phoenix.version>${phoenix-four.version}</phoenix.version>
+    <hbase.version>${hbase-one.version}</hbase.version>
+    <hadoop.version>${hadoop-two.version}</hadoop.version>
 
     <!-- General Properties -->
     <test.output.tofile>true</test.output.tofile>
@@ -65,7 +73,6 @@
 
     <!-- Dependency versions -->
     <hive.version>1.2.1</hive.version>
-    <hadoop.version>2.7.5</hadoop.version>
     <pig.version>0.13.0</pig.version>
     <log4j.version>1.2.17</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
@@ -79,13 +86,14 @@
     <scala.binary.version>2.11</scala.binary.version>
     <tephra.version>0.15.0-incubating</tephra.version>
     <mockito-all.version>1.8.5</mockito-all.version>
-    <junit.version>4.12</junit.version>   
+    <junit.version>4.12</junit.version>
 
     <!-- Plugin versions -->
     <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
     <maven-build-helper-plugin.version>1.9.1</maven-build-helper-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+    <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
 
     <maven-dependency-plugin.version>2.1</maven-dependency-plugin.version>
     <maven.assembly.version>2.5.2</maven.assembly.version>
@@ -101,6 +109,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <curator.version>2.12.0</curator.version>
 
+    <shaded.package>org.apache.phoenix.shaded</shaded.package>
   </properties>
 
   <build>
@@ -317,7 +326,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.4.3</version>
+          <version>${maven-shade-plugin.version}</version>
         </plugin>
         <plugin>
           <!-- Allows us to get the apache-ds bundle artifacts -->
@@ -484,23 +493,33 @@
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix-flume</artifactId>
+        <artifactId>phoenix4-flume</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix-kafka</artifactId>
+        <artifactId>phoenix4-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix-pig</artifactId>
+        <artifactId>phoenix4-pig</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix-spark</artifactId>
+        <artifactId>phoenix4-spark</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix4-compat</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix5-compat</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
       </dependency>
 
       <!-- HBase dependencies -->
