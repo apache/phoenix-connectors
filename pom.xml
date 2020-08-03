@@ -25,14 +25,10 @@
   <modules>
     <module>phoenix4-compat</module>
     <module>phoenix5-compat</module>
-    <module>phoenix-flume</module>
-    <module>phoenix5-flume</module>
-    <module>phoenix-kafka</module>
-    <module>phoenix5-kafka</module>
-    <module>phoenix-pig</module>
-    <module>phoenix5-pig</module>
-    <module>phoenix-spark</module>
-    <module>phoenix5-spark</module>
+    <module>phoenix-flume-base</module>
+    <module>phoenix-pig-base</module>
+    <module>phoenix-kafka-base</module>
+    <module>phoenix-spark-base</module>
     <module>phoenix-hive</module>
     <module>phoenix-hive3</module>
   </modules>

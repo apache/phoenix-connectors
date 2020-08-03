@@ -28,8 +28,13 @@
     <artifactId>phoenix-connectors</artifactId>
     <version>6.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>phoenix-pig</artifactId>
-  <name>Phoenix - Pig</name>
+  <artifactId>phoenix-pig-base</artifactId>
+  <name>Phoenix - Pig base</name>
+  <packaging>pom</packaging>
+  <modules>
+    <module>phoenix-pig</module>
+    <module>phoenix5-pig</module>
+  </modules>
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
@@ -169,6 +174,38 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.parent.basedir}/src/main/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-test-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.parent.basedir}/src/test/java</source>
+                <source>${project.parent.basedir}/src/it/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>

@@ -28,8 +28,8 @@
 		<artifactId>phoenix-connectors</artifactId>
 		<version>6.0.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>phoenix-kafka</artifactId>
-	<name>Phoenix - Kafka</name>
+	<artifactId>phoenix-kafka-base</artifactId>
+	<name>Phoenix - Kafka - Base</name>
 
 	<licenses>
 		<license>
@@ -44,6 +44,12 @@
 		<name>Apache Software Foundation</name>
 		<url>http://www.apache.org</url>
 	</organization>
+
+	<packaging>pom</packaging>
+	<modules>
+		<module>phoenix-kafka</module>
+		<module>phoenix5-kafka</module>
+	</modules>
 
 	<properties>
 		<top.dir>${project.basedir}/..</top.dir>
@@ -191,6 +197,60 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.parent.basedir}/src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.parent.basedir}/src/it/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/test-classes
+							</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${project.parent.basedir}/src/it/resources</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- Add the ant-generated sources to the source path -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

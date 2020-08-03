@@ -451,7 +451,6 @@ public class OrderByIT extends BaseOrderByIT {
         }
     }
 
-    @Override
     @Test
     @Ignore
     public void testOrderByNullable() throws SQLException {
