@@ -35,12 +35,29 @@
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
+    <phoenix.compat.version>4</phoenix.compat.version>
+    <phoenix.version>4.16.0-SNAPSHOT</phoenix.version>
+    <hbase.version>1.5.0</hbase.version>
+    <fasterxml.jackson.version>2.10.0</fasterxml.jackson.version>
+    <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>Phoenix${phoenix.compat.version}-compat</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>Phoenix${phoenix.compat.version}-compat</artifactId>
+      <version>6.0.0-SNAPSHOT</version>
     </dependency>
 
     <!-- Force import of Spark's servlet API for unit tests -->
@@ -69,6 +86,41 @@
       <artifactId>spark-sql_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <!--Jackson dependency-->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${fasterxml.jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${fasterxml.jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${fasterxml.jackson.version}</version>
+    </dependency>
+    <!-- Guava is excluded because of SPARK-6149.  The Guava version referenced in this module is
+         15.0, which causes runtime incompatibility issues. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-scala_${scala.binary.version}</artifactId>
+      <version>${fasterxml.jackson.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jaxb-annotations</artifactId>
+      <version>${fasterxml.jackson.version}</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -23,10 +23,16 @@
   </organization>
 
   <modules>
+    <module>phoenix4-compat</module>
+    <module>phoenix5-compat</module>
     <module>phoenix-flume</module>
+    <module>phoenix5-flume</module>
     <module>phoenix-kafka</module>
+    <module>phoenix5-kafka</module>
     <module>phoenix-pig</module>
+    <module>phoenix5-pig</module>
     <module>phoenix-spark</module>
+    <module>phoenix5-spark</module>
     <module>phoenix-hive</module>
     <module>phoenix-hive3</module>
   </modules>
@@ -86,6 +92,7 @@
     <maven-build-helper-plugin.version>1.9.1</maven-build-helper-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+    <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
 
     <maven-dependency-plugin.version>2.1</maven-dependency-plugin.version>
     <maven.assembly.version>2.5.2</maven.assembly.version>
@@ -317,7 +324,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.4.3</version>
+          <version>${maven-shade-plugin.version}</version>
         </plugin>
         <plugin>
           <!-- Allows us to get the apache-ds bundle artifacts -->

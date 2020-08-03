@@ -17,8 +17,8 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
-import jline.internal.Preconditions;
 import org.apache.spark.sql.types.StructType;
+import org.apache.phoenix.compat.CompatUtil;
 
 import java.io.Serializable;
 import java.util.Properties;
@@ -36,10 +36,10 @@ class PhoenixDataSourceWriteOptions implements Serializable {
     private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
             String tenantId, StructType schema, boolean skipNormalizingIdentifier,
             Properties overriddenProps) {
-        Preconditions.checkNotNull(tableName);
-        Preconditions.checkNotNull(zkUrl);
-        Preconditions.checkNotNull(schema);
-        Preconditions.checkNotNull(overriddenProps);
+        CompatUtil.checkNotNull(tableName);
+        CompatUtil.checkNotNull(zkUrl);
+        CompatUtil.checkNotNull(schema);
+        CompatUtil.checkNotNull(overriddenProps);
         this.tableName = tableName;
         this.zkUrl = zkUrl;
         this.scn = scn;

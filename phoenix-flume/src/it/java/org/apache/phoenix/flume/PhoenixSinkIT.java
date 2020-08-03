@@ -38,8 +38,8 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.sink.DefaultSinkFactory;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
 import org.apache.phoenix.flume.serializer.CustomSerializer;
 import org.apache.phoenix.flume.serializer.EventSerializers;
@@ -186,13 +186,7 @@ public class PhoenixSinkIT extends BaseHBaseManagedTimeIT {
         sink.setChannel(channel);
         
         sink.start();
-        HBaseAdmin admin = driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin();
-        try {
-            boolean exists = admin.tableExists(fullTableName);
-            Assert.assertTrue(exists);
-        }finally {
-            admin.close();
-        }
+        CompatUtil.assertTableExists(driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin(), fullTableName);
     }
 
     @Test

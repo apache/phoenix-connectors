@@ -21,7 +21,7 @@ import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.util.RegionSizeCalculator;
+import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.iterate.MapReduceParallelScanGrouper;
 import org.apache.phoenix.jdbc.PhoenixConnection;
@@ -168,8 +168,6 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
                     phxConn.getQueryServices().getAdmin().getConnection();
             RegionLocator regionLocator = connection.getRegionLocator(TableName.valueOf(queryPlan
                     .getTableRef().getTable().getPhysicalName().toString()));
-            RegionSizeCalculator sizeCalculator = new RegionSizeCalculator(regionLocator, connection
-                    .getAdmin());
 
             final List<InputPartition<InternalRow>> partitions = new ArrayList<>(allSplits.size());
             for (List<Scan> scans : queryPlan.getScans()) {
@@ -182,8 +180,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
                 String regionLocation = location.getHostname();
 
                 // Get the region size
-                long regionSize = sizeCalculator.getRegionSize(
-                        location.getRegionInfo().getRegionName());
+                long regionSize = CompatUtil.getSize(regionLocator, connection.getAdmin(), location);
 
                 PhoenixDataSourceReadOptions phoenixDataSourceOptions =
                         new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
