@@ -3,16 +3,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>phoenix-connectors</artifactId>
-        <groupId>org.apache.phoenix</groupId>
-        <version>6.0.0-SNAPSHOT</version>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>14</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <version>6.0.0-SNAPSHOT</version>
 
     <groupId>org.apache.phoenix</groupId>
-    <artifactId>Phoenix4-compat</artifactId>
+    <artifactId>phoenix4-compat</artifactId>
 
+    <properties>
+        <phoenix.version>4.15.0-HBase-1.4</phoenix.version>
+        <hbase.version>1.4.0</hbase.version>
+    </properties>
 
     <build>
         <plugins>
@@ -35,21 +39,6 @@
     </build>
 
     <dependencies>
-        <!-- Phoenix dependencies -->
-        <dependency>
-            <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix-core</artifactId>
-            <version>${phoenix.version}</version>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix-core</artifactId>
-            <version>${phoenix.version}</version>
-        </dependency>
-
         <!-- HBase dependencies -->
         <dependency>
             <groupId>org.apache.hbase</groupId>
@@ -63,13 +52,11 @@
             <version>${hbase.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <version>${hbase.version}</version>
         </dependency>
-
     </dependencies>
 
     <reporting>

@@ -14,10 +14,9 @@
 
     <properties>
         <top.dir>${project.basedir}/..</top.dir>
-        <phoenix.version>5.1.0-SNAPSHOT</phoenix.version>
-        <hbase.version>2.2.4</hbase.version>
-        <hadoop.version>3.0.3</hadoop.version>
-        <hadoop-two.version>3.0.3</hadoop-two.version>
+        <phoenix.version>${phoenix-five.version}</phoenix.version>
+        <hbase.version>${hbase-two.version}</hbase.version>
+        <hadoop.version>${hadoop-three.version}</hadoop.version>
         <phoenix.compat.version>5</phoenix.compat.version>
         <curator.version>4.0.0</curator.version>
         <jdk.version>1.8</jdk.version>

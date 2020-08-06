@@ -186,7 +186,8 @@ public class PhoenixSinkIT extends BaseHBaseManagedTimeIT {
         sink.setChannel(channel);
         
         sink.start();
-        CompatUtil.assertTableExists(driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin(), fullTableName);
+        Assert.assertTrue(CompatUtil.tableExists(driver.getConnectionQueryServices(getUrl(),
+                TestUtil.TEST_PROPERTIES).getAdmin(), fullTableName));
     }
 
     @Test

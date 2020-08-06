@@ -18,7 +18,6 @@
 package org.apache.phoenix.spark.datasource.v2.writer;
 
 import org.apache.spark.sql.types.StructType;
-import org.apache.phoenix.compat.CompatUtil;
 
 import java.io.Serializable;
 import java.util.Properties;
@@ -36,10 +35,18 @@ class PhoenixDataSourceWriteOptions implements Serializable {
     private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
             String tenantId, StructType schema, boolean skipNormalizingIdentifier,
             Properties overriddenProps) {
-        CompatUtil.checkNotNull(tableName);
-        CompatUtil.checkNotNull(zkUrl);
-        CompatUtil.checkNotNull(schema);
-        CompatUtil.checkNotNull(overriddenProps);
+        if (tableName == null) {
+            throw new NullPointerException();
+        }
+        if (zkUrl == null) {
+            throw new NullPointerException();
+        }
+        if (schema == null) {
+            throw new NullPointerException();
+        }
+        if (overriddenProps == null) {
+            throw new NullPointerException();
+        }
         this.tableName = tableName;
         this.zkUrl = zkUrl;
         this.scn = scn;

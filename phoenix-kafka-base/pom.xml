@@ -47,7 +47,7 @@
 
 	<packaging>pom</packaging>
 	<modules>
-		<module>phoenix-kafka</module>
+		<module>phoenix4-kafka</module>
 		<module>phoenix5-kafka</module>
 	</modules>
 
@@ -191,7 +191,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.phoenix</groupId>
-			<artifactId>phoenix-flume</artifactId>
+			<artifactId>phoenix4-flume</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -285,11 +285,6 @@
 					</buildcommands>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -297,10 +292,6 @@
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>${maven-dependency-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
 			</plugin>
 
 			<plugin>
@@ -319,9 +310,9 @@
 							<shadeTestJar>false</shadeTestJar>
 							<artifactSet>
 								<includes>
-									<include>org.apache.phoenix:phoenix-kafka</include>
+									<include>org.apache.phoenix:phoenix4-kafka</include>
 									<include>org.apache.kafka:kafka-clients</include>
-									<include>org.apache.phoenix:phoenix-flume</include>
+									<include>org.apache.phoenix:phoenix4-flume</include>
 								</includes>
 							</artifactSet>
 						</configuration>

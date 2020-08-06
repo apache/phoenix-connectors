@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>phoenix-kafka</artifactId>
-    <name>Phoenix - Kafka</name>
-
+    <artifactId>phoenix4-kafka</artifactId>
+    <name>Phoenix4 - Kafka</name>
 
 </project>

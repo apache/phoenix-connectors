@@ -22,7 +22,6 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.util.RegionSizeCalculator;
-import jline.internal.Preconditions;
 import org.junit.Assert;
 
 import java.io.IOException;
@@ -33,18 +32,13 @@ public class CompatUtil {
         // Not to be instantiated
     }
 
-    public static void assertTableExists(HBaseAdmin admin, String fullTableName)
+    public static boolean tableExists(HBaseAdmin admin, String fullTableName)
             throws IOException {
         try {
-            boolean exists = admin.tableExists(fullTableName);
-            Assert.assertTrue(exists);
+            return admin.tableExists(fullTableName);
         } finally {
             admin.close();
         }
-    }
-
-    public static boolean isEmpty(String text) {
-        return org.apache.commons.lang.StringUtils.isEmpty(text);
     }
 
     public static long getSize(RegionLocator regionLocator, Admin admin,
@@ -55,9 +49,5 @@ public class CompatUtil {
 
     public static byte[] getTableName(byte[] tableNameBytes) {
         return tableNameBytes;
-    }
-
-    public static void checkNotNull(Object o) {
-        Preconditions.checkNotNull(o);
     }
 }

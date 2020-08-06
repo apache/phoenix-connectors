@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.pig;
 
-import org.apache.phoenix.compat.CompatUtil;
-
 import java.io.IOException;
 import java.util.Properties;
 
@@ -149,11 +147,12 @@ public final class PhoenixHBaseLoader extends LoadFunc implements LoadMetadata {
             this.tableName = pair.getFirst();
             final String selectedColumns = pair.getSecond();
             
-            if(CompatUtil.isEmpty(this.tableName) && CompatUtil.isEmpty(this.selectQuery)) {
+            if((this.tableName == null || this.tableName.equals("")) &&
+                    (this.selectQuery == null || this.selectQuery.equals(""))) {
                 printUsage(location);
             }
             PhoenixConfigurationUtil.setInputTableName(this.config, this.tableName);
-            if(!CompatUtil.isEmpty(selectedColumns)) {
+            if(selectedColumns != null && !selectedColumns.equals("")) {
                 PhoenixConfigurationUtil.setSelectColumnNames(this.config, selectedColumns.split(","));   
             }
         } catch(IllegalArgumentException iae) {
