@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>phoenix4-flume</artifactId>
-    <name>Phoenix4 - Flume</name>
+    <name>Phoenix Flume Connector for Phoenix 4</name>
 
 
 </project>

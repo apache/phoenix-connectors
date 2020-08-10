@@ -29,7 +29,7 @@
     <version>6.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoenix-flume-base</artifactId>
-  <name>Phoenix - Flume - Base</name>
+  <name>Phoenix Flume Connector - Base</name>
   <packaging>pom</packaging>
   <modules>
       <module>phoenix4-flume</module>

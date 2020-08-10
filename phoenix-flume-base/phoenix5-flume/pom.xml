@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>phoenix5-flume</artifactId>
-    <name>Phoenix5 - Flume</name>
+    <name>Phoenix Flume Connector for Phoenix 5</name>
 
     <properties>
         <top.dir>${project.basedir}/..</top.dir>
