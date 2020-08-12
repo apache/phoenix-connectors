@@ -152,7 +152,7 @@ public final class PhoenixHBaseLoader extends LoadFunc implements LoadMetadata {
                 printUsage(location);
             }
             PhoenixConfigurationUtil.setInputTableName(this.config, this.tableName);
-            if(selectedColumns != null && !selectedColumns.equals("")) {
+            if(selectedColumns != null && !selectedColumns.isEmpty()) {
                 PhoenixConfigurationUtil.setSelectColumnNames(this.config, selectedColumns.split(","));   
             }
         } catch(IllegalArgumentException iae) {
