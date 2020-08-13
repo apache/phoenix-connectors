@@ -49,4 +49,6 @@ public class CompatUtil {
     public static TableName getTableName(byte[] tableNameBytes) {
         return TableName.valueOf(tableNameBytes);
     }
+
+    public static boolean DateAndTimestampSupport() { return true; }
 }

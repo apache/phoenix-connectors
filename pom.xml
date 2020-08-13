@@ -29,8 +29,7 @@
     <module>phoenix-pig-base</module>
     <module>phoenix-kafka-base</module>
     <module>phoenix-spark-base</module>
-    <module>phoenix-hive</module>
-    <module>phoenix-hive3</module>
+    <module>phoenix-hive-base</module>
   </modules>
 
   <repositories>
@@ -72,7 +71,9 @@
     <jdk.version>1.7</jdk.version>
 
     <!-- Dependency versions -->
-    <hive.version>1.2.1</hive.version>
+    <hive3.version>3.1.2</hive3.version>
+    <hive2.version>2.3.7</hive2.version>
+    <hive.version>${hive2.version}</hive.version>
     <pig.version>0.13.0</pig.version>
     <log4j.version>1.2.17</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
@@ -110,6 +111,7 @@
     <curator.version>2.12.0</curator.version>
 
     <shaded.package>org.apache.phoenix.shaded</shaded.package>
+
   </properties>
 
   <build>
