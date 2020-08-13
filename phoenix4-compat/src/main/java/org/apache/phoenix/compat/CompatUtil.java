@@ -22,7 +22,6 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.util.RegionSizeCalculator;
-import org.junit.Assert;
 
 import java.io.IOException;
 
@@ -49,5 +48,13 @@ public class CompatUtil {
 
     public static byte[] getTableName(byte[] tableNameBytes) {
         return tableNameBytes;
+    }
+
+    public static boolean isPhoenix4() {
+        return true;
+    }
+
+    public static boolean isPhoenix5() {
+        return false;
     }
 }

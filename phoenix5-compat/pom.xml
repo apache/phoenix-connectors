@@ -35,7 +35,7 @@
 
     <properties>
         <phoenix.version>5.1.0-SNAPSHOT</phoenix.version>
-        <hbase.version>2.2.4</hbase.version>
+        <hbase.version>2.1.9</hbase.version>
     </properties>
 
     <build>
