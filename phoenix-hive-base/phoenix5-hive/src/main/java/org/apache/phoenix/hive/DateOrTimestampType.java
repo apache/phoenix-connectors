@@ -23,7 +23,7 @@ import org.apache.hadoop.hive.common.type.Timestamp;
 /**
  * Serializer used in PhoenixSerDe and PhoenixRecordUpdater to produce Writable.
  */
-public class SpecificPhoenixSeriazer {
+public class DateOrTimestampType {
     public static Object GetValue(Object value){
         if (value instanceof Date) {
             value = java.sql.Date.valueOf(value.toString());

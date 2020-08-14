@@ -168,8 +168,8 @@ public class PhoenixSerializer {
                             value = ((HiveDecimal) value).bigDecimalValue();
                         } else if (value instanceof HiveChar) {
                             value = ((HiveChar) value).getValue().trim();
-                        } else if (CompatUtil.DateAndTimestampSupport()){
-                            value = SpecificPhoenixSeriazer.GetValue(value);
+                        } else if (CompatUtil.isDateAndTimestampSupported()){
+                            value = DateOrTimestampType.GetValue(value);
                         }
 
                         pResultWritable.add(value);

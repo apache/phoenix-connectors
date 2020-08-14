@@ -26,7 +26,7 @@ import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
  * {@link IndexPredicateAnalyzer}.
  *
  */
-public class IndexSearchConditionBase {
+public abstract class IndexSearchConditionBase {
     private ExprNodeColumnDesc columnDesc;
     private String comparisonOp;
     private ExprNodeConstantDesc constantDesc;

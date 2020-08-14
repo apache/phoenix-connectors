@@ -14,7 +14,6 @@
 
     <properties>
         <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
-        <netty.version>4.1.47.Final</netty.version>
         <phoenix.version>${phoenix-five.version}</phoenix.version>
         <hbase.version>${hbase-two.version}</hbase.version>
         <hadoop.version>${hadoop-three.version}</hadoop.version>

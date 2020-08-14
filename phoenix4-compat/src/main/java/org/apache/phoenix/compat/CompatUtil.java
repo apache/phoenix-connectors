@@ -50,5 +50,5 @@ public class CompatUtil {
         return tableNameBytes;
     }
 
-    public static boolean DateAndTimestampSupport() { return false; }
+    public static boolean isDateAndTimestampSupported() { return false; }
 }

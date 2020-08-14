@@ -64,7 +64,7 @@ import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
  * Misc utils for PhoenixStorageHandler
  */
 
-public class PhoenixStorageHandlerUtilBase {
+public abstract class PhoenixStorageHandlerUtilBase {
     protected static final Log LOG = LogFactory.getLog(PhoenixStorageHandlerUtilBase.class);
     protected static final AtomicReference<Method> GET_BUCKET_METHOD_REF = new AtomicReference<>();
     protected static final AtomicReference<Method> GET_BUCKET_ID_METHOD_REF = new AtomicReference<>();

@@ -20,7 +20,7 @@ package org.apache.phoenix.hive;
 /**
  * Serializer used in PhoenixSerDe and PhoenixRecordUpdater to produce Writable.
  */
-public class SpecificPhoenixSeriazer {
+public class DateOrTimestampType {
     public static Object GetValue(Object value){
         return null;
     }
