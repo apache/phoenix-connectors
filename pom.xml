@@ -57,7 +57,7 @@
     <phoenix-five.version>5.1.0-SNAPSHOT</phoenix-five.version>
     <!-- Hadoop Versions -->
     <hbase-one.version>1.4.0</hbase-one.version>
-    <hbase-two.version>2.2.4</hbase-two.version>
+    <hbase-two.version>2.1.9</hbase-two.version>
     <hadoop-two.version>2.7.5</hadoop-two.version>
     <hadoop-three.version>3.0.3</hadoop-three.version>
 

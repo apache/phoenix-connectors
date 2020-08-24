@@ -34,9 +34,9 @@
     <properties>
         <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
         <netty.version>4.1.47.Final</netty.version>
-        <phoenix.version>5.1.0-SNAPSHOT</phoenix.version>
-        <hbase.version>2.2.4</hbase.version>
-        <hadoop.version>3.0.3</hadoop.version>
+        <phoenix.version>${phoenix-five.version}</phoenix.version>
+        <hbase.version>${hbase-two.version}</hbase.version>
+        <hadoop.version>${hadoop-three.version}</hadoop.version>
         <avatica.version>1.12.0</avatica.version>
         <hive3.version>3.1.2</hive3.version>
         <curator.version>4.0.0</curator.version>
