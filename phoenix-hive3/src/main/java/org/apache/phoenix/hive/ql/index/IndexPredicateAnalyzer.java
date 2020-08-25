@@ -351,14 +351,18 @@ public class IndexPredicateAnalyzer {
             searchConditions, Object... nodeOutputs) throws SemanticException {
 
         if (FunctionRegistry.isOpAnd(expr)) {
-            assert (nodeOutputs.length == 2);
-            ExprNodeDesc residual1 = (ExprNodeDesc)nodeOutputs[0];
-            ExprNodeDesc residual2 = (ExprNodeDesc)nodeOutputs[1];
-            if (residual1 == null) { return residual2; }
-            if (residual2 == null) { return residual1; }
-            List<ExprNodeDesc> residuals = new ArrayList<ExprNodeDesc>();
-            residuals.add(residual1);
-            residuals.add(residual2);
+            List<ExprNodeDesc> residuals = new ArrayList<>();
+            // GenericUDFOPAnd can expect more than 2 arguments after HIVE-11398
+            for (Object nodeOutput : nodeOutputs) {
+                // The null value of nodeOutput means the predicate is pushed down to Phoenix. So
+                // we don't need to add it to the residual predicate list
+                if (nodeOutput != null) {
+                    residuals.add((ExprNodeDesc) nodeOutput);
+                }
+            }
+            if (residuals.size() == 1) {
+                return residuals.get(0);
+            }
             return new ExprNodeGenericFuncDesc(TypeInfoFactory.booleanTypeInfo, FunctionRegistry
                     .getGenericUDFForAnd(), residuals);
         }
