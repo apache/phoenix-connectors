@@ -17,45 +17,45 @@
  */
 package org.apache.phoenix.hive.objectinspector;
 
-import org.apache.hadoop.hive.common.type.Date;
-import org.apache.hadoop.hive.serde2.io.DateWritableV2;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.DateObjectInspector;
+import org.apache.hadoop.hive.common.type.Timestamp;
+import org.apache.hadoop.hive.serde2.io.TimestampWritableV2;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.TimestampObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 
 /**
- * ObjectInspector for date type
+ * ObjectInspector for timestamp type
  */
+public class PhoenixTimestampObjectInspectorBase extends
+        AbstractPhoenixObjectInspector<TimestampWritableV2>
+        implements TimestampObjectInspector {
 
-public class PhoenixDateObjectInspector extends AbstractPhoenixObjectInspector<DateWritableV2>
-        implements DateObjectInspector {
-
-    public PhoenixDateObjectInspector() {
-        super(TypeInfoFactory.dateTypeInfo);
+    public PhoenixTimestampObjectInspectorBase()
+    {
+        super(TypeInfoFactory.timestampTypeInfo);
     }
 
     @Override
     public Object copyObject(Object o) {
-        return o == null ? null : java.sql.Date.valueOf(o.toString());
+        return o == null ? null : java.sql.Timestamp.valueOf(o.toString());
     }
 
     @Override
-    public Date getPrimitiveJavaObject(Object o) {
+    public Timestamp getPrimitiveJavaObject(Object o) {
         if (o == null) {
             return null;
         }
-        return Date.valueOf(((java.sql.Date) o).toString());
+        return Timestamp.valueOf(((java.sql.Timestamp) o).toString());
     }
 
     @Override
-    public DateWritableV2 getPrimitiveWritableObject(Object o) {
-        DateWritableV2 value = null;
+    public TimestampWritableV2 getPrimitiveWritableObject(Object o) {
+        TimestampWritableV2 value = null;
 
         if (o != null) {
             try {
-                value = new DateWritableV2(getPrimitiveJavaObject(o));
+                value = new TimestampWritableV2(getPrimitiveJavaObject(o));
             } catch (Exception e) {
-                logExceptionMessage(o, "DATE");
-                value = new DateWritableV2();
+                logExceptionMessage(o, "TIMESTAMP");
             }
         }
 

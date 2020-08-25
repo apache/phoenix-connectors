@@ -27,6 +27,9 @@ import java.io.IOException;
 
 public class CompatUtil {
 
+    public static boolean PHOENIX4ONLY = true;
+    public static boolean PHOENIX5ONLY = false;
+
     private CompatUtil() {
         // Not to be instantiated
     }
@@ -49,6 +52,4 @@ public class CompatUtil {
     public static byte[] getTableName(byte[] tableNameBytes) {
         return tableNameBytes;
     }
-
-    public static boolean isDateAndTimestampSupported() { return false; }
 }

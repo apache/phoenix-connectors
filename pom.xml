@@ -73,7 +73,7 @@
     <!-- Dependency versions -->
     <hive3.version>3.1.2</hive3.version>
     <hive2.version>2.3.7</hive2.version>
-    <hive.version>${hive2.version}</hive.version>
+    <hive.version>${hive3.version}</hive.version>
     <pig.version>0.13.0</pig.version>
     <log4j.version>1.2.17</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>

@@ -19,8 +19,7 @@ package org.apache.phoenix.hive.objectinspector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hive.serde2.lazy.objectinspector.primitive
-        .AbstractPrimitiveLazyObjectInspector;
+import org.apache.hadoop.hive.serde2.lazy.objectinspector.primitive.AbstractPrimitiveLazyObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.io.Writable;
 

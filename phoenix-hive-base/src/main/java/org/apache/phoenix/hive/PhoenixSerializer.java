@@ -31,6 +31,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.phoenix.compat.CompatUtil;
+import org.apache.phoenix.compat.HiveCompatUtil;
 import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 import org.apache.phoenix.hive.mapreduce.PhoenixResultWritable;
 import org.apache.phoenix.hive.util.PhoenixConnectionUtil;
@@ -168,8 +169,8 @@ public class PhoenixSerializer {
                             value = ((HiveDecimal) value).bigDecimalValue();
                         } else if (value instanceof HiveChar) {
                             value = ((HiveChar) value).getValue().trim();
-                        } else if (CompatUtil.isDateAndTimestampSupported()){
-                            value = DateOrTimestampType.GetValue(value);
+                        } else if (CompatUtil.PHOENIX5ONLY){
+                            value = HiveCompatUtil.GetDateOrTimestampValue(value);
                         }
 
                         pResultWritable.add(value);

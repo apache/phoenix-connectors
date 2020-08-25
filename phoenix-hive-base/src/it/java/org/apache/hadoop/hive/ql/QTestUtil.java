@@ -90,6 +90,7 @@ import org.apache.hadoop.hive.common.io.SortPrintStream;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars;
 import org.apache.hadoop.hive.llap.io.api.LlapProxy;
+import org.apache.hadoop.hive.metastore.Warehouse;
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
 import org.apache.hadoop.hive.ql.exec.Task;
 import org.apache.hadoop.hive.ql.exec.Utilities;
@@ -117,6 +118,9 @@ import org.apache.hadoop.hive.shims.HadoopShims;
 import org.apache.hadoop.hive.shims.ShimLoader;
 import org.apache.hive.common.util.StreamPrinter;
 import org.apache.logging.log4j.util.Strings;
+import org.apache.phoenix.compat.CompatUtil;
+import org.apache.phoenix.compat.HiveCompatUtil;
+import org.apache.phoenix.compat.MyResult;
 import org.apache.tools.ant.BuildException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -131,40 +135,22 @@ import com.google.common.collect.ImmutableList;
 
 import junit.framework.TestSuite;
 
-
-class MyResult {
-  private final HiveConf conf;
-  private final QueryState queryState;
-
-  public MyResult(HiveConf conf, QueryState queryState) {
-    this.conf = conf;
-    this.queryState = queryState;
-  }
-
-  public HiveConf getFirst() {
-    return conf;
-  }
-
-  public QueryState getSecond() {
-    return queryState;
-  }
-}
-
 /**
  * QTestUtil. Cloned from Hive 3.0.0 as hive doesn't release hive-it-util artifact
+ * Some changes has been applyed to make Hive 3 and Hive 2 work with the same file
  *
  */
-public abstract class QTestUtilBase {
+public class QTestUtil {
   public static final String UTF_8 = "UTF-8";
   public static final String HIVE_ROOT = getHiveRoot();
   // security property names
-  protected static final String SECURITY_KEY_PROVIDER_URI_NAME = "dfs.encryption.key.provider.uri";
+  private static final String SECURITY_KEY_PROVIDER_URI_NAME = "dfs.encryption.key.provider.uri";
   private static final String CRLF = System.getProperty("line.separator");
 
   public static final String QTEST_LEAVE_FILES = "QTEST_LEAVE_FILES";
-  protected static final Logger LOG = LoggerFactory.getLogger("QTestUtil");
-  protected final static String defaultInitScript = "q_test_init.sql";
-  protected final static String defaultCleanupScript = "q_test_cleanup.sql";
+  private static final Logger LOG = LoggerFactory.getLogger("QTestUtil");
+  private final static String defaultInitScript = "q_test_init.sql";
+  private final static String defaultCleanupScript = "q_test_cleanup.sql";
   private final String[] testOnlyCommands = new String[]{"crypto"};
 
   private static final String TEST_TMP_DIR_PROPERTY = "test.tmp.dir"; // typically target/tmp
@@ -172,14 +158,14 @@ public abstract class QTestUtilBase {
 
   public static final String PATH_HDFS_REGEX = "(hdfs://)([a-zA-Z0-9:/_\\-\\.=])+";
   public static final String PATH_HDFS_WITH_DATE_USER_GROUP_REGEX = "([a-z]+) ([a-z]+)([ ]+)([0-9]+) ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}) " + PATH_HDFS_REGEX;
-  protected static String DEFAULT_DATABASE_NAME;
+  private static String DEFAULT_DATABASE_NAME = HiveCompatUtil.GetDefaultDatabaseName();
 
-  protected String testWarehouse;
+  private String testWarehouse;
   private final String testFiles;
   protected final String outDir;
   protected String overrideResultsDir;
   protected final String logDir;
-  protected final TreeMap<String, String> qMap;
+  private final TreeMap<String, String> qMap;
   private final Set<String> qSkipSet;
   private final Set<String> qSortSet;
   private final Set<String> qSortQuerySet;
@@ -190,22 +176,23 @@ public abstract class QTestUtilBase {
   private static final String SORT_SUFFIX = ".sorted";
   private final Set<String> srcTables;
   private final Set<String> srcUDFs;
-  protected final MiniClusterType clusterType;
-  protected final FsType fsType;
-  protected ParseDriver pd;
+  private final MiniClusterType clusterType;
+  private final FsType fsType;
+  private ParseDriver pd;
   protected Hive db;
   protected QueryState queryState;
   protected HiveConf conf;
-  protected BaseSemanticAnalyzer sem;
+  private Object drv; // IDriver in Phoenix5Hive3, null in Phoenix4Hive2
+  private BaseSemanticAnalyzer sem;
   protected final boolean overWrite;
   private CliDriver cliDriver;
-  protected HadoopShims.MiniMrShim mr = null;
-  protected HadoopShims.MiniDFSShim dfs = null;
-  protected FileSystem fs;
-  protected HadoopShims.HdfsEncryptionShim hes = null;
+  private HadoopShims.MiniMrShim mr = null;
+  private HadoopShims.MiniDFSShim dfs = null;
+  private FileSystem fs;
+  private HadoopShims.HdfsEncryptionShim hes = null;
   private String hadoopVer = null;
-  protected QTestSetup setup = null;
-  protected SparkSession sparkSession = null;
+  private QTestSetup setup = null;
+  private SparkSession sparkSession = null;
   private boolean isSessionStateStarted = false;
   private static final String javaVersion = getJavaVersion();
 
@@ -412,7 +399,7 @@ public abstract class QTestUtilBase {
     // TODO Make sure to cleanup created dirs.
   }
 
-  protected void createRemoteDirs() {
+  private void createRemoteDirs() {
     assert fs != null;
     Path warehousePath = fs.makeQualified(new Path(conf.getVar(ConfVars.METASTOREWAREHOUSE)));
     assert warehousePath != null;
@@ -440,7 +427,7 @@ public abstract class QTestUtilBase {
     }
   }
 
-  protected enum CoreClusterType {
+  private enum CoreClusterType {
     MR,
     TEZ,
     SPARK,
@@ -466,7 +453,7 @@ public abstract class QTestUtilBase {
     druid(CoreClusterType.DRUID, FsType.hdfs);
 
 
-    protected final CoreClusterType coreClusterType;
+    private final CoreClusterType coreClusterType;
     private final FsType defaultFsType;
 
     MiniClusterType(CoreClusterType coreClusterType, FsType defaultFsType) {
@@ -507,7 +494,7 @@ public abstract class QTestUtilBase {
   }
 
 
-  protected String getKeyProviderURI() {
+  private String getKeyProviderURI() {
     // Use the target directory if it is not specified
     String keyDir = HIVE_ROOT + "ql/target/";
 
@@ -515,14 +502,14 @@ public abstract class QTestUtilBase {
     return "jceks://file" + new Path(keyDir, "test.jks").toUri();
   }
 
-  public QTestUtilBase(String outDir, String logDir, MiniClusterType clusterType,
+  public QTestUtil(String outDir, String logDir, MiniClusterType clusterType,
                    String confDir, String hadoopVer, String initScript, String cleanupScript,
                    boolean withLlapIo) throws Exception {
     this(outDir, logDir, clusterType, confDir, hadoopVer, initScript, cleanupScript,
         withLlapIo, null);
   }
 
-  public QTestUtilBase(String outDir, String logDir, MiniClusterType clusterType,
+  public QTestUtil(String outDir, String logDir, MiniClusterType clusterType,
                    String confDir, String hadoopVer, String initScript, String cleanupScript,
                    boolean withLlapIo, FsType fsType)
     throws Exception {
@@ -540,7 +527,7 @@ public abstract class QTestUtilBase {
     this.srcTables=getSrcTables();
     this.srcUDFs = getSrcUDFs();
 
-    MyResult result = doSetup(confDir);
+    MyResult result = HiveCompatUtil.doSetup(confDir);
     conf = result.getFirst();
     queryState = result.getSecond();
 
@@ -592,8 +579,6 @@ public abstract class QTestUtilBase {
 
     init();
   }
-
-  protected abstract MyResult doSetup(String confDir) throws MalformedURLException;
 
   private void setupFileSystem(HadoopShims shims) throws IOException {
 
@@ -652,6 +637,10 @@ public abstract class QTestUtilBase {
   public void shutdown() throws Exception {
     if (System.getenv(QTEST_LEAVE_FILES) == null) {
       cleanUp();
+    }
+
+    if (CompatUtil.PHOENIX5ONLY && clusterType.getCoreClusterType() == CoreClusterType.TEZ){
+      HiveCompatUtil.destroyTEZSession(SessionState.get());
     }
 
     setup.tearDown();
@@ -953,6 +942,32 @@ public abstract class QTestUtilBase {
     }
   }
 
+  /**
+   * Clear out any side effects of running tests
+   */
+  public void clearTestSideEffects() throws Exception {
+    if (System.getenv(QTEST_LEAVE_FILES) != null) {
+      return;
+    }
+
+    if(CompatUtil.PHOENIX5ONLY){
+      HiveCompatUtil.cleanupQueryResultCache();
+    }
+
+    // allocate and initialize a new conf since a test can
+    // modify conf by using 'set' commands
+    conf = HiveCompatUtil.getHiveConf();
+    initConf();
+    initConfFromSetup();
+
+    // renew the metastore since the cluster type is unencrypted
+    db = Hive.get(conf);  // propagate new conf to meta store
+
+    clearTablesCreatedDuringTests();
+    clearUDFsCreatedDuringTests();
+    clearKeysCreatedInTests();
+  }
+
   protected void initConfFromSetup() throws Exception {
     setup.preTest(conf);
   }
@@ -1011,6 +1026,28 @@ public abstract class QTestUtilBase {
     FunctionRegistry.unregisterTemporaryUDF("test_error");
   }
 
+  protected void runCreateTableCmd(String createTableCmd) throws Exception {
+    int ecode = 0;
+    ecode = HiveCompatUtil.getDriverResponseCode(drv, createTableCmd);
+    if (ecode != 0) {
+      throw new Exception("create table command: " + createTableCmd
+          + " failed with exit code= " + ecode);
+    }
+
+    return;
+  }
+
+  protected void runCmd(String cmd) throws Exception {
+    int ecode = 0;
+    ecode = HiveCompatUtil.getDriverResponseCode(drv, cmd);
+    HiveCompatUtil.closeDriver(drv);
+    if (ecode != 0) {
+      throw new Exception("command: " + cmd
+          + " failed with exit code= " + ecode);
+    }
+    return;
+  }
+
   public void createSources() throws Exception {
     createSources(null);
   }
@@ -1044,7 +1081,31 @@ public abstract class QTestUtilBase {
     conf.setBoolean("hive.test.init.phase", false);
   }
 
-  public abstract void init() throws Exception;
+  public void init() throws Exception {
+
+    // Create remote dirs once.
+    if (mr != null) {
+      createRemoteDirs();
+    }
+
+    if (CompatUtil.PHOENIX5ONLY) {
+      // Create views registry
+      HiveCompatUtil.initHiveMaterializedViewsRegistry();
+    }
+
+    testWarehouse = conf.getVar(HiveConf.ConfVars.METASTOREWAREHOUSE);
+    String execEngine = conf.get("hive.execution.engine");
+    conf.set("hive.execution.engine", "mr");
+    SessionState.start(conf);
+    conf.set("hive.execution.engine", execEngine);
+    db = Hive.get(conf);
+    drv = HiveCompatUtil.getDriver(conf);
+    if(CompatUtil.PHOENIX4ONLY) {
+      HiveCompatUtil.initHiveMaterializedViewsRegistry(db);
+    }
+    pd = new ParseDriver();
+    sem = new SemanticAnalyzer(queryState);
+  }
 
   public void init(String tname) throws Exception {
     cleanUp(tname);
@@ -1195,6 +1256,10 @@ public abstract class QTestUtilBase {
 
     System.out.println("Executing " + q1);
     return cliDriver.processLine(q1);
+  }
+
+  public int execute(String tname) {
+    return HiveCompatUtil.getDriverResponseCode(drv, qMap.get(tname));
   }
 
   public int executeClient(String tname1, String tname2) {
@@ -1356,6 +1421,19 @@ public abstract class QTestUtilBase {
     }
 
     return outFileExtension;
+  }
+
+  public void convertSequenceFileToTextFile() throws Exception {
+    // Create an instance of hive in order to create the tables
+    testWarehouse = conf.getVar(HiveConf.ConfVars.METASTOREWAREHOUSE);
+    db = Hive.get(conf);
+
+    // Move all data from dest4_sequencefile to dest4
+    HiveCompatUtil.getDriverResponseCode(drv, "FROM dest4_sequencefile INSERT OVERWRITE TABLE dest4 SELECT dest4_sequencefile.*");
+
+
+    // Drop dest4_sequencefile
+    db.dropTable(DEFAULT_DATABASE_NAME, "dest4_sequencefile", true, true);
   }
 
   public QTestProcessExecResult checkNegativeResults(String tname, Exception e) throws Exception {
@@ -1810,6 +1888,12 @@ public abstract class QTestUtilBase {
     return pd.parse(qMap.get(tname));
   }
 
+  public void resetParser() throws SemanticException {
+    pd = new ParseDriver();
+    queryState = HiveCompatUtil.getQueryState(conf);
+    sem = new SemanticAnalyzer(queryState);
+  }
+
 
   public List<Task<? extends Serializable>> analyzeAST(ASTNode ast) throws Exception {
 
@@ -1939,8 +2023,8 @@ public abstract class QTestUtilBase {
     QTestUtil[] qt = new QTestUtil[qfiles.length];
     for (int i = 0; i < qfiles.length; i++) {
       qt[i] = new QTestUtil(resDir, logDir, MiniClusterType.none, null, "0.20",
-        initScript == null ? defaultInitScript : initScript,
-        cleanupScript == null ? defaultCleanupScript : cleanupScript, false);
+              initScript == null ? defaultInitScript : initScript,
+              cleanupScript == null ? defaultCleanupScript : cleanupScript, false);
       qt[i].addFile(qfiles[i]);
       qt[i].clearTestSideEffects();
     }
@@ -1959,7 +2043,7 @@ public abstract class QTestUtilBase {
    * @return true if all queries passed, false otw
    */
   public static boolean queryListRunnerSingleThreaded(File[] qfiles, QTestUtil[] qt)
-    throws Exception
+          throws Exception
   {
     boolean failed = false;
     qt[0].cleanUp();
@@ -1973,9 +2057,9 @@ public abstract class QTestUtilBase {
         failed = true;
         StringBuilder builder = new StringBuilder();
         builder.append("Test ")
-            .append(qfiles[i].getName())
-            .append(" results check failed with error code ")
-            .append(result.getReturnCode());
+                .append(qfiles[i].getName())
+                .append(" results check failed with error code ")
+                .append(result.getReturnCode());
         if (Strings.isNotEmpty(result.getCapturedOutput())) {
           builder.append(" and diff value ").append(result.getCapturedOutput());
         }
@@ -2002,7 +2086,7 @@ public abstract class QTestUtilBase {
    *
    */
   public static boolean queryListRunnerMultiThreaded(File[] qfiles, QTestUtil[] qt)
-    throws Exception
+          throws Exception
   {
     boolean failed = false;
 
@@ -2031,9 +2115,9 @@ public abstract class QTestUtilBase {
         failed = true;
         StringBuilder builder = new StringBuilder();
         builder.append("Test ")
-            .append(qfiles[i].getName())
-            .append(" results check failed with error code ")
-            .append(result.getReturnCode());
+                .append(qfiles[i].getName())
+                .append(" results check failed with error code ")
+                .append(result.getReturnCode());
         if (Strings.isNotEmpty(result.getCapturedOutput())) {
           builder.append(" and diff value ").append(result.getCapturedOutput());
         }

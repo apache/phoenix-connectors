@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hive;
+package org.apache.phoenix.compat;
 
-import org.apache.hadoop.hive.common.type.Date;
-import org.apache.hadoop.hive.common.type.Timestamp;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.ql.QueryState;
 
-/**
- * Serializer used in PhoenixSerDe and PhoenixRecordUpdater to produce Writable.
- */
-public class DateOrTimestampType {
-    public static Object GetValue(Object value){
-        if (value instanceof Date) {
-            value = java.sql.Date.valueOf(value.toString());
-        } else if (value instanceof Timestamp) {
-            value = java.sql.Timestamp.valueOf(value.toString());
-        }
-        return value;
+public class MyResult {
+    private final HiveConf conf;
+    private final QueryState queryState;
+
+    public MyResult(HiveConf conf, QueryState queryState) {
+        this.conf = conf;
+        this.queryState = queryState;
+    }
+
+    public HiveConf getFirst() {
+        return conf;
+    }
+
+    public QueryState getSecond() {
+        return queryState;
     }
 }

@@ -20,13 +20,14 @@ package org.apache.phoenix.hive.ql.index;
 import org.apache.hadoop.hive.ql.plan.ExprNodeColumnDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
+import org.apache.phoenix.compat.HiveCompatUtil;
 
 /**
  * IndexSearchCondition represents an individual search condition found by
  * {@link IndexPredicateAnalyzer}.
  *
  */
-public abstract class IndexSearchConditionBase {
+public class IndexSearchCondition {
     private ExprNodeColumnDesc columnDesc;
     private String comparisonOp;
     private ExprNodeConstantDesc constantDesc;
@@ -38,13 +39,13 @@ public abstract class IndexSearchConditionBase {
     private ExprNodeConstantDesc[] multiConstants;
     protected boolean isNot;
 
-    public IndexSearchConditionBase(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc[] multiConstants, ExprNodeGenericFuncDesc
                                         comparisonExpr, boolean isNot) {
         this(columnDesc, comparisonOp, multiConstants, comparisonExpr, null, isNot);
     }
 
-    public IndexSearchConditionBase(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc[] multiConstants, ExprNodeGenericFuncDesc
                                         comparisonExpr, String[] fields, boolean isNot) {
         this.columnDesc = columnDesc;
@@ -68,7 +69,7 @@ public abstract class IndexSearchConditionBase {
     }
     //////////////////////////////////////////////////////////////////////////////
 
-    public IndexSearchConditionBase(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc constantDesc, ExprNodeGenericFuncDesc
                                         comparisonExpr) {
         this(columnDesc, comparisonOp, constantDesc, comparisonExpr, null);
@@ -89,7 +90,7 @@ public abstract class IndexSearchConditionBase {
      * @param constantDesc   constant value to search for
      * @param comparisonExpr the original comparison expression
      */
-    public IndexSearchConditionBase(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc constantDesc, ExprNodeGenericFuncDesc
                                         comparisonExpr, String[] fields) {
 
@@ -135,5 +136,10 @@ public abstract class IndexSearchConditionBase {
     @Override
     public String toString() {
         return comparisonExpr.getExprString();
+    }
+
+    public ExprNodeGenericFuncDesc getComparisonExpr()
+    {
+        return HiveCompatUtil.getComparisonExpr(comparisonExpr, isNot);
     }
 }

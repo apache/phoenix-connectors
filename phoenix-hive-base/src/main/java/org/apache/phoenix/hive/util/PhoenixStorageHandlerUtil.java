@@ -55,6 +55,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.net.DNS;
 import org.apache.phoenix.compat.CompatUtil;
+import org.apache.phoenix.compat.HiveCompatUtil;
 import org.apache.phoenix.hive.PrimaryKeyData;
 import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 import org.apache.phoenix.hive.ql.index.IndexSearchCondition;
@@ -64,8 +65,8 @@ import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
  * Misc utils for PhoenixStorageHandler
  */
 
-public abstract class PhoenixStorageHandlerUtilBase {
-    protected static final Log LOG = LogFactory.getLog(PhoenixStorageHandlerUtilBase.class);
+public abstract class PhoenixStorageHandlerUtil {
+    protected static final Log LOG = LogFactory.getLog(PhoenixStorageHandlerUtil.class);
     protected static final AtomicReference<Method> GET_BUCKET_METHOD_REF = new AtomicReference<>();
     protected static final AtomicReference<Method> GET_BUCKET_ID_METHOD_REF = new AtomicReference<>();
 
@@ -272,5 +273,9 @@ public abstract class PhoenixStorageHandlerUtilBase {
         } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getOptionsValue(Options options) {
+        return HiveCompatUtil.getOptionsValue(options, GET_BUCKET_METHOD_REF, GET_BUCKET_ID_METHOD_REF, LOG);
     }
 }

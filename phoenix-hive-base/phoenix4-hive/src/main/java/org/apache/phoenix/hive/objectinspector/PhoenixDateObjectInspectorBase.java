@@ -27,10 +27,12 @@ import java.sql.Date;
  * ObjectInspector for date type
  */
 
-public class PhoenixDateObjectInspector extends AbstractPhoenixObjectInspector<DateWritable>
+
+public class PhoenixDateObjectInspectorBase extends AbstractPhoenixObjectInspector<DateWritable>
         implements DateObjectInspector {
 
-    public PhoenixDateObjectInspector() {
+    public PhoenixDateObjectInspectorBase()
+    {
         super(TypeInfoFactory.dateTypeInfo);
     }
 
