@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
@@ -51,7 +51,7 @@ import static org.apache.phoenix.hive.util.ColumnMappingUtils.getColumnMappingMa
 
 public class PhoenixQueryBuilder {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixQueryBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixQueryBuilder.class);
 
     private static final String QUERY_TEMPLATE = "select $HINT$ $COLUMN_LIST$ from $TABLE_NAME$";
 

@@ -17,8 +17,8 @@
  */
 package org.apache.phoenix.hive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.common.type.HiveChar;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
@@ -51,7 +51,7 @@ import java.util.Properties;
  */
 public class PhoenixSerializer {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixSerializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixSerializer.class);
 
     public static enum DmlType {
         NONE,

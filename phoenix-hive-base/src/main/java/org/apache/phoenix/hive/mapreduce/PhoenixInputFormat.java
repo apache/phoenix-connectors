@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
@@ -72,7 +72,7 @@ import org.apache.phoenix.compat.CompatUtil;
 public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<WritableComparable,
         T> {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixInputFormat.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixInputFormat.class);
 
     public PhoenixInputFormat() {
         if (LOG.isDebugEnabled()) {

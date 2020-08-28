@@ -18,8 +18,8 @@
 package org.apache.phoenix.hive;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.hive.metastore.HiveMetaHook;
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
@@ -42,7 +42,7 @@ import static org.apache.phoenix.hive.util.ColumnMappingUtils.getColumnMappingMa
  */
 public class PhoenixMetaHook implements HiveMetaHook {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixMetaHook.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixMetaHook.class);
     private static final String EXTERNAL_TABLE_PURGE = "external.table.purge";
 
     @Override

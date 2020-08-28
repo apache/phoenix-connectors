@@ -20,8 +20,8 @@ package org.apache.phoenix.pig;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
@@ -76,7 +76,7 @@ import org.apache.pig.impl.util.UDFContext;
  */
 public final class PhoenixHBaseLoader extends LoadFunc implements LoadMetadata {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixHBaseLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixHBaseLoader.class);
     private static final String PHOENIX_TABLE_NAME_SCHEME = "hbase://table/";
     private static final String PHOENIX_QUERY_SCHEME      = "hbase://query/";
     private static final String RESOURCE_SCHEMA_SIGNATURE = "phoenix.pig.schema";

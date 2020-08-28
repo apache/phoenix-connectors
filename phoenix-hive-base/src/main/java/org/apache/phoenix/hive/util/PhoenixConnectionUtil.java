@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hive.metastore.api.Table;
@@ -39,7 +39,7 @@ import org.apache.phoenix.util.QueryUtil;
 
 public class PhoenixConnectionUtil {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixConnectionUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixConnectionUtil.class);
 
     public static Connection getInputConnection(final Configuration conf, final Properties props)
             throws SQLException {
@@ -82,7 +82,7 @@ public class PhoenixConnectionUtil {
         try {
             Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
         } catch (ClassNotFoundException e) {
-            LOG.warn(e.getStackTrace());
+            LOG.warn(String.valueOf(e.getStackTrace()));
         }
         return DriverManager.getConnection(QueryUtil.getUrl(zookeeperQuorum, clientPort,
                 zNodeParent));
