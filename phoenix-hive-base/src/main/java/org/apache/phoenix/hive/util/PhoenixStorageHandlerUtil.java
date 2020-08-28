@@ -39,8 +39,8 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.util.Strings;
@@ -66,7 +66,7 @@ import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
  */
 
 public abstract class PhoenixStorageHandlerUtil {
-    protected static final Log LOG = LogFactory.getLog(PhoenixStorageHandlerUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PhoenixStorageHandlerUtil.class);
     protected static final AtomicReference<Method> GET_BUCKET_METHOD_REF = new AtomicReference<>();
     protected static final AtomicReference<Method> GET_BUCKET_ID_METHOD_REF = new AtomicReference<>();
 
@@ -151,7 +151,7 @@ public abstract class PhoenixStorageHandlerUtil {
         return constantValues;
     }
 
-    public static String getRegionLocation(HRegionLocation location, Log log) throws IOException {
+    public static String getRegionLocation(HRegionLocation location, Logger log) throws IOException {
         InetSocketAddress isa = new InetSocketAddress(location.getHostname(), location.getPort());
         if (isa.isUnresolved()) {
             log.warn("Failed resolve " + isa);

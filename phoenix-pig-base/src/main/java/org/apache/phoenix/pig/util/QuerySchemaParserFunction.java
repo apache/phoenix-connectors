@@ -22,8 +22,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.compile.ColumnProjector;
@@ -43,7 +43,7 @@ import com.google.common.collect.Lists;
  */
 public class QuerySchemaParserFunction implements Function<String,Pair<String,String>> {
 
-    private static final Log LOG = LogFactory.getLog(QuerySchemaParserFunction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QuerySchemaParserFunction.class);
     private final Configuration configuration;
     
     public QuerySchemaParserFunction(Configuration configuration) {

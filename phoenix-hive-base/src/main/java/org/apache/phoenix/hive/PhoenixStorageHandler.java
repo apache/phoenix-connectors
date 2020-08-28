@@ -17,8 +17,8 @@
  */
 package org.apache.phoenix.hive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HConstants;
@@ -76,7 +76,7 @@ public class PhoenixStorageHandler extends DefaultStorageHandler implements
         return hbaseConf;
     }
 
-    private static final Log LOG = LogFactory.getLog(PhoenixStorageHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixStorageHandler.class);
 
     public PhoenixStorageHandler() {
         if (LOG.isDebugEnabled()) {

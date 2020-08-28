@@ -17,8 +17,8 @@
  */
 package org.apache.phoenix.hive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.AbstractSerDe;
@@ -47,7 +47,7 @@ import java.util.Properties;
  */
 public class PhoenixSerDe extends AbstractSerDe {
 
-    public static final Log LOG = LogFactory.getLog(PhoenixSerDe.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixSerDe.class);
 
     private PhoenixSerializer serializer;
     private ObjectInspector objectInspector;

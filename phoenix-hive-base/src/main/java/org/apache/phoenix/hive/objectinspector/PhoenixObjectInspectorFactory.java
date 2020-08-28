@@ -17,8 +17,8 @@
  */
 package org.apache.phoenix.hive.objectinspector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.hive.serde2.lazy.LazySerDeParameters;
 import org.apache.hadoop.hive.serde2.lazy.objectinspector.LazyObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.lazy.objectinspector.LazySimpleStructObjectInspector;
@@ -38,7 +38,7 @@ import java.util.List;
 
 public class PhoenixObjectInspectorFactory {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixObjectInspectorFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixObjectInspectorFactory.class);
 
     private PhoenixObjectInspectorFactory() {
 

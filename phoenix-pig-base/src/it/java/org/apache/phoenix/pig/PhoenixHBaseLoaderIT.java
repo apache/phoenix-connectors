@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.phoenix.util.SchemaUtil;
 import org.apache.pig.builtin.mock.Storage;
 import org.apache.pig.builtin.mock.Storage.Data;
@@ -46,7 +46,7 @@ import com.google.common.collect.Lists;
  */
 public class PhoenixHBaseLoaderIT extends BasePigIT {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixHBaseLoaderIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixHBaseLoaderIT.class);
     private static final String SCHEMA_NAME = "T";
     private static final String TABLE_NAME = "A";
     private static final String INDEX_NAME = "I";

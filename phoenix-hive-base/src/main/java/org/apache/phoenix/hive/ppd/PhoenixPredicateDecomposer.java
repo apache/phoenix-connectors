@@ -17,8 +17,8 @@
  */
 package org.apache.phoenix.hive.ppd;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.hive.ql.metadata.HiveStoragePredicateHandler.DecomposedPredicate;
 import org.apache.hadoop.hive.ql.plan.ExprNodeDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class PhoenixPredicateDecomposer {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixPredicateDecomposer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixPredicateDecomposer.class);
 
     private List<String> columnNameList;
     private boolean calledPPD;

@@ -23,8 +23,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.io.AcidOutputFormat;
@@ -59,7 +59,7 @@ import org.apache.phoenix.util.QueryUtil;
 public class PhoenixRecordWriter<T extends DBWritable> implements RecordWriter<NullWritable, T>,
         org.apache.hadoop.hive.ql.exec.FileSinkOperator.RecordWriter, RecordUpdater {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixRecordWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixRecordWriter.class);
 
     private Connection conn;
     private PreparedStatement pstmt;
