@@ -65,11 +65,11 @@ public class HiveCompatUtil {
         return content.toString();
     }
 
-    public static Object GetDateOrTimestampValue(Object value){
+    public static Object getDateOrTimestampValue(Object value){
         return null;
     }
 
-    public static String GetDefaultDatabaseName(){
+    public static String getDefaultDatabaseName(){
         return org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_NAME;
     }
 
@@ -120,6 +120,4 @@ public class HiveCompatUtil {
     {
         HiveMaterializedViewsRegistry.get().init(db);
     }
-
-
 }

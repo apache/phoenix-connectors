@@ -108,7 +108,7 @@ public class HiveCompatUtil {
         }
     }
 
-    public static Object GetDateOrTimestampValue(Object value){
+    public static Object getDateOrTimestampValue(Object value){
         if (value instanceof Date) {
             value = java.sql.Date.valueOf(value.toString());
         } else if (value instanceof Timestamp) {
@@ -117,7 +117,7 @@ public class HiveCompatUtil {
         return value;
     }
 
-    public static String GetDefaultDatabaseName(){
+    public static String getDefaultDatabaseName(){
         return org.apache.hadoop.hive.metastore.Warehouse.DEFAULT_DATABASE_NAME;
     }
 
@@ -171,13 +171,4 @@ public class HiveCompatUtil {
     }
 
     public static void initHiveMaterializedViewsRegistry(Hive db) { }
-
-
-
-
-
-
-
-
-
 }

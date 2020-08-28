@@ -169,8 +169,8 @@ public class PhoenixSerializer {
                             value = ((HiveDecimal) value).bigDecimalValue();
                         } else if (value instanceof HiveChar) {
                             value = ((HiveChar) value).getValue().trim();
-                        } else if (CompatUtil.PHOENIX5ONLY){
-                            value = HiveCompatUtil.GetDateOrTimestampValue(value);
+                        } else if (CompatUtil.isPhoenix5()){
+                            value = HiveCompatUtil.getDateOrTimestampValue(value);
                         }
 
                         pResultWritable.add(value);

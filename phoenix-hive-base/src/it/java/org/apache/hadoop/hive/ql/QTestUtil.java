@@ -158,7 +158,7 @@ public class QTestUtil {
 
   public static final String PATH_HDFS_REGEX = "(hdfs://)([a-zA-Z0-9:/_\\-\\.=])+";
   public static final String PATH_HDFS_WITH_DATE_USER_GROUP_REGEX = "([a-z]+) ([a-z]+)([ ]+)([0-9]+) ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}) " + PATH_HDFS_REGEX;
-  private static String DEFAULT_DATABASE_NAME = HiveCompatUtil.GetDefaultDatabaseName();
+  private static String DEFAULT_DATABASE_NAME = HiveCompatUtil.getDefaultDatabaseName();
 
   private String testWarehouse;
   private final String testFiles;
@@ -639,7 +639,7 @@ public class QTestUtil {
       cleanUp();
     }
 
-    if (CompatUtil.PHOENIX5ONLY && clusterType.getCoreClusterType() == CoreClusterType.TEZ){
+    if (CompatUtil.isPhoenix5() && clusterType.getCoreClusterType() == CoreClusterType.TEZ){
       HiveCompatUtil.destroyTEZSession(SessionState.get());
     }
 
@@ -950,7 +950,7 @@ public class QTestUtil {
       return;
     }
 
-    if(CompatUtil.PHOENIX5ONLY){
+    if(CompatUtil.isPhoenix5()){
       HiveCompatUtil.cleanupQueryResultCache();
     }
 
@@ -1088,7 +1088,7 @@ public class QTestUtil {
       createRemoteDirs();
     }
 
-    if (CompatUtil.PHOENIX5ONLY) {
+    if (CompatUtil.isPhoenix5()) {
       // Create views registry
       HiveCompatUtil.initHiveMaterializedViewsRegistry();
     }
@@ -1100,7 +1100,7 @@ public class QTestUtil {
     conf.set("hive.execution.engine", execEngine);
     db = Hive.get(conf);
     drv = HiveCompatUtil.getDriver(conf);
-    if(CompatUtil.PHOENIX4ONLY) {
+    if(CompatUtil.isPhoenix4()) {
       HiveCompatUtil.initHiveMaterializedViewsRegistry(db);
     }
     pd = new ParseDriver();
