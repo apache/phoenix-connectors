@@ -76,9 +76,8 @@
     <hive.version>${hive3.version}</hive.version>
     <pig.version>0.13.0</pig.version>
     <log4j.version>1.2.17</log4j.version>
-    <slf4j.version>1.6.4</slf4j.version>
     <disruptor.version>3.3.6</disruptor.version>
-    <slf4j.version>1.6.4</slf4j.version>
+    <slf4j.version>1.7.25</slf4j.version>
     <commons-csv.version>1.0</commons-csv.version>
 
     <flume.version>1.4.0</flume.version>
