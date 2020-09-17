@@ -9,7 +9,7 @@
 
 # eclipse stuffs
 .settings/*
-*/.settings/
+**/.settings/
 .classpath
 .project
 */.externalToolBuilders
@@ -28,3 +28,5 @@ RESULTS/
 CSV_EXPORT/
 .DS_Store
 
+#test files
+derby.log

@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
+import org.apache.phoenix.thirdparty.com.google.common.base.CharMatcher;
+import org.apache.phoenix.thirdparty.com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -393,7 +393,7 @@ public class PhoenixQueryBuilder {
 
     private String applyDateFunction(String whereClause, String columnName) {
         StringBuilder whereCondition = new StringBuilder();
-        for (Iterator<String> iterator = Splitter.on(CharMatcher.WHITESPACE).omitEmptyStrings()
+        for (Iterator<String> iterator = Splitter.on(CharMatcher.whitespace()).omitEmptyStrings()
                 .split(whereClause).iterator(); iterator.hasNext(); whereCondition.append
                 (PhoenixStorageHandlerConstants.SPACE)) {
             String token = iterator.next();
@@ -493,7 +493,7 @@ public class PhoenixQueryBuilder {
     // Assume timestamp value is yyyy-MM-dd HH:mm:ss.SSS
     private String applyTimestampFunction(String whereClause, String columnName) {
         StringBuilder whereCondition = new StringBuilder();
-        for (Iterator<String> iterator = Splitter.on(CharMatcher.WHITESPACE).omitEmptyStrings()
+        for (Iterator<String> iterator = Splitter.on(CharMatcher.whitespace()).omitEmptyStrings()
                 .split(whereClause).iterator(); iterator.hasNext(); whereCondition.append
                 (PhoenixStorageHandlerConstants.SPACE)) {
             String token = iterator.next();

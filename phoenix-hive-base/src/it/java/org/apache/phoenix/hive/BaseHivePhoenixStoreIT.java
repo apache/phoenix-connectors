@@ -35,7 +35,7 @@ import org.apache.phoenix.util.PropertiesUtil;
 import org.apache.phoenix.util.TestUtil;
 import org.junit.AfterClass;
 
-import com.google.common.base.Throwables;
+import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
 
 import java.io.File;
 import java.io.IOException;

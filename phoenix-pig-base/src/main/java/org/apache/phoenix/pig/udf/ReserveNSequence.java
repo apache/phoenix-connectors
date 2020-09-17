@@ -30,8 +30,8 @@ import org.apache.pig.EvalFunc;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.impl.util.UDFContext;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
+import org.apache.phoenix.thirdparty.com.google.common.base.Strings;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -39,7 +39,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 /**
  * UDF to Reserve a chunk of numbers for a given sequence
  * 
- * @note The way this UDF is invoked we open a new connection for every tuple row. The UDF will not perform well on
+ * Note: The way this UDF is invoked we open a new connection for every tuple row. The UDF will not perform well on
  *       large datasets as it involves creating a new connection for every tuple row
  */
 public class ReserveNSequence extends EvalFunc<Long> {

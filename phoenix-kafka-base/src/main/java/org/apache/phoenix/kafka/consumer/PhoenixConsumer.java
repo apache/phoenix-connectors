@@ -211,7 +211,7 @@ public class PhoenixConsumer {
     }
 
     /**
-     * stop the consumer & serializer
+     * stop the consumer and serializer
      */
     public void stop() {
         this.close();

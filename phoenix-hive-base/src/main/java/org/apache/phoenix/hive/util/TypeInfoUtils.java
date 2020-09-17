@@ -168,7 +168,7 @@ public final class TypeInfoUtils {
 
   /**
    * Returns the array element type, if the Type is an array (Object[]), or
-   * GenericArrayType (Map<String,String>[]). Otherwise return null.
+   * GenericArrayType ({@code Map<String,String>[]}). Otherwise return null.
    */
   public static Type getArrayElementType(Type t) {
     if (t instanceof Class && ((Class<?>) t).isArray()) {
@@ -186,7 +186,7 @@ public final class TypeInfoUtils {
    *
    * @param size
    *          In case the last parameter of Method is an array, we will try to
-   *          return a List<TypeInfo> with the specified size by repeating the
+   *          return a {@code List<TypeInfo>} with the specified size by repeating the
    *          element of the array at the end. In case the size is smaller than
    *          the minimum possible number of arguments for the method, null will
    *          be returned.
