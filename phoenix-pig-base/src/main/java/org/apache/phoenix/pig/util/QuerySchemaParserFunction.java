@@ -31,14 +31,14 @@ import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.mapreduce.util.ConnectionUtil;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import org.apache.phoenix.thirdparty.com.google.common.base.Function;
+import org.apache.phoenix.thirdparty.com.google.common.base.Joiner;
+import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Lists;
 
 /**
  * 
- *  A function to parse the select query passed to LOAD into a Pair of <table Name, List<columns>
+ *  A function to parse the select query passed to LOAD into a Pair of {@code <table Name, List<columns> }
  *
  */
 public class QuerySchemaParserFunction implements Function<String,Pair<String,String>> {

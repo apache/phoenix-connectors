@@ -50,10 +50,10 @@ import org.apache.phoenix.jdbc.PhoenixResultSet;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 
-import com.google.common.base.Throwables;
+import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
 
 /**
- * @RecordReader implementation that iterates over the the records.
+ * RecordReader implementation that iterates over the the records.
  */
 @SuppressWarnings("rawtypes")
 public class PhoenixRecordReader<T extends DBWritable> implements

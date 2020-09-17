@@ -129,9 +129,9 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
+import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
+import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
+import org.apache.phoenix.thirdparty.com.google.common.collect.ImmutableList;
 
 import junit.framework.TestSuite;
 
@@ -1843,7 +1843,7 @@ public class QTestUtil {
 
   private static QTestProcessExecResult executeCmd(String[] args, String outFile,
                                                    String errFile) throws Exception {
-    System.out.println("Running: " + org.apache.commons.lang.StringUtils.join(args, ' '));
+    System.out.println("Running: " + org.apache.commons.lang3.StringUtils.join(args, ' '));
 
     PrintStream out = outFile == null ?
       SessionState.getConsole().getChildOutStream() :

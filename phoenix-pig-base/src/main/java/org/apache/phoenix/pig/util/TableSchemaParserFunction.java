@@ -21,14 +21,14 @@ package org.apache.phoenix.pig.util;
 
 import org.apache.hadoop.hbase.util.Pair;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
+import org.apache.phoenix.thirdparty.com.google.common.base.Function;
+import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
+import org.apache.phoenix.thirdparty.com.google.common.base.Splitter;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Iterables;
 
 /**
  * 
- * A function to parse the table schema passed to LOAD/STORE into a Pair of <table Name, columns>
+ * A function to parse the table schema passed to LOAD/STORE into a Pair of {@code <table Name, columns> }
  *
  */
 public final class TableSchemaParserFunction implements Function<String,Pair<String,String>> {

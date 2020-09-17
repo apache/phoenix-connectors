@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.google.common.collect.ImmutableList;
+import org.apache.phoenix.thirdparty.com.google.common.collect.ImmutableList;
 
 public class SqlQueryToColumnInfoFunctionTest  extends BaseConnectionlessQueryTest {
 

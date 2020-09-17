@@ -42,7 +42,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.google.common.collect.Maps;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Maps;
 
 public class BasePigIT extends BaseHBaseManagedTimeIT {
     protected TupleFactory tupleFactory;

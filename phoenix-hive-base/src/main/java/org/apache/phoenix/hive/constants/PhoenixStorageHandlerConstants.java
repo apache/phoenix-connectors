@@ -17,7 +17,7 @@
  */
 package org.apache.phoenix.hive.constants;
 
-import com.google.common.collect.Lists;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Lists;
 import org.apache.hadoop.io.IntWritable;
 
 import java.util.List;

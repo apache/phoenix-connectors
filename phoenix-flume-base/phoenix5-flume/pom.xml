@@ -20,52 +20,50 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>phoenix-flume-base</artifactId>
-        <groupId>org.apache.phoenix</groupId>
-        <version>6.0.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>phoenix-flume-base</artifactId>
+    <groupId>org.apache.phoenix</groupId>
+    <version>6.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>phoenix5-flume</artifactId>
-    <name>Phoenix Flume Connector for Phoenix 5</name>
+  <artifactId>phoenix5-flume</artifactId>
+  <name>Phoenix Flume Connector for Phoenix 5</name>
 
-    <properties>
-        <top.dir>${project.basedir}/..</top.dir>
-        <phoenix.version>${phoenix-five.version}</phoenix.version>
-        <hbase.version>${hbase-two.version}</hbase.version>
-        <hadoop.version>${hadoop-three.version}</hadoop.version>
-        <curator.version>4.0.0</curator.version>
-        <jdk.version>1.8</jdk.version>
-        <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
-        <phoenix.main.version>5</phoenix.main.version>
-    </properties>
+  <properties>
+    <top.dir>${project.basedir}/..</top.dir>
+    <phoenix.version>${phoenix-five.version}</phoenix.version>
+    <hbase.version>${hbase-two.version}</hbase.version>
+    <hadoop.version>${hadoop-three.version}</hadoop.version>
+    <jdk.version>1.8</jdk.version>
+    <phoenix.main.version>5</phoenix.main.version>
+  </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
+    </dependency>
+  </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 
 </project>

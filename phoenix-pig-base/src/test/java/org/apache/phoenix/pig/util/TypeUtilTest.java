@@ -35,7 +35,7 @@ import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Maps;
 
 public class TypeUtilTest {
 
