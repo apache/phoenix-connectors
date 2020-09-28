@@ -20,3 +20,6 @@ limitations under the License.
 <b>[Apache Phoenix](http://phoenix.apache.org/)</b> enables OLTP and operational analytics in Hadoop for low latency applications. Visit the Apache Phoenix website <b>[here](http://phoenix.apache.org/)</b>. This repo contains connectors for third party libraries to access data stored in Phoenix/HBase. 
 
 Copyright ©2019 [Apache Software Foundation](http://www.apache.org/). All Rights Reserved. 
+
+## Introduction
+This repo contains the Flume, Pig, Kafka, Spark and Hive connectors for Phoenix.
