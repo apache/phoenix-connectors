@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix-connectors</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>phoenix4-connectors-assembly</artifactId>
+    <packaging>pom</packaging>
+    <name>Phoenix Connectors Distribution Assembly</name>
+
+    <profiles>
+        <profile>
+            <id>phoenix4</id>
+            <activation>
+                <property>
+                    <name>!skip-phoenix4</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix4-flume</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix4-hive</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix4-kafka</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix4-spark</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix4-pig</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>phoenix5</id>
+            <activation>
+                <property>
+                    <name>!skip-phoenix5</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix5-flume</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix5-hive</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix5-kafka</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix5-spark</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix5-pig</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package-phoenix4-to-tar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>${skip-phoenix4}</skipAssembly>
+                            <descriptors>
+                                <descriptor>src/build/package-phoenix4-connectors-to-tar-all.xml</descriptor>
+                            </descriptors>
+                            <finalName>phoenix4-connectors-${project.version}</finalName>
+                            <tarLongFileMode>posix</tarLongFileMode>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-phoenix5-to-tar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <skipAssembly>${skip-phoenix5}</skipAssembly>
+                            <descriptors>
+                                <descriptor>src/build/package-phoenix5-connectors-to-tar-all.xml</descriptor>
+                            </descriptors>
+                            <finalName>phoenix5-connectors-${project.version}</finalName>
+                            <tarLongFileMode>posix</tarLongFileMode>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+              <artifactId>maven-dependency-plugin</artifactId>
+              <executions>
+                <!-- Create a mini Maven repository so Phoenix connectors can serve these jars like a Maven repo -->
+                <execution>
+                  <id>prepare-client-repo</id>
+                    <!-- Make sure we build this before making the assembly -->
+                  <phase>prepare-package</phase>
+                  <goals>
+                    <goal>copy-dependencies</goal>
+                  </goals>
+                  <configuration>
+                    <includeArtifactIds>phoenix4-flume,phoenix5-flume,phoenix4-hive,phoenix5-hive,phoenix4-kafka,phoenix5-kafka,phoenix4-pig,phoenix5-pig,phoenix4-spark,phoenix5-spark</includeArtifactIds>
+                    <outputDirectory>${project.build.directory}/maven-repo</outputDirectory>
+                    <overWriteIfNewer>true</overWriteIfNewer>
+                    <useRepositoryLayout>true</useRepositoryLayout>
+                  </configuration>
+                 </execution>
+              </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
