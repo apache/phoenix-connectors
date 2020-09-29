@@ -1,0 +1,87 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+pipeline {
+    agent {
+        dockerfile {
+            dir 'dev/docker'
+            filename 'Dockerfile'
+            label 'Hadoop'
+        }
+    }
+    
+    environment {
+        MAVEN_OPTS = '-Xmx3G'
+    }
+
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '30'))
+        timestamps()
+    }
+
+    stages {
+
+        stage('BuildAndTest') {
+            options {
+                timeout(time: 3, unit: 'HOURS')
+            }
+            steps {
+                sh """#!/bin/bash
+                    ulimit -a
+                    mvn clean verify -B
+                """
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/target/surefire-reports/*.txt'
+                    archiveArtifacts artifacts: '**/target/surefire-reports/*.dumpstream'
+                    archiveArtifacts artifacts: '**/target/failsafe-reports/*.txt'
+                    archiveArtifacts artifacts: '**/target/failsafe-reports/*.dumpstream'
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    junit '**/target/failsafe-reports/TEST-*.xml'
+                }
+            }
+        }
+    }
+
+    post {
+
+        always {
+            emailext(
+                subject: "Apache-Phoenix-Connectors | Build ${BUILD_DISPLAY_NAME} ${currentBuild.currentResult}",
+                to: 'commits@phoenix.apache.org',
+                replyTo: 'commits@phoenix.apache.org',
+                mimeType: 'text/html',
+                recipientProviders: [
+                    [$class: "DevelopersRecipientProvider"],
+                    [$class: 'CulpritsRecipientProvider'],
+                    [$class: 'RequesterRecipientProvider']],
+                body: """
+<a href="http://phoenix.apache.org"><img src='http://phoenix.apache.org/images/phoenix-logo-small.png'/></a>
+<br>build ${BUILD_DISPLAY_NAME} status <b>${currentBuild.currentResult}</b><hr/>
+<b>Build ${BUILD_DISPLAY_NAME}</b> ${BUILD_URL}
+<hr/>
+"""
+           )
+        }
+
+        cleanup {
+            deleteDir()
+        }
+    }
+}
