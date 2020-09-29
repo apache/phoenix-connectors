@@ -50,7 +50,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix5-compat</artifactId>
+            <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
         </dependency>
     </dependencies>
 

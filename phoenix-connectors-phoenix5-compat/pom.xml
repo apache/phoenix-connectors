@@ -31,7 +31,8 @@
     <version>6.0.0-SNAPSHOT</version>
 
     <groupId>org.apache.phoenix</groupId>
-    <artifactId>phoenix5-compat</artifactId>
+    <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
+    <name>Compatibility util for Phoenix 5</name>
 
     <properties>
         <phoenix.version>5.1.0-SNAPSHOT</phoenix.version>

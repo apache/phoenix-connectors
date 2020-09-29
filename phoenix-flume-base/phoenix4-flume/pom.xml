@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix4-compat</artifactId>
+            <artifactId>phoenix-connectors-phoenix4-compat</artifactId>
         </dependency>
     </dependencies>
 

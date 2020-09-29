@@ -21,7 +21,7 @@
     <name>Apache Software Foundation</name>
     <url>http://www.apache.org</url>
   </organization>
-
+  
   <repositories>
     <repository>
       <id>apache release</id>
@@ -513,12 +513,12 @@
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix4-compat</artifactId>
+        <artifactId>phoenix-connectors-phoenix4-compat</artifactId>
         <version>6.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix5-compat</artifactId>
+        <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
         <version>6.0.0-SNAPSHOT</version>
       </dependency>
 
@@ -772,7 +772,7 @@
         </property>
       </activation>
     <modules>
-      <module>phoenix4-compat</module>
+      <module>phoenix-connectors-phoenix4-compat</module>
       <module>phoenix-flume-base/phoenix4-flume</module>
       <module>phoenix-pig-base/phoenix4-pig</module>
       <module>phoenix-kafka-base/phoenix4-kafka</module>
@@ -791,7 +791,7 @@
       <properties>
       </properties>
       <modules>
-        <module>phoenix5-compat</module>
+        <module>phoenix-connectors-phoenix5-compat</module>
         <module>phoenix-flume-base/phoenix5-flume</module>
         <module>phoenix-pig-base/phoenix5-pig</module>
         <module>phoenix-kafka-base/phoenix5-kafka</module>
