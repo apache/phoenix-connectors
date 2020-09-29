@@ -43,7 +43,7 @@
         <curator.version>4.0.0</curator.version>
         <jetty.version>9.3.8.v20160314</jetty.version>
         <jdk.version>1.8</jdk.version>
-        <phoenix.compat.version>5</phoenix.compat.version>
+        <phoenix.main.version>5</phoenix.main.version>
     </properties>
 
     <dependencies>

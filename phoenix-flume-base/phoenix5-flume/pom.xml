@@ -40,6 +40,7 @@
         <curator.version>4.0.0</curator.version>
         <jdk.version>1.8</jdk.version>
         <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
+        <phoenix.main.version>5</phoenix.main.version>
     </properties>
 
     <dependencies>

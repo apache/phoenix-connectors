@@ -308,7 +308,7 @@
 								<goal>shade</goal>
 							</goals>
 							<configuration>
-								<finalName>phoenix-kafka-${project.version}-minimal</finalName>
+								<finalName>phoenix${phoenix.main.version}-kafka-${project.version}-minimal</finalName>
 								<shadedArtifactAttached>false</shadedArtifactAttached>
 								<promoteTransitiveDependencies>true</promoteTransitiveDependencies>
 								<shadeTestJar>false</shadeTestJar>

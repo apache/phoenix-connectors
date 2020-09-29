@@ -59,3 +59,11 @@ $ mvn verify -Dphoenix-four.version=4.16.0-SNAPSHOT -Dhbase-one.version=1.5.0
 ```
 $ mvn install -Dphoenix-five.version=5.1.0-SNAPSHOT -Dhbase-one.version=2.1.9 -Dhadoop-three.version=3.0.3
 ```
+
+### Skipping Phoenix 4/5 modules
+
+You can specify `-Dskip-phoenix4` or `-Dskip-phoenix5` system property to skip building the connectors for Phoenix 4 or Phoenix 5 altogether. It is useful to reduce the feedback time while working on a change for a specific Phoenix version or when you don't actually need the connectors for both Phoenix 4 and 5.
+
+```
+mvn clean package -DskipTests -Dskip-phoenix4
+```
