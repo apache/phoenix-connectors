@@ -28,9 +28,9 @@
         <version>6.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>phoenix4-connectors-assembly</artifactId>
+    <artifactId>phoenix5-connectors-assembly</artifactId>
     <packaging>pom</packaging>
-    <name>Phoenix Connectors Distribution Assembly</name>
+    <name>Phoenix 5 Connectors Distribution Assembly</name>
 
     <profiles>
         <profile>
@@ -111,22 +111,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>package-phoenix4-to-tar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <skipAssembly>${skip-phoenix4}</skipAssembly>
-                            <descriptors>
-                                <descriptor>src/build/package-phoenix4-connectors-to-tar-all.xml</descriptor>
-                            </descriptors>
-                            <finalName>phoenix4-connectors-${project.version}</finalName>
-                            <tarLongFileMode>posix</tarLongFileMode>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>package-phoenix5-to-tar</id>
                         <phase>package</phase>
                         <goals>
@@ -140,6 +124,117 @@
                             <finalName>phoenix5-connectors-${project.version}</finalName>
                             <tarLongFileMode>posix</tarLongFileMode>
                             <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+                    <execution>
+                        <id>flume without version</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>ln</executable>
+                            <workingDirectory>${project.basedir}/../phoenix-flume-base/phoenix5-flume/target</workingDirectory>
+                            <arguments>
+                                <argument>-fnsv</argument>
+                                <argument>
+                                    phoenix5-flume-${project.version}.jar
+                                </argument>
+                                <argument>
+                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
+                                    phoenix-flume.jar
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>hive without version</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>ln</executable>
+                            <workingDirectory>${project.basedir}/../phoenix-hive-base/phoenix5-hive/target</workingDirectory>
+                            <arguments>
+                                <argument>-fnsv</argument>
+                                <argument>
+                                    phoenix5-hive-${project.version}.jar
+                                </argument>
+                                <argument>
+                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
+                                    phoenix-hive.jar
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pig without version</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>ln</executable>
+                            <workingDirectory>${project.basedir}/../phoenix-pig-base/phoenix5-pig/target</workingDirectory>
+                            <arguments>
+                                <argument>-fnsv</argument>
+                                <argument>
+                                    phoenix5-pig-${project.version}.jar
+                                </argument>
+                                <argument>
+                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
+                                    phoenix-pig.jar
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>spark without version</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>ln</executable>
+                            <workingDirectory>${project.basedir}/../phoenix-spark-base/phoenix5-spark/target</workingDirectory>
+                            <arguments>
+                                <argument>-fnsv</argument>
+                                <argument>
+                                    phoenix5-spark-${project.version}.jar
+                                </argument>
+                                <argument>
+                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
+                                    phoenix-spark.jar
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>kafka without version</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>ln</executable>
+                            <workingDirectory>${project.basedir}/../phoenix-kafka-base/phoenix5-kafka/target</workingDirectory>
+                            <arguments>
+                                <argument>-fnsv</argument>
+                                <argument>
+                                    phoenix5-kafka-${project.version}.jar
+                                </argument>
+                                <argument>
+                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
+                                    phoenix-kafka.jar
+                                </argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>

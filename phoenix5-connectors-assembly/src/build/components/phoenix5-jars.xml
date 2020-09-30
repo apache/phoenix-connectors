@@ -28,6 +28,7 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-flume-${project.version}.jar</include>
+        <include>phoenix-flume.jar</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -35,6 +36,7 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-kafka-${project.version}.jar</include>
+        <include>phoenix-kafka.jar</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -42,6 +44,7 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-pig-${project.version}.jar</include>
+        <include>phoenix-pig.jar</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -49,6 +52,7 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-spark-${project.version}.jar</include>
+        <include>phoenix-spark.jar</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -56,6 +60,7 @@
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-hive-${project.version}.jar</include>
+        <include>phoenix-hive.jar</include>
       </includes>
     </fileSet>
   </fileSets>

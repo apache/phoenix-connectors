@@ -774,7 +774,7 @@
       <module>phoenix-kafka-base/phoenix4-kafka</module>
       <module>phoenix-spark-base/phoenix4-spark</module>
       <module>phoenix-hive-base/phoenix4-hive</module>
-      <module>phoenix-connectors-assembly</module>
+      <module>phoenix4-connectors-assembly</module>
     </modules>
   </profile>
     <profile>
@@ -793,7 +793,7 @@
         <module>phoenix-kafka-base/phoenix5-kafka</module>
         <module>phoenix-spark-base/phoenix5-spark</module>
         <module>phoenix-hive-base/phoenix5-hive</module>
-        <module>phoenix-connectors-assembly</module>
+        <module>phoenix5-connectors-assembly</module>
       </modules>
     </profile>
     <!-- disable doclint with 1.8+ JDKs-->
