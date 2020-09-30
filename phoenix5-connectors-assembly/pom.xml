@@ -147,8 +147,7 @@
                                     phoenix5-flume-${project.version}.jar
                                 </argument>
                                 <argument>
-                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
-                                    phoenix-flume.jar
+                                    phoenix5-flume.jar
                                 </argument>
                             </arguments>
                         </configuration>
@@ -168,8 +167,7 @@
                                     phoenix5-hive-${project.version}.jar
                                 </argument>
                                 <argument>
-                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
-                                    phoenix-hive.jar
+                                    phoenix5-hive.jar
                                 </argument>
                             </arguments>
                         </configuration>
@@ -189,8 +187,7 @@
                                     phoenix5-pig-${project.version}.jar
                                 </argument>
                                 <argument>
-                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
-                                    phoenix-pig.jar
+                                    phoenix5-pig.jar
                                 </argument>
                             </arguments>
                         </configuration>
@@ -210,8 +207,7 @@
                                     phoenix5-spark-${project.version}.jar
                                 </argument>
                                 <argument>
-                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
-                                    phoenix-spark.jar
+                                    phoenix5-spark.jar
                                 </argument>
                             </arguments>
                         </configuration>
@@ -231,8 +227,7 @@
                                     phoenix5-kafka-${project.version}.jar
                                 </argument>
                                 <argument>
-                                    <!-- We are overwriting the unshaded server JAR, but we don't care -->
-                                    phoenix-kafka.jar
+                                    phoenix5-kafka.jar
                                 </argument>
                             </arguments>
                         </configuration>
