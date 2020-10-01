@@ -234,26 +234,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-              <artifactId>maven-dependency-plugin</artifactId>
-              <executions>
-                <!-- Create a mini Maven repository so Phoenix connectors can serve these jars like a Maven repo -->
-                <execution>
-                  <id>prepare-client-repo</id>
-                    <!-- Make sure we build this before making the assembly -->
-                  <phase>prepare-package</phase>
-                  <goals>
-                    <goal>copy-dependencies</goal>
-                  </goals>
-                  <configuration>
-                    <includeArtifactIds>phoenix4-flume,phoenix5-flume,phoenix4-hive,phoenix5-hive,phoenix4-kafka,phoenix5-kafka,phoenix4-pig,phoenix5-pig,phoenix4-spark,phoenix5-spark</includeArtifactIds>
-                    <outputDirectory>${project.build.directory}/maven-repo</outputDirectory>
-                    <overWriteIfNewer>true</overWriteIfNewer>
-                    <useRepositoryLayout>true</useRepositoryLayout>
-                  </configuration>
-                 </execution>
-              </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
