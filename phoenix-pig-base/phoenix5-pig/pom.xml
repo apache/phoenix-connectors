@@ -124,6 +124,16 @@
                     </exclusions>
                 </dependency>
                 <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix-core</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.apache.thrift</groupId>
+                            <artifactId>libthrift</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
                     <groupId>org.apache.tephra</groupId>
                     <artifactId>tephra-api</artifactId>
                     <version>${tephra.version}</version>
@@ -139,6 +149,12 @@
                     <groupId>org.apache.tephra</groupId>
                     <artifactId>tephra-hbase-compat-2.0</artifactId>
                     <version>${tephra.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libthrift</artifactId>
+                    <version>${thrift.version}</version>
                     <scope>provided</scope>
                 </dependency>
             </dependencies>

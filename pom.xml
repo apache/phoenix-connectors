@@ -111,6 +111,7 @@
     <curator.version>2.12.0</curator.version>
 
     <shaded.package>org.apache.phoenix.shaded</shaded.package>
+    <thrift.version>0.9.3-1</thrift.version>
   </properties>
 
   <build>
@@ -777,8 +778,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
               <classpathDependencyExcludes>
-                org.apache.tephra:tephra-core
-<!--                ,org.apache.thrift:libthrift-->
+                org.apache.tephra:tephra-core ,org.apache.thrift:libthrift
               </classpathDependencyExcludes>
             </configuration>
           </plugin>
@@ -787,8 +787,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <classpathDependencyExcludes>
-                org.apache.tephra:tephra-core
-<!--                ,org.apache.thrift:libthrift-->
+                org.apache.tephra:tephra-core ,org.apache.thrift:libthrift
               </classpathDependencyExcludes>
             </configuration>
           </plugin>
