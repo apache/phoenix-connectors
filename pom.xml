@@ -103,6 +103,7 @@
     <curator.version>2.12.0</curator.version>
 
     <shaded.package>org.apache.phoenix.shaded</shaded.package>
+    <phoenix.main.version>4</phoenix.main.version>
   </properties>
 
   <build>

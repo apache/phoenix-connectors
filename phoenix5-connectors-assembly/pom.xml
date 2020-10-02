@@ -91,7 +91,7 @@
                             <arguments>
                                 <argument>-fnsv</argument>
                                 <argument>
-                                    phoenix5-hive-${project.version}.jar
+                                    phoenix5-${project.version}-hive.jar
                                 </argument>
                                 <argument>
                                     phoenix5-hive.jar
@@ -111,7 +111,7 @@
                             <arguments>
                                 <argument>-fnsv</argument>
                                 <argument>
-                                    phoenix5-pig-${project.version}.jar
+                                    phoenix5-${project.version}-pig.jar
                                 </argument>
                                 <argument>
                                     phoenix5-pig.jar
@@ -151,7 +151,7 @@
                             <arguments>
                                 <argument>-fnsv</argument>
                                 <argument>
-                                    phoenix5-kafka-${project.version}.jar
+                                    phoenix5-kafka-${project.version}-minimal.jar
                                 </argument>
                                 <argument>
                                     phoenix5-kafka.jar

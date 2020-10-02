@@ -44,6 +44,7 @@
         <fasterxml.jackson.version>2.10.0</fasterxml.jackson.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <javax.version>3.1.0</javax.version>
+        <phoenix.main.version>5</phoenix.main.version>
     </properties>
 
     <dependencies>

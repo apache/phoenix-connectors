@@ -35,7 +35,7 @@
       <directory>${project.basedir}/../phoenix-kafka-base/phoenix5-kafka/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-kafka-${project.version}.jar</include>
+        <include>phoenix5-kafka-${project.version}-minimal.jar</include>
         <include>phoenix5-kafka.jar</include>
       </includes>
     </fileSet>
@@ -43,7 +43,7 @@
       <directory>${project.basedir}/../phoenix-pig-base/phoenix5-pig/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-pig-${project.version}.jar</include>
+        <include>phoenix5-${project.version}-pig.jar</include>
         <include>phoenix5-pig.jar</include>
       </includes>
     </fileSet>
@@ -59,7 +59,7 @@
       <directory>${project.basedir}/../phoenix-hive-base/phoenix5-hive/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-hive-${project.version}.jar</include>
+        <include>phoenix5-${project.version}-hive.jar</include>
         <include>phoenix5-hive.jar</include>
       </includes>
     </fileSet>
