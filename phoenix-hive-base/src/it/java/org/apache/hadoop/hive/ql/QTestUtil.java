@@ -585,7 +585,7 @@ public class QTestUtil {
     if (fsType == FsType.local) {
       fs = FileSystem.getLocal(conf);
     } else if (fsType == FsType.hdfs || fsType == FsType.encrypted_hdfs) {
-      int numDataNodes = 4;
+      int numDataNodes = 6;
 
       if (fsType == FsType.encrypted_hdfs) {
         // Set the security key provider so that the MiniDFS cluster is initialized
