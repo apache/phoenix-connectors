@@ -26,7 +26,6 @@ pipeline {
         // N.B. this is per-branch, which means per PR
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '15'))
-        timeout (time: 9, unit: 'HOURS')
         timestamps()
         skipDefaultCheckout()
     }
@@ -74,6 +73,10 @@ pipeline {
 //                            label 'Hadoop'
 //                        }
 //                    }
+                    options {
+                        timeout (time: 3, unit: 'HOURS')
+                        timestamps()
+                    }
                     environment {
                         // customized per parallel stage
                         //PLUGINS = "${GENERAL_CHECK_PLUGINS}"
