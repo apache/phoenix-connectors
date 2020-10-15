@@ -48,9 +48,10 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '**/target/surefire-reports/*.txt'
+                    sh 'find . -name \\*.txt -exec gzip {} \\;'
+                    archiveArtifacts artifacts: '**/target/surefire-reports/*.txt.gz'
                     archiveArtifacts artifacts: '**/target/surefire-reports/*.dumpstream'
-                    archiveArtifacts artifacts: '**/target/failsafe-reports/*.txt'
+                    archiveArtifacts artifacts: '**/target/failsafe-reports/*.txt.gz'
                     archiveArtifacts artifacts: '**/target/failsafe-reports/*.dumpstream'
                     junit '**/target/surefire-reports/TEST-*.xml'
                     junit '**/target/failsafe-reports/TEST-*.xml'
