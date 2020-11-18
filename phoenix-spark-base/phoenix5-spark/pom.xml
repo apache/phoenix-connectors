@@ -38,7 +38,6 @@
     <hbase.version>${hbase-two.version}</hbase.version>
     <hadoop.version>${hadoop-three.version}</hadoop.version>
     <jdk.version>1.8</jdk.version>
-    <jetty.version>9.3.19.v20170502</jetty.version>
     <fasterxml.jackson.version>2.10.0</fasterxml.jackson.version>
     <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
     <phoenix.main.version>5</phoenix.main.version>

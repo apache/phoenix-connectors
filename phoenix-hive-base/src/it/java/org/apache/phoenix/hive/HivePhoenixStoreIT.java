@@ -18,20 +18,25 @@
 package org.apache.phoenix.hive;
 
 import org.apache.hadoop.fs.Path;
+import org.apache.phoenix.util.PropertiesUtil;
 import org.apache.phoenix.util.StringUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Properties;
 
+import static org.apache.phoenix.util.TestUtil.TEST_PROPERTIES;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Test methods only. All supporting methods should be placed to BaseHivePhoenixStoreIT
  */
 @Ignore("This class contains only test methods and should not be executed directly")
-public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
+public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
 
     /**
      * Create a table with two column, insert 1 row, check that phoenix table is created and
@@ -42,7 +47,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
     @Test
     public void simpleTest() throws Exception {
         String testName = "simpleTest";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
         createFile(StringUtil.EMPTY_STRING, new Path(hiveOutputDir, testName + ".out").toString());
         StringBuilder sb = new StringBuilder();
@@ -53,21 +58,25 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id');");
         sb.append("INSERT INTO TABLE phoenix_table" + HiveTestUtil.CRLF +
                 "VALUES ('10', '1000');" + HiveTestUtil.CRLF);
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
 
         String phoenixQuery = "SELECT * FROM phoenix_table";
-        PreparedStatement statement = conn.prepareStatement(phoenixQuery);
-        ResultSet rs = statement.executeQuery();
-        assert (rs.getMetaData().getColumnCount() == 2);
-        assertTrue(rs.next());
-        assert (rs.getString(1).equals("10"));
-        assert (rs.getString(2).equals("1000"));
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);
+                PreparedStatement statement = conn.prepareStatement(phoenixQuery)) {
+            conn.setAutoCommit(true);
+            ResultSet rs = statement.executeQuery();
+            assert (rs.getMetaData().getColumnCount() == 2);
+            assertTrue(rs.next());
+            assert (rs.getString(1).equals("10"));
+            assert (rs.getString(2).equals("1000"));
+        }
     }
 
     /**
@@ -78,7 +87,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
     @Test
     public void simpleColumnMapTest() throws Exception {
         String testName = "cmTest";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
         createFile(StringUtil.EMPTY_STRING, new Path(hiveOutputDir, testName + ".out").toString());
         StringBuilder sb = new StringBuilder();
@@ -90,23 +99,27 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.column.mapping' = 'id:C1, p1:c2, p2:C3'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id');");
         sb.append("INSERT INTO TABLE column_table" + HiveTestUtil.CRLF +
                 "VALUES ('1', '2', '3');" + HiveTestUtil.CRLF);
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
 
         String phoenixQuery = "SELECT C1, \"c2\", C3 FROM column_table";
-        PreparedStatement statement = conn.prepareStatement(phoenixQuery);
-        ResultSet rs = statement.executeQuery();
-        assert (rs.getMetaData().getColumnCount() == 3);
-        assertTrue(rs.next());
-        assert (rs.getString(1).equals("1"));
-        assert (rs.getString(2).equals("2"));
-        assert (rs.getString(3).equals("3"));
-
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);
+                PreparedStatement statement = conn.prepareStatement(phoenixQuery)) {
+            conn.setAutoCommit(true);
+        
+            ResultSet rs = statement.executeQuery();
+            assert (rs.getMetaData().getColumnCount() == 3);
+            assertTrue(rs.next());
+            assert (rs.getString(1).equals("1"));
+            assert (rs.getString(2).equals("2"));
+            assert (rs.getString(3).equals("3"));
+        }
     }
 
 
@@ -118,7 +131,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
     @Test
     public void dataTypeTest() throws Exception {
         String testName = "dataTypeTest";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
         createFile(StringUtil.EMPTY_STRING, new Path(hiveOutputDir, testName + ".out").toString());
         StringBuilder sb = new StringBuilder();
@@ -130,24 +143,28 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id');");
         sb.append("INSERT INTO TABLE phoenix_datatype" + HiveTestUtil.CRLF +
                 "VALUES (10, \"foodesc\", \"2013-01-05 01:01:01\", 200,2.0,-1);" + HiveTestUtil.CRLF);
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
 
         String phoenixQuery = "SELECT * FROM phoenix_datatype";
-        PreparedStatement statement = conn.prepareStatement(phoenixQuery);
-        ResultSet rs = statement.executeQuery();
-        assert (rs.getMetaData().getColumnCount() == 6);
-        while (rs.next()) {
-            assert (rs.getInt(1) == 10);
-            assert (rs.getString(2).equalsIgnoreCase("foodesc"));
-            assert (rs.getDouble(4) == 200);
-            assert (rs.getFloat(5) == 2.0);
-            assert (rs.getInt(6) == -1);
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);
+                PreparedStatement statement = conn.prepareStatement(phoenixQuery)) {
+            conn.setAutoCommit(true);
+            ResultSet rs = statement.executeQuery();
+            assert (rs.getMetaData().getColumnCount() == 6);
+            while (rs.next()) {
+                assert (rs.getInt(1) == 10);
+                assert (rs.getString(2).equalsIgnoreCase("foodesc"));
+                assert (rs.getDouble(4) == 200);
+                assert (rs.getFloat(5) == 2.0);
+                assert (rs.getInt(6) == -1);
+            }
         }
     }
 
@@ -159,7 +176,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
     @Test
     public void MultiKey() throws Exception {
         String testName = "MultiKey";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
         createFile(StringUtil.EMPTY_STRING, new Path(hiveOutputDir, testName + ".out").toString());
         StringBuilder sb = new StringBuilder();
@@ -172,25 +189,29 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id,id2');" + HiveTestUtil.CRLF);
         sb.append("INSERT INTO TABLE phoenix_MultiKey" + HiveTestUtil.CRLF +"VALUES (10, \'part2\',\'foodesc\',200,2.0,-1);" +
                 HiveTestUtil.CRLF);
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
 
         String phoenixQuery = "SELECT * FROM phoenix_MultiKey";
-        PreparedStatement statement = conn.prepareStatement(phoenixQuery);
-        ResultSet rs = statement.executeQuery();
-        assert (rs.getMetaData().getColumnCount() == 6);
-        while (rs.next()) {
-            assert (rs.getInt(1) == 10);
-            assert (rs.getString(2).equalsIgnoreCase("part2"));
-            assert (rs.getString(3).equalsIgnoreCase("foodesc"));
-            assert (rs.getDouble(4) == 200);
-            assert (rs.getFloat(5) == 2.0);
-            assert (rs.getInt(6) == -1);
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);
+                PreparedStatement statement = conn.prepareStatement(phoenixQuery)) {
+            conn.setAutoCommit(true);
+            ResultSet rs = statement.executeQuery();
+            assert (rs.getMetaData().getColumnCount() == 6);
+            while (rs.next()) {
+                assert (rs.getInt(1) == 10);
+                assert (rs.getString(2).equalsIgnoreCase("part2"));
+                assert (rs.getString(3).equalsIgnoreCase("foodesc"));
+                assert (rs.getDouble(4) == 200);
+                assert (rs.getFloat(5) == 2.0);
+                assert (rs.getInt(6) == -1);
+            }
         }
     }
 
@@ -202,7 +223,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
     @Test
     public void testJoinNoColumnMaps() throws Exception {
         String testName = "testJoin";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
         createFile("#### A masked pattern was here ####\n10\tpart2\tfoodesc\t200.0\t2.0\t-1\t10\tpart2\tfoodesc\t200.0\t2.0\t-1\n",
                 new Path(hiveOutputDir, testName + ".out").toString());
@@ -216,7 +237,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id,id2');" + HiveTestUtil.CRLF);
         sb.append("CREATE EXTERNAL TABLE joinTable2(ID int, ID2 String,description STRING," +
                 "db DOUBLE,fl FLOAT, us INT)" + HiveTestUtil.CRLF +
@@ -227,7 +248,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id,id2');" + HiveTestUtil.CRLF);
 
         sb.append("INSERT INTO TABLE joinTable1" + HiveTestUtil.CRLF +"VALUES (5, \'part2\',\'foodesc\',200,2.0,-1);" + HiveTestUtil.CRLF);
@@ -239,7 +260,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
         sb.append("SELECT  * from joinTable1 A join joinTable2 B on A.id = B.id WHERE A.ID=10;" +
                 HiveTestUtil.CRLF);
 
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
     }
@@ -252,7 +273,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
     @Test
     public void testJoinColumnMaps() throws Exception {
         String testName = "testJoin";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile("#### A masked pattern was here ####\n10\t200.0\tpart2\n", new Path(hiveOutputDir, testName + ".out").toString());
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
 
@@ -266,7 +287,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.column.mapping' = 'id:i1, id2:I2, db:db'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id,id2');" + HiveTestUtil.CRLF);
         sb.append("CREATE EXTERNAL TABLE joinTable4(ID int, ID2 String,description STRING," +
@@ -278,7 +299,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.column.mapping' = 'id:i1, id2:I2, db:db'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id,id2');" + HiveTestUtil.CRLF);
 
@@ -291,26 +312,30 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
         sb.append("SELECT A.ID, a.db, B.ID2 from joinTable3 A join joinTable4 B on A.ID = B.ID WHERE A.ID=10;" +
                 HiveTestUtil.CRLF);
 
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
         //Test that Phoenix has correctly mapped columns. We are checking both, primary key and
         // regular columns mapped and not mapped
         String phoenixQuery = "SELECT \"i1\", \"I2\", \"db\" FROM joinTable3 where \"i1\" = 10 AND \"I2\" = 'part1' AND \"db\" = 200";
-        PreparedStatement statement = conn.prepareStatement(phoenixQuery);
-        ResultSet rs = statement.executeQuery();
-        assert (rs.getMetaData().getColumnCount() == 3);
-        while (rs.next()) {
-            assert (rs.getInt(1) == 10);
-            assert (rs.getString(2).equalsIgnoreCase("part1"));
-            assert (rs.getDouble(3) == 200);
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);
+                PreparedStatement statement = conn.prepareStatement(phoenixQuery)) {
+            conn.setAutoCommit(true);
+            ResultSet rs = statement.executeQuery();
+            assert (rs.getMetaData().getColumnCount() == 3);
+            while (rs.next()) {
+                assert (rs.getInt(1) == 10);
+                assert (rs.getString(2).equalsIgnoreCase("part1"));
+                assert (rs.getDouble(3) == 200);
+            }
         }
     }
 
     @Test
     public void testTimestampPredicate() throws Exception {
         String testName = "testTimeStampPredicate";
-        hbaseTestUtil.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
         createFile("10\t2013-01-02 01:01:01.123456\n", new Path(hiveOutputDir, testName + ".out").toString());
         createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
 
@@ -323,7 +348,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
-                hbaseTestUtil.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
+                utility.getZkCluster().getClientPort() + "'," + HiveTestUtil.CRLF +
                 "   'phoenix.column.mapping' = 'id:ID, ts:TS'," + HiveTestUtil.CRLF +
                 "   'phoenix.rowkeys'='id');" + HiveTestUtil.CRLF);
         /*
@@ -333,7 +358,7 @@ public class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
         sb.append("SELECT * from timeStampTable WHERE ts between '2012-01-02 01:01:01.123455' and " +
                 " '2015-01-02 12:01:02.123457789' AND id = 10;" + HiveTestUtil.CRLF);
 
-        String fullPath = new Path(hbaseTestUtil.getDataTestDir(), testName).toString();
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
         runTest(testName, fullPath);
     }

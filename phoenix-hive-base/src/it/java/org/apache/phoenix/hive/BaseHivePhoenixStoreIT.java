@@ -25,60 +25,81 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
+import org.apache.phoenix.query.BaseTest;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.ql.QTestProcessExecResult;
+import org.apache.phoenix.end2end.ParallelStatsDisabledTest;
+import org.apache.phoenix.execute.UpsertSelectOverlappingBatchesIT.SlowBatchRegionObserver;
 import org.apache.phoenix.jdbc.PhoenixDriver;
 import org.apache.phoenix.query.QueryServices;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.PropertiesUtil;
+import org.apache.phoenix.util.ReadOnlyProps;
 import org.apache.phoenix.util.TestUtil;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.experimental.categories.Category;
 
 import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
+import static org.apache.phoenix.util.TestUtil.TEST_PROPERTIES;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * Base class for all Hive Phoenix integration tests that may be run with Tez or MR mini cluster
  */
-public class BaseHivePhoenixStoreIT extends BaseHBaseManagedTimeIT {
+@NotThreadSafe
+@Category(ParallelStatsDisabledTest.class)
+public class BaseHivePhoenixStoreIT extends BaseTest {
 
     private static final Log LOG = LogFactory.getLog(BaseHivePhoenixStoreIT.class);
-    protected static HBaseTestingUtility hbaseTestUtil;
-    protected static MiniHBaseCluster hbaseCluster;
-    private static String zkQuorum;
-    protected static Connection conn;
-    private static Configuration conf;
     protected static HiveTestUtil qt;
     protected static String hiveOutputDir;
     protected static String hiveLogDir;
 
-    public static void setup(HiveTestUtil.MiniClusterType clusterType)throws Exception {
+    public static void setup(HiveTestUtil.MiniClusterType clusterType) throws Exception {
+        System.clearProperty("test.build.data");
+
+        //Setup Hbase minicluster + Phoenix first
+        Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(3);
+        serverProps.put(QueryServices.DROP_METADATA_ATTRIB, Boolean.toString(true));
+        serverProps.put("hive.metastore.schema.verification","false");
+        setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()));
+
         String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
         if (null != hadoopConfDir && !hadoopConfDir.isEmpty()) {
           LOG.warn("WARNING: HADOOP_CONF_DIR is set in the environment which may cause "
               + "issues with test execution via MiniDFSCluster");
         }
-        hbaseTestUtil = new HBaseTestingUtility();
-        conf = hbaseTestUtil.getConfiguration();
-        setUpConfigForMiniCluster(conf);
-        conf.set(QueryServices.DROP_METADATA_ATTRIB, Boolean.toString(true));
-        conf.set("hive.metastore.schema.verification","false");
-        hiveOutputDir = new Path(hbaseTestUtil.getDataTestDir(), "hive_output").toString();
+
+        // Setup Hive mini Server
+        hiveOutputDir = new Path(utility.getDataTestDir(), "hive_output").toString();
         File outputDir = new File(hiveOutputDir);
         outputDir.mkdirs();
-        hiveLogDir = new Path(hbaseTestUtil.getDataTestDir(), "hive_log").toString();
+
+        hiveLogDir = new Path(utility.getDataTestDir(), "hive_log").toString();
         File logDir = new File(hiveLogDir);
         logDir.mkdirs();
-        // Setup Hive mini Server
-        Path testRoot = hbaseTestUtil.getDataTestDir();
+
+        Path testRoot = utility.getDataTestDir();
+        String hiveBuildDataDir = new Path(utility.getDataTestDir(), "hive/build/data/").toString();
+        File buildDataDir = new File(hiveBuildDataDir);
+        buildDataDir.mkdirs();
+
+        //Separate data dir for the Hive test cluster's DFS, so that it doesn't nuke HBase's DFS
+        System.setProperty("test.build.data", hiveBuildDataDir.toString());
+
         System.setProperty("test.tmp.dir", testRoot.toString());
         System.setProperty("test.warehouse.dir", (new Path(testRoot, "warehouse")).toString());
         System.setProperty(HiveConf.ConfVars.METASTORE_SCHEMA_VERIFICATION.toString(), "false");
@@ -92,19 +113,12 @@ public class BaseHivePhoenixStoreIT extends BaseHBaseManagedTimeIT {
             fail("Unexpected exception in setup"+Throwables.getStackTraceAsString(e));
         }
 
-        //Start HBase cluster
-        hbaseCluster = hbaseTestUtil.startMiniCluster(1);
-        MiniDFSCluster x = hbaseTestUtil.getDFSCluster();
-        Class.forName(PhoenixDriver.class.getName());
-        zkQuorum = "localhost:" + hbaseTestUtil.getZkCluster().getClientPort();
-        Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
-        props.put(QueryServices.DROP_METADATA_ATTRIB, Boolean.toString(true));
-        conn = DriverManager.getConnection(PhoenixRuntime.JDBC_PROTOCOL +
-                PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkQuorum, props);
-        // Setup Hive Output Folder
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);
+                Statement stmt = conn.createStatement()) {
+            stmt.execute("create table t(a integer primary key,b varchar)");
+        }
 
-        Statement stmt = conn.createStatement();
-        stmt.execute("create table t(a integer primary key,b varchar)");
     }
 
     protected void runTest(String fname, String fpath) throws Exception {
@@ -147,19 +161,6 @@ public class BaseHivePhoenixStoreIT extends BaseHBaseManagedTimeIT {
 
     @AfterClass
     public static synchronized void tearDownAfterClass() throws Exception {
-        try {
-            conn.close();
-        } finally {
-            try {
-                PhoenixDriver.INSTANCE.close();
-            } finally {
-                try {
-                    DriverManager.deregisterDriver(PhoenixDriver.INSTANCE);
-                } finally {
-                    hbaseTestUtil.shutdownMiniCluster();
-                }
-            }
-        }
         // Shutdowns down the filesystem -- do this after stopping HBase.
         if (qt != null) {
           try {

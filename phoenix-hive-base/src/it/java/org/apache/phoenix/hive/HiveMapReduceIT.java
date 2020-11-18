@@ -28,10 +28,6 @@ public class HiveMapReduceIT extends HivePhoenixStoreIT {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        final String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
-        if (hadoopConfDir != null && hadoopConfDir.length() != 0) {
-            fail("HADOOP_CONF_DIR is non-empty in the current shell environment which will very likely cause this test to fail.");
-        }
         setup(HiveTestUtil.MiniClusterType.mr);
     }
 
