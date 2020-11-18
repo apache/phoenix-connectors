@@ -32,36 +32,38 @@
   <packaging>pom</packaging>
   <name>Phoenix 4 Connectors Distribution Assembly</name>
 
+ <dependencies>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-flume</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-hive</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-pig</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-spark</artifactId>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>package-phoenix4-to-tar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <skipAssembly>${skip-phoenix4}</skipAssembly>
-              <descriptors>
-                <descriptor>src/build/package-phoenix4-connectors-to-tar-all.xml</descriptor>
-              </descriptors>
-              <finalName>phoenix4-connectors-${project.version}</finalName>
-              <tarLongFileMode>posix</tarLongFileMode>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>exec-maven-plugin</artifactId>
         <groupId>org.codehaus.mojo</groupId>
         <executions>
           <execution>
             <id>flume without version</id>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -81,7 +83,7 @@
           </execution>
           <execution>
             <id>hive without version</id>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -101,7 +103,7 @@
           </execution>
           <execution>
             <id>pig without version</id>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -121,7 +123,7 @@
           </execution>
           <execution>
             <id>spark without version</id>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -141,7 +143,7 @@
           </execution>
           <execution>
             <id>kafka without version</id>
-            <phase>compile</phase>
+            <phase>package</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -157,6 +159,27 @@
                   phoenix4-kafka.jar
                 </argument>
               </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-phoenix4-to-tar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <skipAssembly>${skip-phoenix4}</skipAssembly>
+              <descriptors>
+                <descriptor>src/build/package-phoenix4-connectors-to-tar-all.xml</descriptor>
+              </descriptors>
+              <finalName>phoenix4-connectors-${project.version}</finalName>
+              <tarLongFileMode>posix</tarLongFileMode>
+              <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
         </executions>
