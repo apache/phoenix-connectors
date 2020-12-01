@@ -96,6 +96,7 @@
     <zookeeper.version>3.4.12</zookeeper.version>
     
     <!-- Plugin versions -->
+    <maven-assembly-plugin-version>3.1.1</maven-assembly-plugin-version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <maven-project-info-reports-plugin.version>3.1.1</maven-project-info-reports-plugin.version>
