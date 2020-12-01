@@ -96,6 +96,7 @@
     <zookeeper.version>3.4.12</zookeeper.version>
     
     <!-- Plugin versions -->
+    <maven-assembly-plugin-version>3.1.1</maven-assembly-plugin-version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
     <maven-project-info-reports-plugin.version>3.1.1</maven-project-info-reports-plugin.version>
@@ -160,6 +161,11 @@
             <source>${jdk.version}</source>
             <target>${jdk.version}</target>
           </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin-version}</version>
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings 
           only. It has no influence on the Maven build itself. -->
