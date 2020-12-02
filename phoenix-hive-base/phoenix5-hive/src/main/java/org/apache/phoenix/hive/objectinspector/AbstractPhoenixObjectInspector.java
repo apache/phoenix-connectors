@@ -17,11 +17,12 @@
  */
 package org.apache.phoenix.hive.objectinspector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.serde2.lazy.objectinspector.primitive.AbstractPrimitiveLazyObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.io.Writable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AbstractPhoenixObjectInspector for a LazyPrimitive object
@@ -29,18 +30,18 @@ import org.apache.hadoop.io.Writable;
 public abstract class AbstractPhoenixObjectInspector<T extends Writable>
         extends AbstractPrimitiveLazyObjectInspector<T> {
 
-    private final Log log;
+    private Logger log;
 
     public AbstractPhoenixObjectInspector() {
         super();
 
-        log = LogFactory.getLog(getClass());
+        log = LoggerFactory.getLogger(getClass());
     }
 
     protected AbstractPhoenixObjectInspector(PrimitiveTypeInfo typeInfo) {
         super(typeInfo);
 
-        log = LogFactory.getLog(getClass());
+        log = LoggerFactory.getLogger(getClass());
     }
 
     @Override

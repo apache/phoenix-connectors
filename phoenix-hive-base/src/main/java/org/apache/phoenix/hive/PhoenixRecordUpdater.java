@@ -23,8 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.io.AcidOutputFormat;
@@ -43,10 +41,12 @@ import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
 import org.apache.phoenix.schema.ConcurrentTableMutationException;
 import org.apache.phoenix.schema.MetaDataClient;
 import org.apache.phoenix.util.QueryUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PhoenixRecordUpdater implements RecordUpdater {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixRecordUpdater.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixRecordUpdater.class);
 
     private final Connection conn;
     private final PreparedStatement pstmt;

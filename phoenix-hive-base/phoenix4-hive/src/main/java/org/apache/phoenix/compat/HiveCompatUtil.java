@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.compat;
 
-import org.apache.commons.logging.Log;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.ql.QueryState;
 import org.apache.hadoop.hive.ql.io.AcidOutputFormat;
@@ -27,6 +26,7 @@ import org.apache.hadoop.hive.ql.parse.ParseDriver;
 import org.apache.hadoop.hive.ql.parse.SemanticAnalyzer;
 import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
 import org.apache.hadoop.hive.ql.session.SessionState;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -44,7 +44,7 @@ public class HiveCompatUtil {
         return comparisonExpr;
     }
 
-    public static String getOptionsValue(AcidOutputFormat.Options options, AtomicReference<Method> GET_BUCKET_METHOD_REF, AtomicReference<Method> GET_BUCKET_ID_METHOD_REF, Log LOG) {
+    public static String getOptionsValue(AcidOutputFormat.Options options, AtomicReference<Method> GET_BUCKET_METHOD_REF, AtomicReference<Method> GET_BUCKET_ID_METHOD_REF, Logger LOG) {
         StringBuilder content = new StringBuilder();
 
         int bucket = options.getBucket();

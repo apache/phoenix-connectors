@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -32,6 +30,8 @@ import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapreduce.lib.db.DBWritable;
 import org.apache.hadoop.util.Progressable;
 import org.apache.phoenix.hive.util.PhoenixStorageHandlerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -43,7 +43,7 @@ import java.util.Properties;
 public class PhoenixOutputFormat<T extends DBWritable> implements OutputFormat<NullWritable, T>,
         AcidOutputFormat<NullWritable, T> {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixOutputFormat.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixOutputFormat.class);
 
     public PhoenixOutputFormat() {
         if (LOG.isDebugEnabled()) {

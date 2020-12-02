@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive.ql.index;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
 import org.apache.hadoop.hive.ql.lib.DefaultGraphWalker;
 import org.apache.hadoop.hive.ql.lib.DefaultRuleDispatcher;
@@ -52,6 +50,8 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToUtcTimestamp;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToVarchar;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 import org.apache.phoenix.hive.util.TypeInfoUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +71,7 @@ import java.util.Stack;
  */
 public class IndexPredicateAnalyzer {
 
-    private static final Log LOG = LogFactory.getLog(IndexPredicateAnalyzer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IndexPredicateAnalyzer.class);
 
     private final Set<String> udfNames;
     private final Map<String, Set<String>> columnToUDFs;

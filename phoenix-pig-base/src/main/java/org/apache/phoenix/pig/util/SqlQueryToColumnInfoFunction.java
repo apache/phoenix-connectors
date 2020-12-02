@@ -22,8 +22,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.phoenix.compile.ColumnProjector;
 import org.apache.phoenix.compile.QueryPlan;
@@ -35,9 +34,12 @@ import org.apache.phoenix.thirdparty.com.google.common.base.Function;
 import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
 import org.apache.phoenix.thirdparty.com.google.common.collect.Lists;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class SqlQueryToColumnInfoFunction implements Function<String,List<ColumnInfo>> {
     
-    private static final Log LOG = LogFactory.getLog(SqlQueryToColumnInfoFunction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SqlQueryToColumnInfoFunction.class);
     private final Configuration configuration;
 
     public SqlQueryToColumnInfoFunction(final Configuration configuration) {

@@ -22,8 +22,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -49,6 +47,8 @@ import org.apache.phoenix.iterate.TableResultIterator;
 import org.apache.phoenix.jdbc.PhoenixResultSet;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
 
@@ -59,7 +59,7 @@ import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
 public class PhoenixRecordReader<T extends DBWritable> implements
         RecordReader<WritableComparable, T> {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixRecordReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixRecordReader.class);
 
     private final Configuration configuration;
     private final QueryPlan queryPlan;

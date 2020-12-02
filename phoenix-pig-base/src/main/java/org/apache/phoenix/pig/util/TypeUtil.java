@@ -27,8 +27,6 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.phoenix.mapreduce.PhoenixRecordWritable;
 import org.apache.phoenix.schema.types.PArrayDataType;
 import org.apache.phoenix.schema.types.PBinary;
@@ -65,6 +63,8 @@ import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
 import org.apache.phoenix.thirdparty.com.google.common.collect.ImmutableMap;
@@ -72,7 +72,7 @@ import org.apache.phoenix.thirdparty.com.google.common.collect.ImmutableMap.Buil
 
 public final class TypeUtil {
 
-    private static final Log LOG = LogFactory.getLog(TypeUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TypeUtil.class);
     private static final HBaseBinaryConverter BINARY_CONVERTER = new HBaseBinaryConverter();
     private static final ImmutableMap<PDataType, Byte> PHOENIX_TO_PIG_TYPE = init();
     private static final TupleFactory TUPLE_FACTORY = TupleFactory.getInstance();
