@@ -135,13 +135,6 @@
       <version>${commons-io.version}</version>
     </dependency>
 
-    <!-- FIXME do we have any good reason not migrate to SLF4j fully ? -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${commons-logging.version}</version>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.apache.phoenix</groupId>

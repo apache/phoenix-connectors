@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.TableName;
@@ -30,6 +28,8 @@ import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.TableNotFoundException;
 import org.apache.phoenix.util.ColumnInfo;
 import org.apache.phoenix.util.PhoenixRuntime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -50,7 +50,7 @@ import java.util.Properties;
  */
 public class PhoenixUtil {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixUtil.class);
 
     public static String getPhoenixType(String hiveTypeName) {
         if (hiveTypeName.startsWith("array")) {

@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.common.type.HiveChar;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
@@ -38,6 +36,8 @@ import org.apache.phoenix.hive.util.PhoenixConnectionUtil;
 import org.apache.phoenix.hive.util.PhoenixStorageHandlerUtil;
 import org.apache.phoenix.hive.util.PhoenixUtil;
 import org.apache.phoenix.util.ColumnInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -51,7 +51,7 @@ import java.util.Properties;
  */
 public class PhoenixSerializer {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixSerializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixSerializer.class);
 
     public static enum DmlType {
         NONE,

@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.compat;
 
-import org.apache.commons.logging.Log;
 import org.apache.hadoop.hive.common.type.Date;
 import org.apache.hadoop.hive.common.type.Timestamp;
 import org.apache.hadoop.hive.conf.HiveConf;
@@ -35,6 +34,7 @@ import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
 import org.apache.hadoop.hive.ql.session.SessionState;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFIn;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -64,7 +64,7 @@ public class HiveCompatUtil {
         return ret;
     }
 
-    public static String getOptionsValue(AcidOutputFormat.Options options, AtomicReference<Method> GET_BUCKET_METHOD_REF, AtomicReference<Method> GET_BUCKET_ID_METHOD_REF, Log LOG) {
+    public static String getOptionsValue(AcidOutputFormat.Options options, AtomicReference<Method> GET_BUCKET_METHOD_REF, AtomicReference<Method> GET_BUCKET_ID_METHOD_REF, Logger LOG) {
         StringBuilder content = new StringBuilder();
 
         int bucket = getBucket(options, GET_BUCKET_METHOD_REF, GET_BUCKET_ID_METHOD_REF, LOG);
@@ -85,7 +85,7 @@ public class HiveCompatUtil {
         return content.toString();
     }
 
-    private static int getBucket(AcidOutputFormat.Options options, AtomicReference<Method> GET_BUCKET_METHOD_REF, AtomicReference<Method> GET_BUCKET_ID_METHOD_REF, Log LOG) {
+    private static int getBucket(AcidOutputFormat.Options options, AtomicReference<Method> GET_BUCKET_METHOD_REF, AtomicReference<Method> GET_BUCKET_ID_METHOD_REF, Logger LOG) {
         Method getBucketMethod = GET_BUCKET_METHOD_REF.get();
         try {
             if (getBucketMethod == null) {

@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HConstants;
@@ -46,6 +44,8 @@ import org.apache.phoenix.hive.mapreduce.PhoenixInputFormat;
 import org.apache.phoenix.hive.mapreduce.PhoenixOutputFormat;
 import org.apache.phoenix.hive.ppd.PhoenixPredicateDecomposer;
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -60,6 +60,7 @@ import java.util.UUID;
 public class PhoenixStorageHandler extends DefaultStorageHandler implements
         HiveStoragePredicateHandler, InputEstimator {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixStorageHandler.class);
 
     private Configuration jobConf;
     private Configuration hbaseConf;
@@ -75,8 +76,6 @@ public class PhoenixStorageHandler extends DefaultStorageHandler implements
     public Configuration getConf() {
         return hbaseConf;
     }
-
-    private static final Log LOG = LogFactory.getLog(PhoenixStorageHandler.class);
 
     public PhoenixStorageHandler() {
         if (LOG.isDebugEnabled()) {

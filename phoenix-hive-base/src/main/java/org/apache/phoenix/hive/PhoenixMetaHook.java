@@ -17,9 +17,6 @@
  */
 package org.apache.phoenix.hive;
 
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hive.metastore.HiveMetaHook;
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
@@ -29,6 +26,8 @@ import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 import org.apache.phoenix.hive.util.PhoenixConnectionUtil;
 import org.apache.phoenix.hive.util.PhoenixStorageHandlerUtil;
 import org.apache.phoenix.hive.util.PhoenixUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,11 +37,11 @@ import static org.apache.phoenix.hive.util.ColumnMappingUtils.getColumnMappingMa
 
 /**
  * Implementation for notification methods which are invoked as part of transactions against the
- * hive metastore,allowing Phoenix metadata to be kept in sync with Hive'smetastore.
+ * hive metastore,allowing Phoenix metadata to be kept in sync with Hive's metastore.
  */
 public class PhoenixMetaHook implements HiveMetaHook {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixMetaHook.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixMetaHook.class);
     private static final String EXTERNAL_TABLE_PURGE = "external.table.purge";
 
     @Override

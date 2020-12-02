@@ -20,9 +20,10 @@ package org.apache.phoenix.spark.datasource.v2;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.apache.phoenix.spark.datasource.v2.reader.PhoenixDataSourceReader;
 import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDataSourceWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.sources.DataSourceRegister;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
@@ -38,7 +39,7 @@ import org.apache.spark.sql.types.StructType;
  */
 public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupport, DataSourceRegister {
 
-    private static final Logger logger = Logger.getLogger(PhoenixDataSource.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
     public static final String ZOOKEEPER_URL = "zkUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";

@@ -17,8 +17,6 @@
  */
 package org.apache.phoenix.hive.mapreduce;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
@@ -29,6 +27,8 @@ import org.apache.phoenix.hive.util.ColumnMappingUtils;
 import org.apache.phoenix.hive.util.PhoenixStorageHandlerUtil;
 import org.apache.phoenix.hive.util.PhoenixUtil;
 import org.apache.phoenix.util.ColumnInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -49,7 +49,7 @@ import java.util.Map;
  */
 public class PhoenixResultWritable implements Writable, DBWritable, Configurable {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixResultWritable.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixResultWritable.class);
 
     private List<ColumnInfo> columnMetadataList;
     private List<Object> valueList;    // for output

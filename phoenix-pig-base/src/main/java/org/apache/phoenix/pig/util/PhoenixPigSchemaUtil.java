@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.SchemaType;
@@ -40,7 +40,7 @@ import org.apache.phoenix.thirdparty.com.google.common.base.Preconditions;
  */
 public final class PhoenixPigSchemaUtil {
 
-    private static final Log LOG = LogFactory.getLog(PhoenixPigSchemaUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixPigSchemaUtil.class);
     
     private PhoenixPigSchemaUtil() {
     }

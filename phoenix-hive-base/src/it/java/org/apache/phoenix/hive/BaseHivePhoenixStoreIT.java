@@ -18,8 +18,6 @@
 package org.apache.phoenix.hive;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
@@ -39,6 +37,8 @@ import org.apache.phoenix.util.TestUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.phoenix.thirdparty.com.google.common.base.Throwables;
 import org.apache.phoenix.thirdparty.com.google.common.collect.Maps;
@@ -63,7 +63,7 @@ import static org.junit.Assert.fail;
 @Category(ParallelStatsDisabledTest.class)
 public class BaseHivePhoenixStoreIT extends BaseTest {
 
-    private static final Log LOG = LogFactory.getLog(BaseHivePhoenixStoreIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BaseHivePhoenixStoreIT.class);
     protected static HiveTestUtil qt;
     protected static String hiveOutputDir;
     protected static String hiveLogDir;

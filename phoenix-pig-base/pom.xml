@@ -69,12 +69,6 @@
       <artifactId>findbugs-annotations</artifactId>
       <version>${findbugs-annotations.version}</version>
     </dependency>
-    <!-- FIXME do we have any good reason not migrate to SLF4j fully ? -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${commons-logging.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

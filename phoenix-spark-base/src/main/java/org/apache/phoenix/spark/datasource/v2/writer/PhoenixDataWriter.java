@@ -28,10 +28,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.SchemaUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
@@ -54,7 +56,7 @@ import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
 public class PhoenixDataWriter implements DataWriter<InternalRow> {
 
-    private static final Logger logger = Logger.getLogger(PhoenixDataWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhoenixDataWriter.class);
     private final StructType schema;
     private final Connection conn;
     private final PreparedStatement statement;
