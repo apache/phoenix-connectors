@@ -35,12 +35,52 @@
   <properties>
     <hive.version>${hive2.version}</hive.version>
     <hive-storage.version>${hive2-storage.version}</hive-storage.version>
+    <log4j2.version>2.6.2</log4j2.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-connectors-phoenix4-compat</artifactId>
+    <!-- Hive dependencies cannot be specified in the phoenix-hive-common, because of
+    hbase transitive dependency version conflicts -->
+    </dependency>
+        <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-cli</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-common</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- These three dependencies are falsely flagged by dependency plugin -->
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-serde</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-storage-api</artifactId>
+      <version>${hive-storage.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId> org.apache.hive.shims</groupId>
+      <artifactId>hive-shims-common</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
     </dependency>
     <!-- These are actually different between phoenix 5 and phoenix 4 -->
     <dependency>
@@ -71,7 +111,7 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

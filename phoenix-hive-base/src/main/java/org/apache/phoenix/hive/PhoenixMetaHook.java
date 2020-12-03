@@ -75,6 +75,7 @@ public class PhoenixMetaHook implements HiveMetaHook {
                 LOG.debug("Phoenix table " + tableName + " was created");
             }
         } catch (SQLException e) {
+            LOG.warn("error while creating table", e);
             throw new MetaException(e.getMessage());
         }
     }
@@ -223,6 +224,7 @@ public class PhoenixMetaHook implements HiveMetaHook {
                 }
             }
         } catch (SQLException e) {
+            LOG.warn("error while dropping table", e);
             throw new MetaException(e.getMessage());
         }
     }

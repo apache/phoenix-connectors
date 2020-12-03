@@ -41,6 +41,19 @@
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/phoenix-connectors.git</developerConnection>
   </scm>
 
+  <modules>
+      <module>phoenix-connectors-phoenix4-compat</module>
+      <module>phoenix-connectors-phoenix5-compat</module>
+      <!-- Changing the module order here may cause maven to get stuck in an infinite loop -->
+      <module>phoenix-hive-base</module>
+      <module>phoenix-flume-base</module>
+      <module>phoenix-pig-base</module>
+      <module>phoenix-kafka-base</module>
+      <module>phoenix-spark-base</module>
+      <module>phoenix4-connectors-assembly</module>
+      <module>phoenix5-connectors-assembly</module>
+  </modules>
+
   <properties>
     <!-- Phoenix Version -->
     <phoenix-four.version>4.15.0-HBase-1.4</phoenix-four.version>
@@ -48,7 +61,8 @@
     <phoenix.thirdparty.version>1.0.0</phoenix.thirdparty.version>
     <!-- Hadoop Versions -->
     <hbase-one.version>1.4.0</hbase-one.version>
-    <hbase-two.version>2.1.9</hbase-two.version>
+    <hbase-two.version>2.1.10</hbase-two.version>
+    <hbase-thirdparty-version>2.2.1</hbase-thirdparty-version>
     <hadoop-two.version>2.7.5</hadoop-two.version>
     <hadoop-three.version>3.0.3</hadoop-three.version>
 
@@ -77,6 +91,7 @@
     <scala.binary.version>2.11</scala.binary.version>
     
     <log4j.version>1.2.17</log4j.version>
+    <log4j2.version>2.10.0</log4j2.version>
     <disruptor.version>3.3.6</disruptor.version>
     <slf4j.version>1.7.30</slf4j.version>
     <commons-collections.version>3.2.2</commons-collections.version>
@@ -523,6 +538,51 @@
       </dependency>
 
       <!-- HBase dependencies -->
+
+      <!-- These are only needed so that we can set them provided and exclude from the shaded jars -->
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-protocol-shaded</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-metrics-api</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-metrics</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-endpoint</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-mapreduce</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-zookeeper</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase.thirdparty</groupId>
+        <artifactId>hbase-shaded-miscellaneous</artifactId>
+        <version>${hbase-thirdparty-version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase.thirdparty</groupId>
+        <artifactId>hbase-shaded-protobuf</artifactId>
+        <version>${hbase-thirdparty-version}</version>
+      </dependency>
+      <!-- End of exclusion-only dependencies -->
+
       <dependency>
         <groupId>org.apache.hbase</groupId>
         <artifactId>hbase-annotations</artifactId>
@@ -625,6 +685,20 @@
       </dependency>
 
       <!-- Hadoop Dependencies -->
+
+      <!-- Start for exclusion only -->
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-yarn-api</artifactId>
+        <version>${hadoop.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-hdfs-client</artifactId>
+        <version>${hadoop.version}</version>
+      </dependency>
+      <!-- End for exclusion only -->
+
       <dependency>
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-common</artifactId>
@@ -700,8 +774,35 @@
 
       <!-- General Dependencies -->
       <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${zookeeper.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper-jute</artifactId>
+        <version>${zookeeper.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>2.5.0</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons-logging.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <!-- for exclusion -->
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
@@ -769,42 +870,6 @@
   </dependencyManagement>
 
   <profiles>
-    <profile>
-    <id>phoenix4</id>
-      <activation>
-        <property>
-          <name>!skip-phoenix4</name>
-        </property>
-      </activation>
-    <modules>
-      <module>phoenix-connectors-phoenix4-compat</module>
-      <module>phoenix-flume-base/phoenix4-flume</module>
-      <module>phoenix-pig-base/phoenix4-pig</module>
-      <module>phoenix-kafka-base/phoenix4-kafka</module>
-      <module>phoenix-spark-base/phoenix4-spark</module>
-      <module>phoenix-hive-base/phoenix4-hive</module>
-      <module>phoenix4-connectors-assembly</module>
-    </modules>
-  </profile>
-    <profile>
-      <id>phoenix5</id>
-      <activation>
-        <property>
-          <name>!skip-phoenix5</name>
-        </property>
-      </activation>
-      <properties>
-      </properties>
-      <modules>
-        <module>phoenix-connectors-phoenix5-compat</module>
-        <module>phoenix-flume-base/phoenix5-flume</module>
-        <module>phoenix-pig-base/phoenix5-pig</module>
-        <module>phoenix-kafka-base/phoenix5-kafka</module>
-        <module>phoenix-spark-base/phoenix5-spark</module>
-        <module>phoenix-hive-base/phoenix5-hive</module>
-        <module>phoenix5-connectors-assembly</module>
-      </modules>
-    </profile>
     <!-- disable doclint with 1.8+ JDKs-->
     <profile>
       <id>java8-doclint-disabled</id>
@@ -828,19 +893,6 @@
                 <phase>package</phase>
                 <goals>
                   <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
                 </goals>
               </execution>
             </executions>
