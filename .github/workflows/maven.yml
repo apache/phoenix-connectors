@@ -33,4 +33,4 @@ jobs:
     # The build doesn't seem to pick up the result of the install from above, so just re-compile
     # and the Maven reactor will find it just fine.
     - name: Test
-      run: mvn -B verify
+      run: mvn -B clean verify

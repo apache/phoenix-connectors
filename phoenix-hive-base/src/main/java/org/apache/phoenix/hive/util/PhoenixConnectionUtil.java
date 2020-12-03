@@ -82,7 +82,7 @@ public class PhoenixConnectionUtil {
         try {
             Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
         } catch (ClassNotFoundException e) {
-            LOG.warn("internal error",e);
+            LOG.warn("Coould not load driver",e);
         }
         return DriverManager.getConnection(QueryUtil.getUrl(zookeeperQuorum, clientPort,
                 zNodeParent));

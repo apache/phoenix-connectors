@@ -47,6 +47,52 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
     </dependency>
+    <!-- Hive dependencies cannot be specified in the phoenix-hive-common, because of
+    hbase transitive dependency version conflicts -->
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-cli</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-common</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- These three dependencies are falsely flagged by dependency plugin -->
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-serde</artifactId>
+      <version>${hive.version}</version>
+      <exclusions>
+        <!-- Fix conflict with Minicluster -->
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-storage-api</artifactId>
+      <version>${hive-storage.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId> org.apache.hive.shims</groupId>
+      <artifactId>hive-shims-common</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <!-- These are actually different between phoenix 5 and phoenix 4 -->
     <dependency>
       <groupId> org.apache.hive</groupId>
@@ -57,21 +103,37 @@
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-mapreduce</artifactId>
-      <version>${hbase.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-zookeeper</artifactId>
-      <version>${hbase.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-mapreduce-client-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-protocol-shaded</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-endpoint</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs-client</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.14.0</version>
+      <version>${log4j2.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -96,7 +158,7 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
