@@ -51,7 +51,7 @@
       <directory>${project.basedir}/../phoenix-spark-base/phoenix4-spark/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix4-spark-${project.version}.jar</include>
+        <include>phoenix4-${project.version}-spark.jar</include>
         <include>phoenix4-spark.jar</include>
       </includes>
     </fileSet>
