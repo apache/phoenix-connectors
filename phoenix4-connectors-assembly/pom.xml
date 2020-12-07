@@ -133,7 +133,7 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-spark-${project.version}.jar
+                  phoenix4-${project.version}-spark.jar
                 </argument>
                 <argument>
                   phoenix4-spark.jar

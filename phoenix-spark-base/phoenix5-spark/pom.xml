@@ -39,7 +39,6 @@
     <hadoop.version>${hadoop-three.version}</hadoop.version>
     <jdk.version>1.8</jdk.version>
     <fasterxml.jackson.version>2.10.0</fasterxml.jackson.version>
-    <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
     <phoenix.main.version>5</phoenix.main.version>
   </properties>
 
@@ -47,6 +46,21 @@
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs-client</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -89,6 +103,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
