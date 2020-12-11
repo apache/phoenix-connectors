@@ -375,8 +375,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <configuration>
-            <finalName>phoenix${phoenix.main.version}-${project.version}-hive</finalName>
             <shadedArtifactAttached>true</shadedArtifactAttached>
+            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
             <filters>
               <filter>
                 <artifact>*:*</artifact>

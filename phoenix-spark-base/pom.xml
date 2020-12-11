@@ -619,8 +619,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <configuration>
-            <finalName>phoenix${phoenix.main.version}-${project.version}-spark</finalName>
             <shadedArtifactAttached>true</shadedArtifactAttached>
+            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
             <filters>
               <filter>
                 <artifact>*:*</artifact>

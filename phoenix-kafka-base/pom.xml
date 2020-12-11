@@ -204,8 +204,9 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <configuration>
-            <finalName>phoenix${phoenix.main.version}-kafka-${project.version}-minimal</finalName>
+            <shadedArtifactAttached>true</shadedArtifactAttached>
             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+            <shadedClassifierName>shaded-minimal</shadedClassifierName>
             <shadeTestJar>false</shadeTestJar>
             <artifactSet>
               <includes>
@@ -215,6 +216,14 @@
               </includes>
             </artifactSet>
           </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

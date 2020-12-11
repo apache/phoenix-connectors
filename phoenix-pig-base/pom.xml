@@ -178,8 +178,7 @@
                 <goal>shade</goal>
               </goals>
               <configuration>
-                <finalName>phoenix${phoenix.main.version}-${project.version}-pig</finalName>
-                <shadedArtifactAttached>false</shadedArtifactAttached>
+                <shadedArtifactAttached>true</shadedArtifactAttached>
                 <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                 <shadeTestJar>false</shadeTestJar>
                 <transformers>

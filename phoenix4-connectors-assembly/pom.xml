@@ -73,10 +73,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-flume-${project.version}.jar
+                  phoenix4-flume-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix4-flume.jar
+                  phoenix4-flume-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -93,10 +93,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-${project.version}-hive.jar
+                  phoenix4-hive-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix4-hive.jar
+                  phoenix4-hive-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -113,10 +113,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-${project.version}-pig.jar
+                  phoenix4-pig-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix4-pig.jar
+                  phoenix4-pig-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -133,10 +133,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-${project.version}-spark.jar
+                  phoenix4-spark-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix4-spark.jar
+                  phoenix4-spark-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -153,10 +153,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-kafka-${project.version}-minimal.jar
+                  phoenix4-kafka-${project.version}-shaded-minimal.jar
                 </argument>
                 <argument>
-                  phoenix4-kafka.jar
+                  phoenix4-kafka-shaded-minimal.jar
                 </argument>
               </arguments>
             </configuration>
@@ -173,7 +173,6 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <skipAssembly>${skip-phoenix4}</skipAssembly>
               <descriptors>
                 <descriptor>src/build/package-phoenix4-connectors-to-tar-all.xml</descriptor>
               </descriptors>

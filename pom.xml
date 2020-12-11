@@ -125,8 +125,6 @@
     <numForkedIT>7</numForkedIT>
     <it.failIfNoSpecifiedTests>false</it.failIfNoSpecifiedTests>
     <surefire.failIfNoSpecifiedTests>false</surefire.failIfNoSpecifiedTests>
-    <skip-phoenix5>false</skip-phoenix5>
-    <skip-phoenix4>false</skip-phoenix4>
 
     <!-- Set default encoding so multi-byte tests work correctly on the Mac -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
