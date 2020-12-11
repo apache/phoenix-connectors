@@ -21,46 +21,46 @@
 -->
 <component>
   <fileSets>
-     <!-- Add the client & mapreduce jars. Expects the client jar packaging phase to already be run,
-      which is determined by specification order in the pom. -->
     <fileSet>
+      <!-- We don't actually have shaded flume JARs ATM, 
+      but there's no point in packaging the unshaded ones. -->
       <directory>${project.basedir}/../phoenix-flume-base/phoenix5-flume/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-flume-${project.version}.jar</include>
-        <include>phoenix5-flume.jar</include>
+        <include>phoenix5-flume-${project.version}-shaded.jar</include>
+        <include>phoenix5-flume-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/../phoenix-kafka-base/phoenix5-kafka/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-kafka-${project.version}-minimal.jar</include>
-        <include>phoenix5-kafka.jar</include>
+        <include>phoenix5-kafka-${project.version}-shaded-minimal.jar</include>
+        <include>phoenix5-kafka-shaded-minimal.jar</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/../phoenix-pig-base/phoenix5-pig/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-${project.version}-pig.jar</include>
-        <include>phoenix5-pig.jar</include>
+        <include>phoenix5-pig-${project.version}-shaded.jar</include>
+        <include>phoenix5-pig-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/../phoenix-spark-base/phoenix5-spark/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-${project.version}-spark.jar</include>
-        <include>phoenix5-spark.jar</include>
+        <include>phoenix5-spark-${project.version}-shaded.jar</include>
+        <include>phoenix5-spark-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/../phoenix-hive-base/phoenix5-hive/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-${project.version}-hive.jar</include>
-        <include>phoenix5-hive.jar</include>
+        <include>phoenix5-hive-${project.version}-shaded.jar</include>
+        <include>phoenix5-hive-shaded.jar</include>
       </includes>
     </fileSet>
   </fileSets>

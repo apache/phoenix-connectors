@@ -80,10 +80,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-flume-${project.version}.jar
+                  phoenix5-flume-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix5-flume.jar
+                  phoenix5-flume-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -100,10 +100,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-${project.version}-hive.jar
+                  phoenix5-hive-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix5-hive.jar
+                  phoenix5-hive-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -120,10 +120,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-${project.version}-pig.jar
+                  phoenix5-pig-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix5-pig.jar
+                  phoenix5-pig-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -140,10 +140,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-${project.version}-spark.jar
+                  phoenix5-spark-${project.version}-shaded.jar
                 </argument>
                 <argument>
-                  phoenix5-spark.jar
+                  phoenix5-spark-shaded.jar
                 </argument>
               </arguments>
             </configuration>
@@ -160,10 +160,10 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-kafka-${project.version}-minimal.jar
+                  phoenix5-kafka-${project.version}-shaded-minimal.jar
                 </argument>
                 <argument>
-                  phoenix5-kafka.jar
+                  phoenix5-kafka-shaded-minimal.jar
                 </argument>
               </arguments>
             </configuration>
