@@ -113,10 +113,10 @@
     </dependency>
 
     <!-- Flume dependencies, as the Kafka connectors extends Flume. -->
-<!--     <dependency> -->
-<!--       <groupId>org.apache.flume</groupId> -->
-<!--       <artifactId>flume-ng-core</artifactId> -->
-<!--     </dependency> -->
+    <dependency>
+      <groupId>org.apache.flume</groupId>
+      <artifactId>flume-ng-core</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-sdk</artifactId>
@@ -141,6 +141,9 @@
               </ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>
                 org.apache.hadoop:hadoop-minicluster
+              </ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>
+                org.apache.flume:flume-ng-core
               </ignoredUnusedDeclaredDependency>
             </ignoredUnusedDeclaredDependencies>
           </configuration>

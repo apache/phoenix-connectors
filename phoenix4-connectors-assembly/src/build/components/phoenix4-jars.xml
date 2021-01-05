@@ -21,8 +21,6 @@
 -->
 <component>
   <fileSets>
-    <!-- We don't actually have shaded flume JARs ATM,
-    but there's no point in packaging the unshaded ones. -->
     <fileSet>
       <directory>${project.basedir}/../phoenix-flume-base/phoenix4-flume/target</directory>
       <outputDirectory>/</outputDirectory>
