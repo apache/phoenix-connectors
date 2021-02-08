@@ -1,0 +1,12 @@
+Apache Phoenix
+Copyright 2013-2016 The Apache Software Foundation
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+This also includes:
+
+The phoenix-spark module has been adapted from the phoenix-spark library
+distributed under the terms of the Apache 2 license. Original source copyright:
+Copyright 2014 Simply Measured, Inc.
+Copyright 2015 Interset Software Inc.
