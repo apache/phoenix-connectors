@@ -42,14 +42,14 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
+import org.apache.phoenix.query.BaseTest;
 import org.apache.phoenix.flume.serializer.EventSerializers;
 import org.apache.phoenix.flume.sink.PhoenixSink;
 import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
 
 
-public class CsvEventSerializerIT extends BaseHBaseManagedTimeIT {
+public class CsvEventSerializerIT extends BaseTest {
 
 	private Context sinkContext;
 	private PhoenixSink sink;

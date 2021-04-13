@@ -37,9 +37,19 @@
     <phoenix.version>${phoenix-five.version}</phoenix.version>
     <hbase.version>${hbase-two.version}</hbase.version>
     <hadoop.version>${hadoop-three.version}</hadoop.version>
+    <zookeeper.version>${zookeeper-phoenix5.version}</zookeeper.version>
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <version>${phoenix.version}</version>
+      <optional>false</optional>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -54,6 +64,27 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoredUsedUndeclaredDependencies>
+            <ignoredUsedUndeclaredDependency>
+              com.github.spotbugs:spotbugs-annotations
+            </ignoredUsedUndeclaredDependency>
+          </ignoredUsedUndeclaredDependencies>
+          <ignoredUnusedDeclaredDependencies>
+            <ignoredUnusedDeclaredDependency>
+              com.github.stephenc.findbugs:findbugs-annotations
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hbase:hbase-it
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}
+            </ignoredUnusedDeclaredDependency>
+          </ignoredUnusedDeclaredDependencies>
+        </configuration>
       </plugin>
     </plugins>
   </build>

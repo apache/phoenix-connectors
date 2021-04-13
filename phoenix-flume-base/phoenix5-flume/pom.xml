@@ -37,6 +37,7 @@
     <phoenix.version>${phoenix-five.version}</phoenix.version>
     <hbase.version>${hbase-two.version}</hbase.version>
     <hadoop.version>${hadoop-three.version}</hadoop.version>
+    <zookeeper.version>${zookeeper-phoenix5.version}</zookeeper.version>
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
   </properties>

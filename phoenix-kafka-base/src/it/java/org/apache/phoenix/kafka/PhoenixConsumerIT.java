@@ -33,12 +33,12 @@ import org.I0Itec.zkclient.ZkClient;
 import org.apache.flume.Context;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
 import org.apache.phoenix.flume.DefaultKeyGenerator;
 import org.apache.phoenix.flume.FlumeConstants;
 import org.apache.phoenix.flume.serializer.EventSerializers;
 import org.apache.phoenix.kafka.consumer.PhoenixConsumer;
 import org.apache.phoenix.util.PropertiesUtil;
+import org.apache.phoenix.query.BaseTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
 
-public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
+public class PhoenixConsumerIT extends BaseTest {
     private static final String ZKHOST = "127.0.0.1";
     private static final String BROKERHOST = "127.0.0.1";
     private static final String BROKERPORT = "9092";

@@ -40,7 +40,7 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.sink.DefaultSinkFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.phoenix.compat.CompatUtil;
-import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
+import org.apache.phoenix.query.BaseTest;
 import org.apache.phoenix.flume.serializer.CustomSerializer;
 import org.apache.phoenix.flume.serializer.EventSerializers;
 import org.apache.phoenix.flume.sink.NullPhoenixSink;
@@ -51,7 +51,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class PhoenixSinkIT extends BaseHBaseManagedTimeIT {
+public class PhoenixSinkIT extends BaseTest {
 
     private Context sinkContext;
     private PhoenixSink sink;

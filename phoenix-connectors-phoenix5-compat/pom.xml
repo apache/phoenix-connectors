@@ -33,8 +33,8 @@
   <name>Compatibility util for Phoenix 5</name>
 
   <properties>
-    <phoenix.version>5.1.0-SNAPSHOT</phoenix.version>
-    <hbase.version>2.1.9</hbase.version>
+    <phoenix.version>5.1.1</phoenix.version>
+    <hbase.version>2.1.6</hbase.version>
   </properties>
 
   <dependencies>
@@ -56,7 +56,28 @@
       <artifactId>hbase-mapreduce</artifactId>
       <version>${hbase.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <version>${phoenix.version}</version>
+      <optional>false</optional>
+    </dependency>
 
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoredUnusedDeclaredDependencies>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}
+            </ignoredUnusedDeclaredDependency>
+          </ignoredUnusedDeclaredDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
