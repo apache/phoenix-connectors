@@ -46,6 +46,12 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
 
     <dependency>
       <groupId>commons-collections</groupId>
@@ -144,6 +150,9 @@
               </ignoredUnusedDeclaredDependency>
               <ignoredUnusedDeclaredDependency>
                 org.apache.hadoop:hadoop-common
+              </ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>
+                org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}
               </ignoredUnusedDeclaredDependency>
             </ignoredUnusedDeclaredDependencies>
           </configuration>

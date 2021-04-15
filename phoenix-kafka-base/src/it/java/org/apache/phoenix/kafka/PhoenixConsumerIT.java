@@ -27,22 +27,29 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.flume.Context;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT;
+import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
 import org.apache.phoenix.flume.DefaultKeyGenerator;
 import org.apache.phoenix.flume.FlumeConstants;
 import org.apache.phoenix.flume.serializer.EventSerializers;
 import org.apache.phoenix.kafka.consumer.PhoenixConsumer;
 import org.apache.phoenix.util.PropertiesUtil;
+import org.apache.phoenix.query.BaseTest;
+import org.apache.phoenix.query.QueryServices;
+import org.apache.phoenix.query.QueryServicesOptions;
+import org.apache.phoenix.util.ReadOnlyProps;
+import org.apache.phoenix.thirdparty.com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-
+import org.junit.experimental.categories.Category;
 
 
 import kafka.admin.AdminUtils;
@@ -55,7 +62,8 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
 
-public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
+@Category(NeedsOwnMiniClusterTest.class)
+public class PhoenixConsumerIT extends BaseTest {
     private static final String ZKHOST = "127.0.0.1";
     private static final String BROKERHOST = "127.0.0.1";
     private static final String BROKERPORT = "9092";
@@ -66,8 +74,17 @@ public class PhoenixConsumerIT extends BaseHBaseManagedTimeIT {
     private ZkClient zkClient;
     private Connection conn;
 
+    @BeforeClass
+    public static void doSetup() throws Exception {
+        Map<String,String> props = Maps.newHashMapWithExpectedSize(3);
+        props.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB, QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+        // Must update config before starting server
+        setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
+    }
+
     @Before
-    public void setUp() throws IOException, SQLException {
+    public void setUp() throws Exception {
+        setUpTestDriver(ReadOnlyProps.EMPTY_PROPS);
         // setup Zookeeper
         zkServer = new EmbeddedZookeeper();
         String zkConnect = ZKHOST + ":" + zkServer.port();

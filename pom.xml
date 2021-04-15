@@ -56,19 +56,26 @@
 
   <properties>
     <!-- Phoenix Version -->
-    <phoenix-four.version>4.15.0-HBase-1.4</phoenix-four.version>
-    <phoenix-five.version>5.1.0-SNAPSHOT</phoenix-five.version>
-    <phoenix.thirdparty.version>1.0.0</phoenix.thirdparty.version>
+    <phoenix-four.version>4.16.0</phoenix-four.version>
+    <phoenix-five.version>5.1.1</phoenix-five.version>
+    <phoenix.thirdparty.version>1.1.0</phoenix.thirdparty.version>
     <!-- Hadoop Versions -->
-    <hbase-one.version>1.4.0</hbase-one.version>
+    <hbase-one.version>1.4.10</hbase-one.version>
+    <hbase-one.compat.version>1.4.0</hbase-one.compat.version>
+    <hbase-one.zookeeper.version>3.4.12</hbase-one.zookeeper.version>
     <hbase-two.version>2.1.10</hbase-two.version>
+    <hbase-two.compat.version>2.1.6</hbase-two.compat.version>
+    <hbase-two.zookeeper.version>3.5.9</hbase-two.zookeeper.version>
     <hbase-thirdparty-version>2.1.0</hbase-thirdparty-version>
     <hadoop-two.version>2.7.5</hadoop-two.version>
     <hadoop-three.version>3.0.3</hadoop-three.version>
 
     <phoenix.version>${phoenix-four.version}</phoenix.version>
     <hbase.version>${hbase-one.version}</hbase.version>
+    <hbase.compat.version>${hbase-one.compat.version}</hbase.compat.version>
     <hadoop.version>${hadoop-two.version}</hadoop.version>
+    <zookeeper.version>${hbase-one.zookeeper.version}</zookeeper.version>
+    
 
     <!-- General Properties -->
     <test.output.tofile>true</test.output.tofile>
@@ -106,8 +113,7 @@
     <com-101tek-zkclient.version>0.7</com-101tek-zkclient.version>
     <!-- For hive -->
     <commons-io.version>2.4</commons-io.version>
-    <zookeeper.version>3.4.12</zookeeper.version>
-    
+
     <!-- Plugin versions -->
     <maven-assembly-plugin-version>3.1.1</maven-assembly-plugin-version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -298,11 +304,11 @@
               </goals>
             </execution>
             <execution>
-              <id>HBaseManagedTimeTests</id>
+              <id>NeedsOwnMiniClusterTest</id>
               <configuration>
-                <reuseForks>true</reuseForks>
+                <reuseForks>false</reuseForks>
                 <argLine>-enableassertions -Xmx3000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
-                <groups>org.apache.phoenix.end2end.HBaseManagedTimeTest</groups>
+                <groups>org.apache.phoenix.end2end.NeedsOwnMiniClusterTest</groups>
               </configuration>
               <goals>
                 <goal>integration-test</goal>
@@ -459,6 +465,11 @@
       <dependency>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>phoenix-core</artifactId>
+        <version>${phoenix.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
         <version>${phoenix.version}</version>
       </dependency>
       <dependency>
@@ -774,16 +785,6 @@
       </dependency>
 
       <!-- General Dependencies -->
-      <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-        <version>${zookeeper.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper-jute</artifactId>
-        <version>${zookeeper.version}</version>
-      </dependency>
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>

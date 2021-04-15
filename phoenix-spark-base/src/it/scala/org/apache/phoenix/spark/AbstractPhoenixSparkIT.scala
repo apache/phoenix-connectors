@@ -16,27 +16,33 @@ package org.apache.phoenix.spark
 import java.sql.{Connection, DriverManager}
 import java.util.Properties
 
-import org.apache.phoenix.end2end.BaseHBaseManagedTimeIT
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.phoenix.query.BaseTest
 import org.apache.phoenix.util.PhoenixRuntime
+import org.apache.phoenix.util.ReadOnlyProps;
 import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
 
-// Helper object to access the protected abstract static methods hidden in BaseHBaseManagedTimeIT
-object PhoenixSparkITHelper extends BaseHBaseManagedTimeIT {
-  def getTestClusterConfig = BaseHBaseManagedTimeIT.getTestClusterConfig
+// Helper object to access the protected abstract static methods hidden in BaseTest
+object PhoenixSparkITHelper extends BaseTest {
+  def getTestClusterConfig = new Configuration(BaseTest.config);
 
   def doSetup = {
     // The @ClassRule doesn't seem to be getting picked up, force creation here before setup
     BaseTest.tmpFolder.create()
-    BaseHBaseManagedTimeIT.doSetup()
+    BaseTest.setUpTestDriver(ReadOnlyProps.EMPTY_PROPS);
   }
 
   def doTeardown = {
-    BaseHBaseManagedTimeIT.doTeardown()
+    BaseTest.dropNonSystemTables();
     BaseTest.tmpFolder.delete()
+  }
+
+  def cleanUpAfterTest = {
+    BaseTest.deletePriorMetaData(HConstants.LATEST_TIMESTAMP, getUrl);
   }
 
   def getUrl = BaseTest.getUrl
@@ -111,7 +117,7 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
   override def afterAll() {
     conn.close()
     spark.stop()
-    PhoenixSparkITHelper.cleanUpAfterTest()
+    PhoenixSparkITHelper.cleanUpAfterTest
     PhoenixSparkITHelper.doTeardown
   }
 }
