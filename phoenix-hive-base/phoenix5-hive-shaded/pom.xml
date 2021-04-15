@@ -23,37 +23,69 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>phoenix-pig-base</artifactId>
     <groupId>org.apache.phoenix</groupId>
+    <artifactId>phoenix-hive-base</artifactId>
     <version>6.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>phoenix5-pig</artifactId>
-  <name>Phoenix Pig Connector for Phoenix 5</name>
+  <artifactId>phoenix5-hive-shaded</artifactId>
+  <name>Shaded Phoenix Hive Connector for Phoenix 5</name>
 
   <properties>
-    <top.dir>${project.basedir}/..</top.dir>
+    <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     <phoenix.version>${phoenix-five.version}</phoenix.version>
     <hbase.version>${hbase-two.version}</hbase.version>
     <hbase.compat.version>${hbase-two.compat.version}</hbase.compat.version>
     <hadoop.version>${hadoop-three.version}</hadoop.version>
+    <zookeeper.version>${hbase-two.zookeeper.version}</zookeeper.version>
+    <hive.version>${hive3.version}</hive.version>
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
-
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix5-hive</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper-jute</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+      <!-- TODO consider not enabling these globally instead -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+             <id>default-compile</id>
+             <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
-
 </project>

@@ -43,6 +43,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-hive-shaded</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix4-kafka</artifactId>
     </dependency>
     <dependency>
@@ -51,7 +55,15 @@
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-pig-shaded</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix4-spark</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-spark-shaded</artifactId>
     </dependency>
   </dependencies>
 
@@ -89,11 +101,11 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-hive-base/phoenix4-hive/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix-hive-base/phoenix4-hive-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-hive-${project.version}-shaded.jar
+                  phoenix4-hive-shaded-${project.version}.jar
                 </argument>
                 <argument>
                   phoenix4-hive-shaded.jar
@@ -109,11 +121,11 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-pig-base/phoenix4-pig/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix-pig-base/phoenix4-pig-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-pig-${project.version}-shaded.jar
+                  phoenix4-pig-shaded-${project.version}.jar
                 </argument>
                 <argument>
                   phoenix4-pig-shaded.jar
@@ -133,7 +145,7 @@
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix4-spark-${project.version}-shaded.jar
+                  phoenix4-spark-shaded-${project.version}.jar
                 </argument>
                 <argument>
                   phoenix4-spark-shaded.jar

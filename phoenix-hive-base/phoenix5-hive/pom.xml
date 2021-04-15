@@ -36,7 +36,9 @@
     <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     <phoenix.version>${phoenix-five.version}</phoenix.version>
     <hbase.version>${hbase-two.version}</hbase.version>
+    <hbase.compat.version>${hbase-two.compat.version}</hbase.compat.version>
     <hadoop.version>${hadoop-three.version}</hadoop.version>
+    <zookeeper.version>${hbase-two.zookeeper.version}</zookeeper.version>
     <hive.version>${hive3.version}</hive.version>
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
@@ -46,6 +48,12 @@
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
     </dependency>
     <!-- Hive dependencies cannot be specified in the phoenix-hive-common, because of
     hbase transitive dependency version conflicts -->
@@ -141,6 +149,12 @@
       <artifactId>hadoop-minicluster</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -155,10 +169,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

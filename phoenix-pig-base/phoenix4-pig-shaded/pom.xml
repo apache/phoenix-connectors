@@ -29,20 +29,44 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>phoenix4-pig</artifactId>
-  <name>Phoenix Pig Connector for Phoenix 4</name>
+  <artifactId>phoenix4-pig-shaded</artifactId>
+  <name>Shaded Phoenix Pig Connector for Phoenix 4</name>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+             <id>default-compile</id>
+             <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix4-pig</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
 </project>

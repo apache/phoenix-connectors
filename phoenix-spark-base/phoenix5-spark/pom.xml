@@ -36,9 +36,9 @@
     <top.dir>${project.basedir}/..</top.dir>
     <phoenix.version>${phoenix-five.version}</phoenix.version>
     <hbase.version>${hbase-two.version}</hbase.version>
+    <hbase.compat.version>${hbase-two.compat.version}</hbase.compat.version>
     <hadoop.version>${hadoop-three.version}</hadoop.version>
     <jdk.version>1.8</jdk.version>
-    <fasterxml.jackson.version>2.10.0</fasterxml.jackson.version>
     <phoenix.main.version>5</phoenix.main.version>
   </properties>
 
@@ -47,40 +47,7 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs-client</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-      </exclusions>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
-
-  <dependencyManagement>
-    <dependencies>
-      <!-- Guava is excluded because of SPARK-6149. The Guava version referenced 
-        in this module is 15.0, which causes runtime incompatibility issues. -->
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-scala_${scala.binary.version}</artifactId>
-        <version>${fasterxml.jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <build>
     <plugins>
@@ -103,10 +70,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

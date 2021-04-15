@@ -40,26 +40,26 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-pig-base/phoenix5-pig/target</directory>
+      <directory>${project.basedir}/../phoenix-pig-base/phoenix5-pig-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-pig-${project.version}-shaded.jar</include>
+        <include>phoenix5-pig-shaded-${project.version}.jar</include>
         <include>phoenix5-pig-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-spark-base/phoenix5-spark/target</directory>
+      <directory>${project.basedir}/../phoenix-spark-base/phoenix5-spark-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-spark-${project.version}-shaded.jar</include>
+        <include>phoenix5-spark-shaded-${project.version}.jar</include>
         <include>phoenix5-spark-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-hive-base/phoenix5-hive/target</directory>
+      <directory>${project.basedir}/../phoenix-hive-base/phoenix5-hive-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-hive-${project.version}-shaded.jar</include>
+        <include>phoenix5-hive-shaded-${project.version}.jar</include>
         <include>phoenix5-hive-shaded.jar</include>
       </includes>
     </fileSet>

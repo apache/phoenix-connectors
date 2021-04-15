@@ -34,7 +34,9 @@
   <packaging>pom</packaging>
   <modules>
     <module>phoenix4-pig</module>
+    <module>phoenix4-pig-shaded</module>
     <module>phoenix5-pig</module>
+    <module>phoenix5-pig-shaded</module>
   </modules>
 
   <properties>
@@ -46,7 +48,13 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.pig</groupId>
       <artifactId>pig</artifactId>
@@ -133,6 +141,9 @@
               <ignoredUnusedDeclaredDependency>
                 org.apache.hbase:hbase-it
               </ignoredUnusedDeclaredDependency>
+              <ignoredUnusedDeclaredDependency>
+                org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}
+              </ignoredUnusedDeclaredDependency>
             </ignoredUnusedDeclaredDependencies>
           </configuration>
         </plugin>
@@ -178,7 +189,7 @@
                 <goal>shade</goal>
               </goals>
               <configuration>
-                <shadedArtifactAttached>true</shadedArtifactAttached>
+                <shadedArtifactAttached>false</shadedArtifactAttached>
                 <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                 <shadeTestJar>false</shadeTestJar>
                 <transformers>
