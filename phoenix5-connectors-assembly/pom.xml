@@ -50,6 +50,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix5-hive-shaded</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix5-kafka</artifactId>
     </dependency>
     <dependency>
@@ -58,7 +62,15 @@
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix5-pig-shaded</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix5-spark</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix5-spark-shaded</artifactId>
     </dependency>
   </dependencies>
 
@@ -96,11 +108,11 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-hive-base/phoenix5-hive/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix-hive-base/phoenix5-hive-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-hive-${project.version}-shaded.jar
+                  phoenix5-hive-shaded-${project.version}.jar
                 </argument>
                 <argument>
                   phoenix5-hive-shaded.jar
@@ -116,11 +128,11 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-pig-base/phoenix5-pig/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix-pig-base/phoenix5-pig-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-pig-${project.version}-shaded.jar
+                  phoenix5-pig-shaded-${project.version}.jar
                 </argument>
                 <argument>
                   phoenix5-pig-shaded.jar
@@ -136,11 +148,11 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-spark-base/phoenix5-spark/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix-spark-base/phoenix5-spark-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-spark-${project.version}-shaded.jar
+                  phoenix5-spark-shaded-${project.version}.jar
                 </argument>
                 <argument>
                   phoenix5-spark-shaded.jar
