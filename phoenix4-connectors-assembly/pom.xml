@@ -129,7 +129,7 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-spark-base/phoenix4-spark/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix-spark-base/phoenix4-spark-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
