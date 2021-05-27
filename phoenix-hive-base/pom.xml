@@ -583,4 +583,21 @@
       </plugins>
     </pluginManagement>
   </build>
+
+   <dependencyManagement>
+    <dependencies>
+      <dependency>      
+        <groupId>org.apache.calcite</groupId>
+        <artifactId>calcite-core</artifactId>
+        <exclusions>
+          <exclusion>
+            <!-- PHOENIX-6478: exclude a dependency that is not required and not available at Maven Central -->
+            <groupId>org.pentaho</groupId>
+            <artifactId>pentaho-aggdesigner-algorithm</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
 </project>
