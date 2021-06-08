@@ -59,7 +59,7 @@
       <directory>${project.basedir}/../phoenix-hive-base/phoenix4-hive-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix4-hive-shaded-${project.version}-shaded.jar</include>
+        <include>phoenix4-hive-shaded-${project.version}.jar</include>
         <include>phoenix4-hive-shaded.jar</include>
       </includes>
     </fileSet>
