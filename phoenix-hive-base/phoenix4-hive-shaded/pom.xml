@@ -48,6 +48,62 @@
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <!-- maven-shade-plugin doesn't inherit dependency settings, we must duplicate them to avoid
+adding the provided dependencies -->
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-cli</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-common</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- These three dependencies are falsely flagged by dependency plugin -->
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-serde</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-storage-api</artifactId>
+      <version>${hive-storage.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId> org.apache.hive.shims</groupId>
+      <artifactId>hive-shims-common</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- These are actually different between phoenix 5 and phoenix 4 -->
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-metastore</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
