@@ -35,6 +35,7 @@
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
+    <skip-scala-tests>true</skip-scala-tests>
   </properties>
 
   <packaging>pom</packaging>
@@ -571,16 +572,9 @@
             <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
             <junitxml>.</junitxml>
             <filereports>WDF TestSuite.txt</filereports>
-            <skipTests>true</skipTests>
+            <skipTests>${skip-scala-tests}</skipTests>
           </configuration>
           <executions>
-            <execution>
-              <id>test</id>
-              <phase>test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-            </execution>
             <execution>
               <id>integration-test</id>
               <phase>integration-test</phase>
@@ -592,8 +586,7 @@
                   to https://github.com/junit-team/junit4/issues/1223 -->
                 <parallel>false</parallel>
                 <tagsToExclude>Integration-Test</tagsToExclude>
-                <argLine>-Xmx1536m -XX:MaxPermSize=512m
-                  -XX:ReservedCodeCacheSize=512m</argLine>
+                <argLine>-Xmx1536m -XX:ReservedCodeCacheSize=512m</argLine>
               </configuration>
             </execution>
           </executions>
@@ -839,4 +832,17 @@
       </plugins>
     </pluginManagement>
   </build>
+  <profiles>
+    <profile>
+      <id>scala-tests-enabled</id>
+      <activation>
+        <property>
+          <name>scala-tests-enabled</name>
+        </property>
+      </activation>
+      <properties>
+        <skip-scala-tests>false</skip-scala-tests>
+      </properties>
+    </profile>
+  </profiles>
 </project>
