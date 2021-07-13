@@ -42,6 +42,7 @@
     <hive.version>${hive3.version}</hive.version>
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
+    <calcite.version>${hive5.calcite.version}</calcite.version>
   </properties>
 
   <dependencies>

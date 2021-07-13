@@ -46,6 +46,9 @@
     <tez.version>0.9.1</tez.version>
     <jdk.version>1.8</jdk.version>
     <commons-lang3.version>3.9</commons-lang3.version>
+    <hive4.calcite.version>1.10.0</hive4.calcite.version>
+    <hive5.calcite.version>1.16.0</hive5.calcite.version>
+    <calcite.version>${hive4.calcite.version}</calcite.version>
   </properties>
 
   <dependencies>
@@ -586,9 +589,10 @@
 
    <dependencyManagement>
     <dependencies>
-      <dependency>      
+      <dependency>
         <groupId>org.apache.calcite</groupId>
         <artifactId>calcite-core</artifactId>
+        <version>${calcite.version}</version>
         <exclusions>
           <exclusion>
             <!-- PHOENIX-6478: exclude a dependency that is not required and not available at Maven Central -->
