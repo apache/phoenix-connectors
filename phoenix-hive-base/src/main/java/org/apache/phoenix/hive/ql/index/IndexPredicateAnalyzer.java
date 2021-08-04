@@ -360,7 +360,12 @@ public class IndexPredicateAnalyzer {
                     residuals.add((ExprNodeDesc) nodeOutput);
                 }
             }
+            if (residuals.size() == 0) {
+                //All children were pushed down
+                return null;
+            }
             if (residuals.size() == 1) {
+                //A single child remains
                 return residuals.get(0);
             }
             return new ExprNodeGenericFuncDesc(TypeInfoFactory.booleanTypeInfo, FunctionRegistry
