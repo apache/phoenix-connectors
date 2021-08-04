@@ -139,7 +139,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 "DOUBLE,fl FLOAT, us INT)" + HiveTestUtil.CRLF +
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF + " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='phoenix_datatype'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='phoenix_datatype'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -185,7 +185,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF +
                 " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='phoenix_MultiKey'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='phoenix_MultiKey'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -233,7 +233,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF +
                 " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='joinTable1'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='joinTable1'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -244,7 +244,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF +
                 " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='joinTable2'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='joinTable2'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -283,7 +283,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF +
                 " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='joinTable3'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='joinTable3'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -295,7 +295,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF +
                 " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='joinTable4'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='joinTable4'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -344,7 +344,7 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
                 " STORED BY  \"org.apache.phoenix.hive.PhoenixStorageHandler\"" + HiveTestUtil
                 .CRLF +
                 " TBLPROPERTIES(" + HiveTestUtil.CRLF +
-                "   'phoenix.hbase.table.name'='TIMESTAMPTABLE'," + HiveTestUtil.CRLF +
+                "   'phoenix.table.name'='TIMESTAMPTABLE'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.znode.parent'='/hbase'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.quorum'='localhost'," + HiveTestUtil.CRLF +
                 "   'phoenix.zookeeper.client.port'='" +
@@ -357,6 +357,46 @@ public abstract class HivePhoenixStoreIT extends BaseHivePhoenixStoreIT {
         sb.append("INSERT INTO TABLE timeStampTable VALUES (10, \"2013-01-02 01:01:01.123456\");" + HiveTestUtil.CRLF);
         sb.append("SELECT * from timeStampTable WHERE ts between '2012-01-02 01:01:01.123455' and " +
                 " '2015-01-02 12:01:02.123457789' AND id = 10;" + HiveTestUtil.CRLF);
+
+        String fullPath = new Path(utility.getDataTestDir(), testName).toString();
+        createFile(sb.toString(), fullPath);
+        runTest(testName, fullPath);
+    }
+
+    @Test
+    //For some reason, this test only fails on Mapreduce, and not on Tez
+    public void testCompletelyEliminateAnd() throws Exception {
+        String testName = "testCompletelyEliminateAnd";
+        utility.getTestFileSystem().createNewFile(new Path(hiveLogDir, testName + ".out"));
+        createFile("1\t1\tc_h\td_h\te_h\t2020-01-30 15:10:10\t2020-01-30\n", new Path(hiveOutputDir, testName + ".out").toString());
+        createFile(StringUtil.EMPTY_STRING, new Path(hiveLogDir, testName + ".out").toString());
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("CREATE EXTERNAL TABLE TEST_PHX (\n"
+                + "a_h string,\n"
+                + "b_h string,\n"
+                + "c_h string,\n"
+                + "d_h string,\n"
+                + "e_h string,\n"
+                + "f_h string,\n"
+                + "g_h string)\n"
+                + "ROW FORMAT SERDE\n"
+                + "   'org.apache.phoenix.hive.PhoenixSerDe'\n"
+                + "STORED BY\n"
+                + "   'org.apache.phoenix.hive.PhoenixStorageHandler'\n"
+                + "WITH SERDEPROPERTIES (\n"
+                + "   'serialization.format'='1')\n"
+                + "TBLPROPERTIES (\n"
+                + "   'bucketing_version'='2',\n"
+                + "'phoenix.rowkeys'='a_h, b_h, c_h, d_h, e_h, f_h' ,"
+                + "'phoenix.table.name'='TEST',\n"
+                + "'phoenix.zookeeper.client.port'='"+ utility.getZkCluster().getClientPort() + "',"
+                + "'phoenix.zookeeper.quorum'='localhost',\n"
+                + "'phoenix.zookeeper.znode.parent'='/hbase');" + HiveTestUtil.CRLF);
+
+        sb.append("INSERT into TEST_PHX values ('1', '1', 'c_h', 'd_h', 'e_h', '2020-01-30 15:10:10', '2020-01-30');\n" + HiveTestUtil.CRLF);
+
+        sb.append("SELECT * from TEST_PHX where f_h >=\"2020-01-30\" and b_h=\"1\";" + HiveTestUtil.CRLF);
 
         String fullPath = new Path(utility.getDataTestDir(), testName).toString();
         createFile(sb.toString(), fullPath);
