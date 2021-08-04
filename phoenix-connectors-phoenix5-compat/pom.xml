@@ -33,8 +33,8 @@
   <name>Compatibility util for Phoenix 5</name>
 
   <properties>
-    <phoenix.version>5.1.0-SNAPSHOT</phoenix.version>
-    <hbase.version>2.1.9</hbase.version>
+    <phoenix.version>${phoenix-five.version}</phoenix.version>
+    <hbase.version>${hbase-two.version}</hbase.version>
   </properties>
 
   <dependencies>
