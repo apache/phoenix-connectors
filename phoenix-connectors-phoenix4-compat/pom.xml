@@ -33,8 +33,8 @@
   <name>Compatibility util for Phoenix 4</name>
 
   <properties>
-    <phoenix.version>4.15.0-HBase-1.4</phoenix.version>
-    <hbase.version>1.4.0</hbase.version>
+    <phoenix.version>${phoenix-four.version}</phoenix.version>
+    <hbase.version>${hbase-one.version}</hbase.version>
   </properties>
 
   <dependencies>
