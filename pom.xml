@@ -96,7 +96,7 @@
     <spark.version>2.4.0</spark.version>
     <scala.version>2.11.12</scala.version>
     <scala.binary.version>2.11</scala.binary.version>
-    
+
     <log4j.version>1.2.17</log4j.version>
     <log4j2.version>2.10.0</log4j2.version>
     <disruptor.version>3.3.6</disruptor.version>
@@ -961,6 +961,36 @@
             <configuration>
               <spotbugsXmlOutput>true</spotbugsXmlOutput>
               <xmlOutput>true</xmlOutput>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>exclude-tephra</id>
+      <activation>
+        <property>
+          <name>without.tephra</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <classpathDependencyExcludes>
+                org.apache.tephra:tephra-api,org.apache.tephra:tephra-core,org.apache.thrift:libthrift
+              </classpathDependencyExcludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <classpathDependencyExcludes>
+                org.apache.tephra:tephra-api,org.apache.tephra:tephra-core,org.apache.thrift:libthrift
+              </classpathDependencyExcludes>
             </configuration>
           </plugin>
         </plugins>
