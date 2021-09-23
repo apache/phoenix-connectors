@@ -17,13 +17,13 @@ import java.sql.DriverManager
 import java.util.Date
 
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil
-import org.apache.phoenix.schema.types.PVarchar
+import org.apache.phoenix.schema.types.{PVarchar, PSmallintArray, PUnsignedSmallintArray}
 import org.apache.phoenix.spark.datasource.v2.{PhoenixDataSource, PhoenixTestingDataSource}
 import org.apache.phoenix.spark.datasource.v2.reader.PhoenixTestingInputPartitionReader
 import org.apache.phoenix.spark.datasource.v2.writer.PhoenixTestingDataSourceWriter
 import org.apache.phoenix.util.{ColumnInfo, SchemaUtil}
 import org.apache.spark.SparkException
-import org.apache.spark.sql.types.{ArrayType, BinaryType, ByteType, DateType, IntegerType, LongType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{ArrayType, BinaryType, ByteType, DateType, IntegerType, LongType, StringType, StructField, StructType, ShortType}
 import org.apache.spark.sql.{Row, SaveMode}
 
 import scala.collection.mutable
@@ -95,6 +95,18 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     val catalystSchema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(phoenixSchema)
 
     val expected = new StructType(List(StructField("varcharColumn", StringType, nullable = true)).toArray)
+
+    catalystSchema shouldEqual expected
+  }
+
+  test("Can convert arrays of Short type in Phoenix schema") {
+    val phoenixSchema = List(
+      new ColumnInfo("arrayshortColumn", PSmallintArray.INSTANCE.getSqlType)
+    )
+
+    val catalystSchema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(phoenixSchema)
+
+    val expected = new StructType(List(StructField("arrayshortColumn", ArrayType(ShortType, true), nullable = true)).toArray)
 
     catalystSchema shouldEqual expected
   }
@@ -658,6 +670,34 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
 
     // Verify the arrays are equal
     byteArray shouldEqual dataSet(0).get(1)
+  }
+
+  test("Can save arrays of Short type back to phoenix") {
+    val dataSet = List(Row(2L, Array(1.toShort, 2.toShort, 3.toShort)))
+
+    val schema = StructType(
+      Seq(StructField("ID", LongType, nullable = false),
+        StructField("SHORTARRAY", ArrayType(ShortType))))
+
+    val rowRDD = spark.sparkContext.parallelize(dataSet)
+
+    // Apply the schema to the RDD.
+    val df = spark.sqlContext.createDataFrame(rowRDD, schema)
+
+    df.write
+      .format("phoenix")
+      .options(Map("table" -> "ARRAY_SHORT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
+      .mode(SaveMode.Overwrite)
+      .save()
+
+    // Load the results back
+    val stmt = conn.createStatement()
+    val rs = stmt.executeQuery("SELECT SHORTARRAY FROM ARRAY_SHORT_TEST_TABLE WHERE ID = 2")
+    rs.next()
+    val shortArray = rs.getArray(1).getArray().asInstanceOf[Array[Short]]
+
+    // Verify the arrays are equal
+    shortArray shouldEqual dataSet(0).get(1)
   }
 
   test("Can save binary types back to phoenix") {
