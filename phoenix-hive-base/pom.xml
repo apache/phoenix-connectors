@@ -390,6 +390,8 @@
                   <exclude>NOTICE.*</exclude>
                   <exclude>NOTICE</exclude>
                   <exclude>README*</exclude>
+                  <!-- Coming from Omid, should be fixed there -->
+                  <exclude>log4j.properties</exclude>
                 </excludes>
               </filter>
              <filter>
