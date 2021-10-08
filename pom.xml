@@ -112,7 +112,7 @@
     <!-- For Kafka -->
     <com-101tek-zkclient.version>0.7</com-101tek-zkclient.version>
     <!-- For hive -->
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.11.0</commons-io.version>
 
     <!-- Plugin versions -->
     <maven-assembly-plugin-version>3.1.1</maven-assembly-plugin-version>
