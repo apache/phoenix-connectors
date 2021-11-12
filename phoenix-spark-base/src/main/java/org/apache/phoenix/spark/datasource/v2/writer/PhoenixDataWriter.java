@@ -75,6 +75,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         if (tenantId != null) {
             overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         }
+        //overridingProps.setProperty("phoenix.transactions.enabled", "true");
         this.schema = options.getSchema();
         
         List<Attribute> attrs = new ArrayList<>();
@@ -86,6 +87,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         try {
             this.conn = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl,
                     overridingProps);
+            this.conn.setAutoCommit(options.isAutoCommit());
             List<String> colNames =  new ArrayList<>(Arrays.asList(options.getSchema().names()));
             if (!options.skipNormalizingIdentifier()){
                 colNames = colNames.stream().map(SchemaUtil::normalizeIdentifier).collect(Collectors.toList());

@@ -76,6 +76,7 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
         String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB).orElse(null);
         String zkUrl = options.get(ZOOKEEPER_URL).get();
         boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
+        boolean autoCommit = options.getBoolean(AUTO_COMMIT, false);
         return new PhoenixDataSourceWriteOptions.Builder()
                 .setTableName(options.tableName().get())
                 .setZkUrl(zkUrl)
@@ -84,6 +85,7 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
                 .setSchema(schema)
                 .setSkipNormalizingIdentifier(skipNormalizingIdentifier)
                 .setOverriddenProps(extractPhoenixHBaseConfFromOptions(options))
+                .setAutoCommit(autoCommit)
                 .build();
     }
 }
