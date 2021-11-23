@@ -92,6 +92,10 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
             }
             String upsertSql = QueryUtil.constructUpsertStatement(options.getTableName(), colNames, null);
             this.statement = this.conn.prepareStatement(upsertSql);
+            // Configure batch size to 0 or negative value to disable intermediate or batch commits in task.
+            // So that commit can be called only once at the end to task execution.
+            // This helps ensure consistent state of database when failures occurred and retried
+            // mainly when transactions enabled.
             this.batchSize = Long.valueOf(overridingProps.getProperty(UPSERT_BATCH_SIZE,
                     String.valueOf(DEFAULT_UPSERT_BATCH_SIZE)));
         } catch (SQLException e) {
@@ -120,6 +124,8 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
             }
             numRecords++;
             statement.execute();
+            // Run batch wise commits only when the batch size is positive value.
+            // Otherwise commit gets called at the end of task
             if (batchSize > 0 && numRecords % batchSize == 0) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("commit called on a batch of size : " + batchSize);
@@ -152,6 +158,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     @Override
     public void abort() {
         try {
+            // To rollback any ongoing transactions
             conn.rollback();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);

@@ -89,7 +89,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     results.toList shouldEqual expectedResults
   }
 
-  test("Can persist data into transactional tables with pheonix.transactions.enabled option") {
+  test("Can persist data into transactional tables with phoenix.transactions.enabled option") {
     var extraOptions = QueryServices.TRANSACTIONS_ENABLED + "=true";
     val df = spark.createDataFrame(
       Seq(
