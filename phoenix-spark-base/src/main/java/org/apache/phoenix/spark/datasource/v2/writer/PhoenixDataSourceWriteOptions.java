@@ -31,11 +31,10 @@ class PhoenixDataSourceWriteOptions implements Serializable {
     private final StructType schema;
     private final boolean skipNormalizingIdentifier;
     private final Properties overriddenProps;
-    private final boolean autoCommit;
 
     private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
             String tenantId, StructType schema, boolean skipNormalizingIdentifier,
-            Properties overriddenProps, boolean autoCommit) {
+            Properties overriddenProps) {
         if (tableName == null) {
             throw new NullPointerException();
         }
@@ -55,7 +54,6 @@ class PhoenixDataSourceWriteOptions implements Serializable {
         this.schema = schema;
         this.skipNormalizingIdentifier = skipNormalizingIdentifier;
         this.overriddenProps = overriddenProps;
-        this.autoCommit = autoCommit;
     }
 
     String getScn() {
@@ -86,10 +84,6 @@ class PhoenixDataSourceWriteOptions implements Serializable {
         return overriddenProps;
     }
 
-    boolean isAutoCommit() {
-        return autoCommit;
-    }
-
     static class Builder {
         private String tableName;
         private String zkUrl;
@@ -98,7 +92,6 @@ class PhoenixDataSourceWriteOptions implements Serializable {
         private StructType schema;
         private boolean skipNormalizingIdentifier;
         private Properties overriddenProps = new Properties();
-        private boolean autoCommit;
 
         Builder setTableName(String tableName) {
             this.tableName = tableName;
@@ -135,14 +128,9 @@ class PhoenixDataSourceWriteOptions implements Serializable {
             return this;
         }
 
-        Builder setAutoCommit(boolean autoCommit) {
-            this.autoCommit = autoCommit;
-            return this;
-        }
-
         PhoenixDataSourceWriteOptions build() {
             return new PhoenixDataSourceWriteOptions(tableName, zkUrl, scn, tenantId, schema,
-                    skipNormalizingIdentifier, overriddenProps, autoCommit);
+                    skipNormalizingIdentifier, overriddenProps);
         }
     }
 }

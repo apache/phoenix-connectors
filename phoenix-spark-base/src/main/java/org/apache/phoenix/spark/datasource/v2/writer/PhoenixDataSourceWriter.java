@@ -27,7 +27,6 @@ import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
 import org.apache.spark.sql.types.StructType;
 
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.CURRENT_SCN_VALUE;
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.AUTO_COMMIT;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
@@ -77,7 +76,6 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
         String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB).orElse(null);
         String zkUrl = options.get(ZOOKEEPER_URL).get();
         boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
-        boolean autoCommit = options.getBoolean(AUTO_COMMIT, false);
         return new PhoenixDataSourceWriteOptions.Builder()
                 .setTableName(options.tableName().get())
                 .setZkUrl(zkUrl)
@@ -86,7 +84,6 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
                 .setSchema(schema)
                 .setSkipNormalizingIdentifier(skipNormalizingIdentifier)
                 .setOverriddenProps(extractPhoenixHBaseConfFromOptions(options))
-                .setAutoCommit(autoCommit)
                 .build();
     }
 }

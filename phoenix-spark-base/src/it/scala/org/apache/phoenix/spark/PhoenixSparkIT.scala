@@ -13,6 +13,8 @@
  */
 package org.apache.phoenix.spark
 
+import org.apache.omid.tso.client.AbortException
+
 import java.sql.DriverManager
 import java.util.Date
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil
@@ -99,13 +101,53 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
       .format("phoenix")
       .options(Map("table" -> "TABLE5",
         PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress, PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER -> "true",
-        PhoenixDataSource.AUTO_COMMIT -> "true", PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
+        PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
       .mode(SaveMode.Overwrite)
       .save()
 
 
     // Verify results
     val stmt = conn.createStatement()
+    val rs = stmt.executeQuery("SELECT * FROM TABLE5")
+
+    val checkResults = List((1, 1, "test_child_1"), (2, 1, "test_child_2"))
+    val results = ListBuffer[(Long, Long, String)]()
+    while (rs.next()) {
+      results.append((rs.getLong(1), rs.getLong(2), rs.getString(3)))
+    }
+    stmt.close()
+
+    results.toList shouldEqual checkResults
+  }
+
+  test("Verify transactions in streaming and spark jobs") {
+    val conn2 = DriverManager.getConnection(PhoenixSparkITHelper.getUrl)
+    conn2.setAutoCommit(false)
+    var stmt = conn.createStatement()
+    stmt.executeUpdate("UPSERT INTO TABLE5 values(1, 1, 'test_child_0')")
+
+    var extraOptions = QueryServices.TRANSACTIONS_ENABLED + "=true"
+    val df = spark.createDataFrame(
+      Seq(
+        (1, 1, "test_child_1"),
+        (2, 1, "test_child_2"))).
+      // column names are case sensitive
+      toDF("ID", "TABLE5_ID", "t5col1")
+    df.write
+      .format("phoenix")
+      .options(Map("table" -> "TABLE5",
+        PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress, PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER -> "true",
+        PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
+      .mode(SaveMode.Overwrite)
+      .save()
+    try {
+      conn2.commit()
+      fail("Abort exception should be thrown.")
+    } catch {
+      case e: Exception => {}
+    }
+    // Verify results
+    stmt = conn.createStatement()
     val rs = stmt.executeQuery("SELECT * FROM TABLE5")
 
     val checkResults = List((1, 1, "test_child_1"), (2, 1, "test_child_2"))
