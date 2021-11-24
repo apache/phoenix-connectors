@@ -98,6 +98,8 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
 
     // We pass in null for TenantId here since these tables will be globally visible
     setupTables("globalSetup.sql", None)
+    // create transactional tables
+    setupTables("transactionTableSetup.sql", None)
     // We pass in a TenantId to allow the DDL to create tenant-specific tables/views
     setupTables("tenantSetup.sql", Some(TenantId))
 
