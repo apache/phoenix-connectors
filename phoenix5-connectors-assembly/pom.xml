@@ -72,6 +72,10 @@
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix5-spark-shaded</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix5-spark3-shaded</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -160,6 +164,26 @@
               </arguments>
             </configuration>
           </execution>
+          <execution>
+            <id>spark3 without version</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>ln</executable>
+              <workingDirectory>${project.basedir}/../phoenix5-spark3-shaded/target</workingDirectory>
+              <arguments>
+                <argument>-fnsv</argument>
+                <argument>
+                  phoenix5-spark3-shaded-${project.version}.jar
+                </argument>
+                <argument>
+                  phoenix5-spark3-shaded.jar
+                </argument>
+              </arguments>
+            </configuration>
+          </execution>          
           <execution>
             <id>kafka without version</id>
             <phase>package</phase>

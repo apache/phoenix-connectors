@@ -56,6 +56,14 @@
       </includes>
     </fileSet>
     <fileSet>
+      <directory>${project.basedir}/../phoenix5-spark3-shaded/target</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>phoenix5-spark3-shaded-${project.version}.jar</include>
+        <include>phoenix5-spark3-shaded.jar</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.basedir}/../phoenix-hive-base/phoenix5-hive-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
