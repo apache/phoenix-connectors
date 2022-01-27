@@ -17,19 +17,17 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-import org.apache.phoenix.mapreduce.PhoenixInputSplit;
-import org.apache.spark.SerializableWritable;
-import org.apache.spark.sql.connector.read.InputPartition;
+import org.apache.spark.sql.connector.read.Scan;
+import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-public class PhoenixInputPartition implements InputPartition {
-
-    private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
-
-    PhoenixInputPartition(PhoenixInputSplit phoenixInputSplit) {
-        this.phoenixInputSplit = new SerializableWritable<>(phoenixInputSplit);
+public class PhoenixTestScanBuilder extends PhoenixScanBuilder {
+    public PhoenixTestScanBuilder(StructType schema, CaseInsensitiveStringMap options) {
+        super(schema, options);
     }
 
-    SerializableWritable<PhoenixInputSplit> getPhoenixInputSplit() {
-        return phoenixInputSplit;
+    @Override
+    public Scan build() {
+        return new PhoenixTestScan(getSchema(), getOptions(), getWhereClause());
     }
 }

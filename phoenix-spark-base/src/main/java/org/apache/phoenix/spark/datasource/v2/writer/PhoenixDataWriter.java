@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 
-import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.SchemaUtil;
 import org.slf4j.Logger;
@@ -40,8 +39,8 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder$;
 import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
 import org.apache.spark.sql.execution.datasources.jdbc.PhoenixJdbcDialect$;
-import org.apache.spark.sql.sources.v2.writer.DataWriter;
-import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
+import org.apache.spark.sql.connector.write.DataWriter;
+import org.apache.spark.sql.connector.write.WriterCommitMessage;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
@@ -62,25 +61,16 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     private final PreparedStatement statement;
     private final long batchSize;
     private long numRecords = 0;
-    private ExpressionEncoder<Row> encoder = null;
+    private ExpressionEncoder<Row> encoder;
 
-    PhoenixDataWriter(PhoenixDataSourceWriteOptions options) {
-        String scn = options.getScn();
-        String tenantId = options.getTenantId();
+    PhoenixDataWriter(StructType schema, PhoenixDataSourceWriteOptions options) {
         String zkUrl = options.getZkUrl();
         Properties overridingProps = options.getOverriddenProps();
-        if (scn != null) {
-            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
-        }
-        if (tenantId != null) {
-            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
-        }
         this.schema = options.getSchema();
-        
+
         List<Attribute> attrs = new ArrayList<>();
-        
         for (AttributeReference ref : scala.collection.JavaConverters.seqAsJavaListConverter(schema.toAttributes()).asJava()) {
-        	  attrs.add(ref.toAttribute());
+            attrs.add(ref.toAttribute());
         }
         encoder = RowEncoder$.MODULE$.apply(schema).resolveAndBind( scala.collection.JavaConverters.asScalaIteratorConverter(attrs.iterator()).asScala().toSeq(), SimpleAnalyzer$.MODULE$);
         try {
@@ -96,7 +86,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
             // So that commit can be called only once at the end to task execution.
             // This helps ensure consistent state of database when failures occurred and retried
             // mainly when transactions enabled.
-            this.batchSize = Long.valueOf(overridingProps.getProperty(UPSERT_BATCH_SIZE,
+            this.batchSize = Long.parseLong(overridingProps.getProperty(UPSERT_BATCH_SIZE,
                     String.valueOf(DEFAULT_UPSERT_BATCH_SIZE)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -160,6 +150,15 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         try {
             // To rollback any ongoing transactions
             conn.rollback();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            conn.close();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }

@@ -17,12 +17,10 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
-import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
+import org.apache.spark.sql.connector.write.WriterCommitMessage;
 
-class PhoenixTestingWriterCommitMessage implements WriterCommitMessage {
-
-    private final long numBatchesCommitted;
-
+public class PhoenixTestingWriterCommitMessage implements WriterCommitMessage {
+    private long numBatchesCommitted = 0;
     PhoenixTestingWriterCommitMessage(long numBatchesCommitted) {
         this.numBatchesCommitted = numBatchesCommitted;
     }
@@ -34,5 +32,4 @@ class PhoenixTestingWriterCommitMessage implements WriterCommitMessage {
     public String toString() {
         return String.valueOf(this.numBatchesCommitted);
     }
-
 }

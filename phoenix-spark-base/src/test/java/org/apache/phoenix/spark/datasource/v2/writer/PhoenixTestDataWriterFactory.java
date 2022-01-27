@@ -17,30 +17,19 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
-import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.connector.write.DataWriter;
+import org.apache.spark.sql.types.StructType;
 
-import java.sql.SQLException;
-
-public class PhoenixTestingDataWriter extends PhoenixDataWriter {
-
-    private long numBatchesCommitted = 0;
-
-    PhoenixTestingDataWriter(PhoenixDataSourceWriteOptions options) {
-        super(options);
+public class PhoenixTestDataWriterFactory extends PhoenixDataWriterFactory {
+    PhoenixTestDataWriterFactory(StructType schema, PhoenixDataSourceWriteOptions options) {
+        super(schema, options);
     }
 
-    // Override to also count the number of times we call this method to test upsert batch commits
+    // Override to return a test DataWriter
     @Override
-    void commitBatchUpdates() throws SQLException {
-        super.commitBatchUpdates();
-        numBatchesCommitted++;
-    }
-
-    // Override to return a test WriterCommitMessage
-    @Override
-    public WriterCommitMessage commit() {
-        super.commit();
-        return new PhoenixTestingWriterCommitMessage(numBatchesCommitted);
+    public DataWriter<InternalRow> createWriter(int partitionId, long taskId) {
+        return new PhoenixTestDataWriter(getSchema(), getOptions());
     }
 
 }

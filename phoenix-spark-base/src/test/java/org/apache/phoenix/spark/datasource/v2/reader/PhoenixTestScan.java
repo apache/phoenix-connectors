@@ -15,20 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.spark.datasource.v2.writer;
+package org.apache.phoenix.spark.datasource.v2.reader;
 
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.writer.DataWriter;
+import org.apache.spark.sql.connector.read.Batch;
+import org.apache.spark.sql.connector.read.PartitionReaderFactory;
+import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-public class PhoenixTestingDataWriterFactory extends PhoenixDataWriterFactory {
-
-    PhoenixTestingDataWriterFactory(PhoenixDataSourceWriteOptions options) {
-        super(options);
+public class PhoenixTestScan extends PhoenixScan {
+    PhoenixTestScan(StructType schema, CaseInsensitiveStringMap options, String whereClause) {
+        super(schema, options, whereClause);
     }
 
-    // Override to return a test DataWriter
     @Override
-    public DataWriter<InternalRow> createDataWriter(int partitionId, long taskId, long epochId) {
-        return new PhoenixTestingDataWriter(getOptions());
+    public Batch toBatch() {
+        return this;
+    }
+
+    @Override
+    public PartitionReaderFactory createReaderFactory() {
+        return new PhoenixTestPartitionReadFactory(getOptions(), readSchema());
     }
 }

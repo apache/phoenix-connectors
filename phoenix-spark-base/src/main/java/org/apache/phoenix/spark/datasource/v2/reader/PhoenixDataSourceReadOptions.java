@@ -17,6 +17,8 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
+import org.apache.phoenix.util.PhoenixRuntime;
+
 import java.io.Serializable;
 import java.util.Properties;
 
@@ -29,7 +31,7 @@ class PhoenixDataSourceReadOptions implements Serializable {
     private final Properties overriddenProps;
 
     PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
-            String selectStatement, Properties overriddenProps) {
+                                 String selectStatement, Properties overriddenProps) {
         if(overriddenProps == null){
             throw new NullPointerException();
         }
@@ -57,6 +59,14 @@ class PhoenixDataSourceReadOptions implements Serializable {
     }
 
     Properties getOverriddenProps() {
+        String scn = getScn();
+        String tenantId = getTenantId();
+        if (scn != null) {
+            overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
+        }
+        if (tenantId != null) {
+            overriddenProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
+        }
         return overriddenProps;
     }
 }

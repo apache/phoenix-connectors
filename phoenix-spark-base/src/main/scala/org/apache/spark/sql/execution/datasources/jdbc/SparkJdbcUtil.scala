@@ -39,7 +39,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 object SparkJdbcUtil {
 
   def toRow(encoder: ExpressionEncoder[Row], internalRow: InternalRow) : Row = {
-    encoder.fromRow(internalRow)
+    encoder.createDeserializer().apply(internalRow)
   }
 
   // A `JDBCValueGetter` is responsible for getting a value from `ResultSet` into a field

@@ -43,36 +43,31 @@ import org.apache.phoenix.iterate.SequenceResultIterator;
 import org.apache.phoenix.iterate.TableResultIterator;
 import org.apache.phoenix.jdbc.PhoenixResultSet;
 import org.apache.phoenix.jdbc.PhoenixStatement;
-import org.apache.phoenix.mapreduce.PhoenixInputSplit;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 import org.apache.phoenix.query.ConnectionQueryServices;
-import org.apache.phoenix.util.PhoenixRuntime;
-import org.apache.spark.SerializableWritable;
 import org.apache.spark.executor.InputMetrics;
 import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.connector.read.PartitionReader;
 import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
-import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
 import org.apache.spark.sql.types.StructType;
-
 import scala.collection.Iterator;
 
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
-public class PhoenixInputPartitionReader implements InputPartitionReader<InternalRow>  {
+public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
 
-    private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
-    private final StructType schema;
+    private final PhoenixInputPartition inputPartition;
     private final PhoenixDataSourceReadOptions options;
-    private Iterator<InternalRow> iterator;
+    private final StructType schema;
     private PhoenixResultSet resultSet;
     private InternalRow currentRow;
+    private Iterator<InternalRow> iterator;
 
-    PhoenixInputPartitionReader(PhoenixDataSourceReadOptions options, StructType schema,
-            SerializableWritable<PhoenixInputSplit> phoenixInputSplit) {
+    PhoenixPartitionReader(PhoenixDataSourceReadOptions options, StructType schema, PhoenixInputPartition inputPartition){
+        this.inputPartition = inputPartition;
         this.options = options;
-        this.phoenixInputSplit = phoenixInputSplit;
         this.schema = schema;
         initialize();
     }
@@ -82,16 +77,8 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
     }
 
     private QueryPlan getQueryPlan() throws SQLException {
-        String scn = options.getScn();
-        String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
         Properties overridingProps = getOverriddenPropsFromOptions();
-        if (scn != null) {
-            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
-        }
-        if (tenantId != null) {
-            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
-        }
         try (Connection conn = DriverManager.getConnection(
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
             final Statement statement = conn.createStatement();
@@ -109,7 +96,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
     private void initialize() {
         try {
             final QueryPlan queryPlan = getQueryPlan();
-            final List<Scan> scans = phoenixInputSplit.value().getScans();
+            final List<Scan> scans = inputPartition.getPhoenixInputSplit().value().getScans();
             List<PeekingResultIterator> iterators = new ArrayList<>(scans.size());
             StatementContext ctx = queryPlan.getContext();
             ReadMetricQueue readMetrics = ctx.getReadMetricsQueue();

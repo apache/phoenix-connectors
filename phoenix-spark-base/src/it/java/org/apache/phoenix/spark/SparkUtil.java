@@ -28,7 +28,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.execution.SparkPlan;
-import org.apache.spark.sql.sources.v2.DataSourceOptions;
+import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 import scala.Option;
 import scala.collection.JavaConverters;
 
@@ -65,7 +65,7 @@ public class SparkUtil {
         // create PhoenixRDD using the table name and columns that are required by the query
         // since we don't set the predicate filtering is done after rows are returned from spark
         Dataset phoenixDataSet = getSparkSession().read().format("phoenix")
-                .option(DataSourceOptions.TABLE_KEY, queryBuilder.getFullTableName())
+                .option("table", queryBuilder.getFullTableName())
                 .option(PhoenixDataSource.ZOOKEEPER_URL, url).load();
 
         phoenixDataSet.createOrReplaceTempView(queryBuilder.getFullTableName());

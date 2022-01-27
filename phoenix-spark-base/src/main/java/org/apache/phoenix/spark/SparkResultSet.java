@@ -54,8 +54,8 @@ import java.util.Map;
 public class SparkResultSet implements ResultSet, SQLCloseable {
 
     private int index = -1;
-    private List<Row> dataSetRows;
-    private List<String> columnNames;
+    private final List<Row> dataSetRows;
+    private final List<String> columnNames;
     private boolean wasNull = false;
 
     public SparkResultSet(List<Row> rows, String[] columnNames) {
@@ -181,7 +181,7 @@ public class SparkResultSet implements ResultSet, SQLCloseable {
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
         wasNull = getCurrentRow().isNullAt(columnIndex-1);
-        return wasNull ? false : getCurrentRow().getBoolean(columnIndex-1);
+        return !wasNull && getCurrentRow().getBoolean(columnIndex - 1);
     }
 
     @Override

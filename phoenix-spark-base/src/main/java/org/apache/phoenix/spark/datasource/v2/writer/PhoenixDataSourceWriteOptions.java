@@ -17,6 +17,7 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
+import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.types.StructType;
 
 import java.io.Serializable;
@@ -33,8 +34,8 @@ class PhoenixDataSourceWriteOptions implements Serializable {
     private final Properties overriddenProps;
 
     private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
-            String tenantId, StructType schema, boolean skipNormalizingIdentifier,
-            Properties overriddenProps) {
+                                          String tenantId, StructType schema, boolean skipNormalizingIdentifier,
+                                          Properties overriddenProps) {
         if (tableName == null) {
             throw new NullPointerException();
         }
@@ -81,6 +82,14 @@ class PhoenixDataSourceWriteOptions implements Serializable {
     }
 
     Properties getOverriddenProps() {
+        String scn = getScn();
+        String tenantId = getTenantId();
+        if (scn != null) {
+            overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
+        }
+        if (tenantId != null) {
+            overriddenProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
+        }
         return overriddenProps;
     }
 

@@ -18,33 +18,34 @@
 package org.apache.phoenix.spark.datasource.v2.writer;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.connector.write.DataWriter;
-import org.apache.spark.sql.connector.write.DataWriterFactory;
-import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.connector.write.BatchWrite;
+import org.apache.spark.sql.connector.write.LogicalWriteInfo;
+import org.apache.spark.sql.connector.write.WriteBuilder;
 
-public class PhoenixDataWriterFactory implements DataWriterFactory {
+import java.util.Map;
 
-    private final StructType schema;
-    private final PhoenixDataSourceWriteOptions options;
+public class PhoenixWriteBuilder implements WriteBuilder {
 
-    PhoenixDataWriterFactory(StructType schema, PhoenixDataSourceWriteOptions options) {
-        this.schema = schema;
+    private final LogicalWriteInfo writeInfo;
+    private final Map<String,String> options;
+
+    public PhoenixWriteBuilder(LogicalWriteInfo writeInfo, Map<String,String> options) {
+        this.writeInfo = writeInfo;
         this.options = options;
     }
 
     @Override
-    public DataWriter<InternalRow> createWriter(int partitionId, long taskId) {
-        return new PhoenixDataWriter(schema, options);
+    public BatchWrite buildForBatch() {
+        return new PhoenixBatchWrite(writeInfo, options);
     }
 
     @VisibleForTesting
-    PhoenixDataSourceWriteOptions getOptions(){
+    LogicalWriteInfo getWriteInfo() {
+        return writeInfo;
+    }
+
+    @VisibleForTesting
+    Map<String,String> getOptions() {
         return options;
-    }
-
-    @VisibleForTesting
-    StructType getSchema() {
-        return schema;
     }
 }

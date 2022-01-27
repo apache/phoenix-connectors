@@ -21,8 +21,8 @@ import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil
 import org.apache.phoenix.query.QueryServices
 import org.apache.phoenix.schema.types.{PSmallintArray, PUnsignedSmallintArray, PVarchar}
 import org.apache.phoenix.spark.datasource.v2.{PhoenixDataSource, PhoenixTestingDataSource}
-import org.apache.phoenix.spark.datasource.v2.reader.PhoenixTestingInputPartitionReader
-import org.apache.phoenix.spark.datasource.v2.writer.PhoenixTestingDataSourceWriter
+import org.apache.phoenix.spark.datasource.v2.reader.PhoenixTestPartitionReader
+import org.apache.phoenix.spark.datasource.v2.writer.PhoenixTestBatchWrite
 import org.apache.phoenix.util.{ColumnInfo, SchemaUtil}
 import org.apache.spark.SparkException
 import org.apache.spark.sql.types.{ArrayType, BinaryType, ByteType, DateType, IntegerType, LongType, ShortType, StringType, StructField, StructType}
@@ -48,7 +48,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
       .format("phoenix")
       .options(Map("table" -> "TABLE3",
         PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress, PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER -> "true"))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
 
@@ -102,7 +102,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
       .options(Map("table" -> "TABLE5",
         PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress, PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER -> "true",
         PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
 
@@ -138,7 +138,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
       .options(Map("table" -> "TABLE5",
         PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress, PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER -> "true",
         PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
     try {
       conn2.commit()
@@ -341,7 +341,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
 
   test("Can use extraOptions to set configs for workers during reads") {
     // Pass in true, so we will get null when fetching the current row, leading to an NPE
-    var extraOptions = PhoenixTestingInputPartitionReader.RETURN_NULL_CURR_ROW + "=true"
+    var extraOptions = PhoenixTestPartitionReader.RETURN_NULL_CURR_ROW + "=true"
     var rdd = spark.sqlContext.read
       .format(PhoenixTestingDataSource.TEST_SOURCE)
       .options( Map("table" -> "TABLE1", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
@@ -354,7 +354,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     assert(error.getCause.isInstanceOf[NullPointerException])
 
     // Pass in false, so we will get the expected rows
-    extraOptions = PhoenixTestingInputPartitionReader.RETURN_NULL_CURR_ROW + "=false"
+    extraOptions = PhoenixTestPartitionReader.RETURN_NULL_CURR_ROW + "=false"
     rdd = spark.sqlContext.read
       .format(PhoenixTestingDataSource.TEST_SOURCE)
       .options( Map("table" -> "TABLE1", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
@@ -379,7 +379,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "OUTPUT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -425,16 +425,16 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     val extraOptions =  PhoenixConfigurationUtil.UPSERT_BATCH_SIZE + "=" + upsertBatchSize.toString
 
     // Initially, this should be zero
-    PhoenixTestingDataSourceWriter.TOTAL_BATCHES_COMMITTED_COUNT shouldEqual 0
+    PhoenixTestBatchWrite.TOTAL_BATCHES_COMMITTED_COUNT shouldEqual 0
     df.write
       .format(PhoenixTestingDataSource.TEST_SOURCE)
       .options(Map("table" -> "OUTPUT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
         PhoenixDataSource.PHOENIX_CONFIGS -> extraOptions))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Verify the number of times batched updates are committed via DataWriters
-    PhoenixTestingDataSourceWriter.TOTAL_BATCHES_COMMITTED_COUNT shouldEqual totalRecords/upsertBatchSize
+    PhoenixTestBatchWrite.TOTAL_BATCHES_COMMITTED_COUNT shouldEqual totalRecords/upsertBatchSize
   }
 
   test("Can save dates to Phoenix using java.sql.Date") {
@@ -458,7 +458,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "OUTPUT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -513,7 +513,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df
       .write
       .format("phoenix")
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .option("table", "TABLE1_COPY")
       .option(PhoenixDataSource.ZOOKEEPER_URL, quorumAddress)
       .save()
@@ -547,7 +547,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "ARRAY_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -596,7 +596,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "TABLE2", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
   }
 
@@ -671,7 +671,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "ARRAYBUFFER_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -702,7 +702,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "ARRAY_ANYVAL_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -732,7 +732,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "ARRAY_BYTE_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -760,7 +760,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "ARRAY_SHORT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -790,7 +790,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "VARBINARY_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     // Load the results back
@@ -907,7 +907,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .options(Map("table" -> "OUTPUT_GIGANTIC_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Overwrite)
+      .mode(SaveMode.Append)
       .save()
 
     df.count() shouldEqual 1

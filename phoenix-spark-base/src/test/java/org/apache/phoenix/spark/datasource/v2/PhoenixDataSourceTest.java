@@ -17,7 +17,7 @@
  */
 package org.apache.phoenix.spark.datasource.v2;
 
-import org.apache.spark.sql.sources.v2.DataSourceOptions;
+import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class PhoenixDataSourceTest {
-
     private static final String P1 = "p1";
     private static final String P2 = "p2";
     private static final String P3 = "p3";
@@ -50,7 +49,7 @@ public class PhoenixDataSourceTest {
     public void testExtractSinglePhoenixProp() {
         Map<String, String> props = new HashMap<>();
         props.put(PHOENIX_CONFIGS, SINGLE_PHOENIX_PROP);
-        Properties p = extractPhoenixHBaseConfFromOptions(new DataSourceOptions(props));
+        Properties p = extractPhoenixHBaseConfFromOptions(new CaseInsensitiveStringMap(props));
         assertEquals(V1, p.getProperty(P1));
     }
 
@@ -60,7 +59,7 @@ public class PhoenixDataSourceTest {
         // Add another random option
         props.put("k", "v");
         props.put(PHOENIX_CONFIGS, VALID_PHOENIX_PROPS_LIST);
-        Properties p = extractPhoenixHBaseConfFromOptions(new DataSourceOptions(props));
+        Properties p = extractPhoenixHBaseConfFromOptions(new CaseInsensitiveStringMap(props));
         assertEquals(V1, p.getProperty(P1));
         assertEquals(V2, p.getProperty(P2));
         assertEquals(V3, p.getProperty(P3));
@@ -71,7 +70,7 @@ public class PhoenixDataSourceTest {
         Map<String, String> props = new HashMap<>();
         props.put(PHOENIX_CONFIGS, INVALID_PHOENIX_PROPS_LIST);
         try {
-            extractPhoenixHBaseConfFromOptions(new DataSourceOptions(props));
+            extractPhoenixHBaseConfFromOptions(new CaseInsensitiveStringMap(props));
             fail("Should have thrown an exception!");
         } catch (RuntimeException rte) {
             assertTrue(rte.getCause() instanceof ArrayIndexOutOfBoundsException);

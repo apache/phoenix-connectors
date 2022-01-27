@@ -17,19 +17,23 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-import org.apache.phoenix.mapreduce.PhoenixInputSplit;
-import org.apache.spark.sql.sources.v2.DataSourceOptions;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.types.StructType;
 
-public class PhoenixTestingDataSourceReader extends PhoenixDataSourceReader {
+import java.util.Properties;
 
-    public PhoenixTestingDataSourceReader(DataSourceOptions options) {
-        super(options);
+public class PhoenixTestPartitionReader extends PhoenixPartitionReader {
+
+    public static final String RETURN_NULL_CURR_ROW = "return.null.curr.row";
+
+    PhoenixTestPartitionReader(PhoenixDataSourceReadOptions options, StructType schema , PhoenixInputPartition inputPartition) {
+        super(options, schema, inputPartition);
     }
 
-    // Override to return a test InputPartition
+    // Override to return null rather than the actual row based on a property passed to the executor
     @Override
-    PhoenixInputPartition getInputPartition(PhoenixDataSourceReadOptions readOptions,
-            PhoenixInputSplit inputSplit) {
-        return new PhoenixTestingInputPartition(readOptions, readSchema(), inputSplit);
+    public InternalRow get() {
+        Properties props = getOverriddenPropsFromOptions();
+        return Boolean.parseBoolean(props.getProperty(RETURN_NULL_CURR_ROW)) ? null : super.get();
     }
 }

@@ -17,22 +17,35 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-import org.apache.phoenix.mapreduce.PhoenixInputSplit;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
+import org.apache.spark.sql.connector.read.InputPartition;
+import org.apache.spark.sql.connector.read.PartitionReader;
+import org.apache.spark.sql.connector.read.PartitionReaderFactory;
 import org.apache.spark.sql.types.StructType;
 
-public class PhoenixTestingInputPartition extends PhoenixInputPartition {
+public class PhoenixPartitionReadFactory implements PartitionReaderFactory {
 
-    PhoenixTestingInputPartition(PhoenixDataSourceReadOptions options, StructType schema,
-            PhoenixInputSplit phoenixInputSplit) {
-        super(options, schema, phoenixInputSplit);
+    private final StructType schema;
+    PhoenixDataSourceReadOptions options;
+
+    PhoenixPartitionReadFactory(PhoenixDataSourceReadOptions phoenixDataSourceOptions, StructType schema) {
+        this.schema = schema;
+        this.options = phoenixDataSourceOptions;
     }
 
-    // Override to return a test InputPartitionReader for testing on the executor-side
+    @VisibleForTesting
+    PhoenixDataSourceReadOptions getOptions() {
+        return options;
+    }
+
+    @VisibleForTesting
+    StructType readSchema() {
+        return schema;
+    }
+
     @Override
-    public InputPartitionReader<InternalRow> createPartitionReader() {
-        return new PhoenixTestingInputPartitionReader(getOptions(), getSchema(),
-                getPhoenixInputSplit());
+    public PartitionReader<InternalRow> createReader(InputPartition partition) {
+        return new PhoenixPartitionReader(options, schema, (PhoenixInputPartition) partition);
     }
 }

@@ -17,42 +17,75 @@
  */
 package org.apache.phoenix.spark.datasource.v2;
 
-import java.util.Optional;
-import java.util.Properties;
-
-import org.apache.phoenix.spark.datasource.v2.reader.PhoenixDataSourceReader;
-import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDataSourceWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.spark.sql.SaveMode;
+import org.apache.phoenix.spark.SparkSchemaUtil;
+import org.apache.phoenix.util.ColumnInfo;
+import org.apache.phoenix.util.PhoenixRuntime;
+import org.apache.spark.sql.connector.catalog.Table;
+import org.apache.spark.sql.connector.catalog.TableProvider;
+import org.apache.spark.sql.connector.expressions.Transform;
 import org.apache.spark.sql.sources.DataSourceRegister;
-import org.apache.spark.sql.sources.v2.DataSourceOptions;
-import org.apache.spark.sql.sources.v2.DataSourceV2;
-import org.apache.spark.sql.sources.v2.ReadSupport;
-import org.apache.spark.sql.sources.v2.WriteSupport;
-import org.apache.spark.sql.sources.v2.reader.DataSourceReader;
-import org.apache.spark.sql.sources.v2.writer.DataSourceWriter;
 import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.util.CaseInsensitiveStringMap;
+import scala.collection.JavaConverters;
+import scala.collection.Seq;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
 /**
  * Implements the DataSourceV2 api to read and write from Phoenix tables
  */
-public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupport, DataSourceRegister {
+public class PhoenixDataSource implements TableProvider, DataSourceRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
     public static final String ZOOKEEPER_URL = "zkUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";
+    protected StructType schema;
+    private CaseInsensitiveStringMap options;
 
     @Override
-    public DataSourceReader createReader(DataSourceOptions options) {
-        return new PhoenixDataSourceReader(options);
+    public StructType inferSchema(CaseInsensitiveStringMap options){
+        if (options.get("table") == null) {
+            throw new RuntimeException("No Phoenix option " + "Table" + " defined");
+        }
+        if (options.get(ZOOKEEPER_URL) == null) {
+            throw new RuntimeException("No Phoenix option " + ZOOKEEPER_URL + " defined");
+        }
+        this.options = options;
+        String tableName = options.get("table");
+        String zkUrl = options.get(ZOOKEEPER_URL);
+        boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
+        Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
+
+        /**
+         * Sets the schema using all the table columns before any column pruning has been done
+         */
+        try (Connection conn = DriverManager.getConnection(
+                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
+            List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
+            Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
+            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return schema;
     }
 
     @Override
-    public Optional<DataSourceWriter> createWriter(String writeUUID, StructType schema,
-            SaveMode mode, DataSourceOptions options) {
-        return Optional.of(new PhoenixDataSourceWriter(mode, schema, options));
+    public Table getTable( StructType schema, Transform[] transforms, Map<String, String> properties)
+    {
+        return new PhoenixTable(schema, properties);
     }
 
     /**
@@ -64,13 +97,12 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
      * @param options DataSource options passed in
      * @return Properties map
      */
-    public static Properties extractPhoenixHBaseConfFromOptions(final DataSourceOptions options) {
+    public static Properties extractPhoenixHBaseConfFromOptions(final Map<String,String> options) {
         Properties confToSet = new Properties();
         if (options != null) {
-            Optional phoenixConfigs = options.get(PHOENIX_CONFIGS);
-            if (phoenixConfigs.isPresent()) {
-                String phoenixConf = String.valueOf(phoenixConfigs.get());
-                String[] confs = phoenixConf.split(",");
+            String phoenixConfigs = options.get(PHOENIX_CONFIGS);
+            if (phoenixConfigs != null) {
+                String[] confs = phoenixConfigs.split(",");
                 for (String conf : confs) {
                     String[] confKeyVal = conf.split("=");
                     try {

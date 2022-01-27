@@ -15,21 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.spark.datasource.v2.reader;
+package org.apache.phoenix.spark.datasource.v2.writer;
 
-import org.apache.phoenix.mapreduce.PhoenixInputSplit;
-import org.apache.spark.SerializableWritable;
-import org.apache.spark.sql.connector.read.InputPartition;
+import org.apache.spark.sql.connector.write.BatchWrite;
+import org.apache.spark.sql.connector.write.LogicalWriteInfo;
 
-public class PhoenixInputPartition implements InputPartition {
+import java.util.Map;
 
-    private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
-
-    PhoenixInputPartition(PhoenixInputSplit phoenixInputSplit) {
-        this.phoenixInputSplit = new SerializableWritable<>(phoenixInputSplit);
+public class PhoenixTestWriteBuilder extends PhoenixWriteBuilder {
+    public PhoenixTestWriteBuilder(LogicalWriteInfo info, Map<String, String> options) {
+        super(info, options);
     }
 
-    SerializableWritable<PhoenixInputSplit> getPhoenixInputSplit() {
-        return phoenixInputSplit;
+    @Override
+    public BatchWrite buildForBatch() {
+        return new PhoenixTestBatchWrite(getWriteInfo(), getOptions());
     }
 }

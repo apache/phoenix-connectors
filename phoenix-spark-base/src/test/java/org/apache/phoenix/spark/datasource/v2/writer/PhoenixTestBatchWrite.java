@@ -17,27 +17,24 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
-import org.apache.spark.sql.SaveMode;
-import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.sources.v2.DataSourceOptions;
-import org.apache.spark.sql.sources.v2.writer.DataWriterFactory;
-import org.apache.spark.sql.sources.v2.writer.WriterCommitMessage;
-import org.apache.spark.sql.types.StructType;
+import org.apache.spark.sql.connector.write.DataWriterFactory;
+import org.apache.spark.sql.connector.write.LogicalWriteInfo;
+import org.apache.spark.sql.connector.write.PhysicalWriteInfo;
+import org.apache.spark.sql.connector.write.WriterCommitMessage;
 
-public class PhoenixTestingDataSourceWriter extends PhoenixDataSourceWriter {
+import java.util.Map;
 
-    // Used to keep track of the total number of batches committed across all executors
+
+public class PhoenixTestBatchWrite extends PhoenixBatchWrite {
     public static int TOTAL_BATCHES_COMMITTED_COUNT = 0;
-
-    public PhoenixTestingDataSourceWriter(SaveMode mode, StructType schema,
-            DataSourceOptions options) {
-        super(mode, schema, options);
+    PhoenixTestBatchWrite(LogicalWriteInfo writeInfo, Map<String, String> options) {
+        super(writeInfo, options);
     }
 
     // Override to return a test DataWriterFactory
     @Override
-    public DataWriterFactory<InternalRow> createWriterFactory() {
-        return new PhoenixTestingDataWriterFactory(getOptions());
+    public DataWriterFactory createBatchWriterFactory(PhysicalWriteInfo physicalWriteInfo) {
+        return new PhoenixTestDataWriterFactory(getWriteInfo().schema(), getOptions());
     }
 
     // Override to sum up the total number of batches committed across all executors
@@ -47,4 +44,5 @@ public class PhoenixTestingDataSourceWriter extends PhoenixDataSourceWriter {
             TOTAL_BATCHES_COMMITTED_COUNT += Integer.parseInt(message.toString());
         }
     }
+
 }

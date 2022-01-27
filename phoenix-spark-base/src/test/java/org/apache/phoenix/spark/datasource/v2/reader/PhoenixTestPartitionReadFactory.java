@@ -17,29 +17,20 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
-import org.apache.phoenix.mapreduce.PhoenixInputSplit;
-import org.apache.spark.SerializableWritable;
 import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.connector.read.InputPartition;
+import org.apache.spark.sql.connector.read.PartitionReader;
 import org.apache.spark.sql.types.StructType;
 
-import java.util.Properties;
+public class PhoenixTestPartitionReadFactory extends PhoenixPartitionReadFactory {
 
-public class PhoenixTestingInputPartitionReader extends PhoenixInputPartitionReader {
-
-    // A test property which is used to modify the current row returned by the test input
-    // partition reader in order to check properties passed from the driver to executors
-    public static final String RETURN_NULL_CURR_ROW = "return.null.curr.row";
-
-    PhoenixTestingInputPartitionReader(PhoenixDataSourceReadOptions options, StructType schema,
-            SerializableWritable<PhoenixInputSplit> phoenixInputSplit) {
-        super(options, schema, phoenixInputSplit);
+    PhoenixTestPartitionReadFactory(PhoenixDataSourceReadOptions options, StructType structType) {
+        super(options, structType);
     }
 
-    // Override to return null rather than the actual row based on a property passed to the executor
+    // Override to return a test InputPartitionReader for testing on the executor-side
     @Override
-    public InternalRow get() {
-        Properties props = getOverriddenPropsFromOptions();
-        return Boolean.valueOf(props.getProperty(RETURN_NULL_CURR_ROW)) ? null : super.get();
+    public PartitionReader<InternalRow> createReader(InputPartition partition) {
+        return new PhoenixTestPartitionReader(getOptions(), readSchema(), (PhoenixInputPartition) partition);
     }
-
 }
