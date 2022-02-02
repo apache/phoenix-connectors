@@ -46,6 +46,7 @@ import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 import org.apache.phoenix.query.ConnectionQueryServices;
+import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.executor.InputMetrics;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.connector.read.PartitionReader;
@@ -77,8 +78,16 @@ public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
     }
 
     private QueryPlan getQueryPlan() throws SQLException {
+        String scn = options.getScn();
+        String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
         Properties overridingProps = getOverriddenPropsFromOptions();
+        if (scn != null) {
+            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
+        }
+        if (tenantId != null) {
+            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
+        }
         try (Connection conn = DriverManager.getConnection(
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
             final Statement statement = conn.createStatement();

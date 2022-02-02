@@ -130,11 +130,11 @@ public class OrderByIT extends BaseOrderByIT {
                 Arrays.asList("A_STRING", "CF1.A", "CF1.B", "COL1", "CF2.C", "CF2.D"));
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName1)
+                    .option(PhoenixDataSource.TABLE_KEY, tableName1)
                     .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName1);
             phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName2)
+                    .option(PhoenixDataSource.TABLE_KEY, tableName2)
                     .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName2);
 
@@ -246,11 +246,11 @@ public class OrderByIT extends BaseOrderByIT {
 
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                            .option("table", tableName1)
+                            .option(PhoenixDataSource.TABLE_KEY, tableName1)
                             .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName1);
             phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName2)
+                    .option(PhoenixDataSource.TABLE_KEY, tableName2)
                     .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName2);
 
@@ -321,7 +321,7 @@ public class OrderByIT extends BaseOrderByIT {
 
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName)
+                    .option(PhoenixDataSource.TABLE_KEY, tableName)
                     .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName);
             Dataset<Row> dataset =
@@ -383,7 +383,7 @@ public class OrderByIT extends BaseOrderByIT {
 
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName)
+                    .option(PhoenixDataSource.TABLE_KEY, tableName)
                     .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName);
             Dataset<Row> dataset =

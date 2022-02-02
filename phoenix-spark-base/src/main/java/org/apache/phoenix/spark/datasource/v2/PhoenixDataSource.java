@@ -47,6 +47,7 @@ import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 public class PhoenixDataSource implements TableProvider, DataSourceRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
+    public static final String TABLE_KEY = "table";
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
     public static final String ZOOKEEPER_URL = "zkUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";

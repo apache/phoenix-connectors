@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 
+import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.SchemaUtil;
 import org.slf4j.Logger;
@@ -64,8 +65,16 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     private ExpressionEncoder<Row> encoder;
 
     PhoenixDataWriter(StructType schema, PhoenixDataSourceWriteOptions options) {
+        String scn = options.getScn();
+        String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
         Properties overridingProps = options.getOverriddenProps();
+        if (scn != null) {
+            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
+        }
+        if (tenantId != null) {
+            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
+        }
         this.schema = options.getSchema();
 
         List<Attribute> attrs = new ArrayList<>();

@@ -121,6 +121,13 @@ public class PhoenixScan implements Scan, Batch {
             final QueryPlan queryPlan = pstmt.optimizeQuery(selectStatement);
             final org.apache.hadoop.hbase.client.Scan scan = queryPlan.getContext().getScan();
 
+            // setting the snapshot configuration
+            String snapshotName = options.get(PhoenixConfigurationUtil.SNAPSHOT_NAME_KEY);
+
+            if(snapshotName != null){
+                PhoenixConfigurationUtil.setSnapshotNameKey(queryPlan.getContext().getConnection().getQueryServices().getConfiguration(), snapshotName);
+            }
+
             // Initialize the query plan so it sets up the parallel scans
             queryPlan.iterator(MapReduceParallelScanGrouper.getInstance());
 
