@@ -23,7 +23,9 @@ import org.apache.phoenix.util.PhoenixRuntime
 import org.apache.phoenix.util.ReadOnlyProps;
 import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funsuite.AnyFunSuite
 
 
 // Helper object to access the protected abstract static methods hidden in BaseTest
@@ -51,7 +53,7 @@ object PhoenixSparkITHelper extends BaseTest {
 /**
   * Base class for PhoenixSparkIT
   */
-class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+class AbstractPhoenixSparkIT extends AnyFunSuite with Matchers with BeforeAndAfter with BeforeAndAfterAll {
 
   // A global tenantId we can use across tests
   final val TenantId = "theTenant"

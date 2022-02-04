@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.CURRENT_SCN_VALUE;
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.MAPREDUCE_TENANT_ID;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.TABLE_KEY;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
@@ -61,7 +62,7 @@ public class PhoenixBatchWrite implements BatchWrite {
         String scn = options.get(CURRENT_SCN_VALUE);
         String tenantId = options.get(MAPREDUCE_TENANT_ID);
         String zkUrl = options.get(ZOOKEEPER_URL);
-        String tableName = options.get("table");
+        String tableName = options.get(TABLE_KEY);
         boolean skipNormalizingIdentifier = Boolean.parseBoolean(options.getOrDefault(SKIP_NORMALIZING_IDENTIFIER, Boolean.toString(false)));
         return new PhoenixDataSourceWriteOptions.Builder()
                 .setTableName(tableName)

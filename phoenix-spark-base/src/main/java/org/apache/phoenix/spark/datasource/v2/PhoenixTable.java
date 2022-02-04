@@ -32,6 +32,8 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.TABLE_KEY;
+
 
 public class PhoenixTable implements SupportsRead, SupportsWrite{
 
@@ -42,7 +44,7 @@ public class PhoenixTable implements SupportsRead, SupportsWrite{
 
     public PhoenixTable(StructType schema, Map<String,String> options) {
         this.options = options;
-        this.tableName = options.get("table");
+        this.tableName = options.get(TABLE_KEY);
         this.schema = schema;
     }
 

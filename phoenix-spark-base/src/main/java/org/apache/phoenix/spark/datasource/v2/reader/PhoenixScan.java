@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.TABLE_KEY;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
@@ -72,7 +73,7 @@ public class PhoenixScan implements Scan, Batch {
         this.whereClause = whereClause;
         this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         this.zkUrl = options.get(PhoenixDataSource.ZOOKEEPER_URL);
-        tableName = options.get("table");
+        tableName = options.get(TABLE_KEY);
     }
 
     private void populateOverriddenProperties(){

@@ -56,14 +56,14 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
 
     @Override
     public StructType inferSchema(CaseInsensitiveStringMap options){
-        if (options.get("table") == null) {
-            throw new RuntimeException("No Phoenix option " + "Table" + " defined");
+        if (options.get(TABLE_KEY) == null) {
+            throw new RuntimeException("No Phoenix option " + TABLE_KEY + " defined");
         }
         if (options.get(ZOOKEEPER_URL) == null) {
             throw new RuntimeException("No Phoenix option " + ZOOKEEPER_URL + " defined");
         }
         this.options = options;
-        String tableName = options.get("table");
+        String tableName = options.get(TABLE_KEY);
         String zkUrl = options.get(ZOOKEEPER_URL);
         boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
         Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
