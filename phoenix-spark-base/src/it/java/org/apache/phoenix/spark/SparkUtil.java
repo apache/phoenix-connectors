@@ -65,7 +65,7 @@ public class SparkUtil {
         // create PhoenixRDD using the table name and columns that are required by the query
         // since we don't set the predicate filtering is done after rows are returned from spark
         Dataset phoenixDataSet = getSparkSession().read().format("phoenix")
-                .option("table", queryBuilder.getFullTableName())
+                .option(PhoenixDataSource.TABLE_KEY, queryBuilder.getFullTableName())
                 .option(PhoenixDataSource.ZOOKEEPER_URL, url).load();
 
         phoenixDataSet.createOrReplaceTempView(queryBuilder.getFullTableName());

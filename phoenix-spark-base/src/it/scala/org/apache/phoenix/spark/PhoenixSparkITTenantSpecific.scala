@@ -13,6 +13,7 @@
  */
 package org.apache.phoenix.spark
 
+import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
 import org.apache.phoenix.util.PhoenixRuntime
 import org.apache.spark.sql.SQLContext
 
@@ -112,7 +113,7 @@ class PhoenixSparkITTenantSpecific extends AbstractPhoenixSparkIT {
     df.write
       .format("phoenix")
       .mode("overwrite")
-      .option("table", TenantTable)
+      .option(PhoenixDataSource.TABLE_KEY, TenantTable)
       .option(PhoenixRuntime.TENANT_ID_ATTRIB, TenantId)
       .option("zkUrl", PhoenixSparkITHelper.getUrl)
       .save()

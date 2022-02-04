@@ -44,7 +44,7 @@ public class PhoenixTestingDataSource extends PhoenixDataSource {
 
     @Override
     public StructType inferSchema(CaseInsensitiveStringMap options) {
-        String tableName = options.get("table");
+        String tableName = options.get(TABLE_KEY);
         String zkUrl = options.get(ZOOKEEPER_URL);
         boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
         Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
