@@ -18,6 +18,16 @@ limitations under the License.
 phoenix-spark extends Phoenix's MapReduce support to allow Spark to load Phoenix tables as DataFrames,
 and enables persisting DataFrames back to Phoenix.
 
+## Configuring Spark to use the connector
+
+Use the shaded connector JAR `phoenix5-spark3-shaded-6.0.0-SNAPSHOT.jar` .
+Apart from the shaded connector JAR, you also need to add the hbase mapredcp libraries and the hbase configuration directory to the classpath. The final classpath should be something like
+
+`/etc/hbase/conf:$(hbase mapredcp):phoenix5-spark3-shaded-6.0.0-SNAPSHOT.jar`
+
+(add the exact paths as appropiate to your system)
+Both the `spark.driver.extraClassPath` and `spark.executor.extraClassPath` properties need to be set the above classpath. You may add them spark-defaults.conf, or specify them on the spark-shell or spark-submit command line.
+
 ## Reading Phoenix Tables
 
 Given a Phoenix table with the following DDL and DML:
@@ -92,7 +102,7 @@ The `save` is method on DataFrame allows passing in a data source type. You can 
 specify which table and server to persist the DataFrame to. The column names are derived from
 the DataFrame's schema field names, and must match the Phoenix column names.
 
-The `save` method also takes a `SaveMode` option, for which only `SaveMode.Overwrite` is supported.
+The `save` method also takes a `SaveMode` option, for which only `SaveMode.Append` is supported.
 
 Given two Phoenix tables with the following DDL:
 
@@ -122,7 +132,7 @@ val df = spark.sqlContext
 // Save to OUTPUT_TABLE
 df.write
   .format("phoenix")
-  .mode(SaveMode.Overwrite)
+  .mode(SaveMode.Append)
   .options(Map("table" -> "OUTPUT_TABLE", "zkUrl" -> "phoenix-server:2181"))
   .save()
 ```
@@ -203,7 +213,7 @@ val df = spark.sqlContext.createDataFrame(rowRDD, schema)
 df.write
   .format("phoenix")
   .options(Map("table" -> "OUTPUT_TABLE", "zkUrl" -> "phoenix-server:2181"))
-  .mode(SaveMode.Overwrite)
+  .mode(SaveMode.Append)
   .save()
 ```
 Java example:
@@ -249,7 +259,7 @@ public class PhoenixSparkWriteFromRDDWithSchema {
         df = spark.createDataFrame(rows, schema);
         df.write()
             .format("phoenix")
-            .mode(SaveMode.Overwrite)
+            .mode(SaveMode.Append)
             .option("table", "OUTPUT_TABLE")
             .option("zkUrl",  "phoenix-server:2181")
             .save();
@@ -291,8 +301,9 @@ create the DataFrame or RDD directly if you need fine-grained configuration.
 
 ## Limitations of the Spark3 connector comapred to the Spark2 Connector
 
-- Non-uppercase column names cannot be used for mapping DataFrames.
-- When writing to a DataFrame, all SQL column in the table must be specified.
+- Non-uppercase column names cannot be used for mapping DataFrames. (PHOENIX-6668)
+- When writing to a DataFrame, every SQL column in the table must be specified. (PHOENIX-6667)
+
 
 ## Deprecated Usages
 
