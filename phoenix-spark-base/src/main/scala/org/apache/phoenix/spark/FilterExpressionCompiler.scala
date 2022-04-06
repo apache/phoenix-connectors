@@ -66,7 +66,7 @@ class FilterExpressionCompiler() {
           val(whereLeftClause, leftUnsupportedFilters, _) = pushFilters(Array(leftFilter))
           val(whereRightClause, rightUnsupportedFilters, _) = pushFilters(Array(rightFilter))
           if (leftUnsupportedFilters.isEmpty && rightUnsupportedFilters.isEmpty) {
-            filter.append(whereLeftClause + " OR " + whereRightClause)
+            filter.append("(" + whereLeftClause + " OR " + whereRightClause + ")")
           }
           else {
             unsupportedFilters :+ f
