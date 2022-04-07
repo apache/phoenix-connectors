@@ -336,6 +336,16 @@ public class OrderByIT extends BaseOrderByIT {
             assertTrue(rs.next());
             assertEquals(2, rs.getLong(1));
             assertFalse(rs.next());
+            query =
+                    "select count(*) from " + tableName1 + " where ENTITY_INSTANCE_ID = 40 and CASE_MATCH_TYPE='M' " +
+                            " OR CANCELLATION_FLAG <> 'Y'";
+            dataset =
+                    sqlContext.sql(query);
+            rows = dataset.collectAsList();
+            rs = new SparkResultSet(rows, dataset.columns());
+            assertTrue(rs.next());
+            assertEquals(4, rs.getLong(1));
+            assertFalse(rs.next());
         }
     }
 
