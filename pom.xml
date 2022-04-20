@@ -61,7 +61,7 @@
     <!-- Phoenix Version -->
     <phoenix-four.version>4.16.0</phoenix-four.version>
     <phoenix-five.version>5.1.2</phoenix-five.version>
-    <phoenix.thirdparty.version>1.1.0</phoenix.thirdparty.version>
+    <phoenix.thirdparty.version>2.0.0</phoenix.thirdparty.version>
     <!-- Hadoop Versions -->
     <hbase-one.version>1.4.10</hbase-one.version>
     <hbase-one.compat.version>1.4.0</hbase-one.compat.version>
