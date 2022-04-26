@@ -81,34 +81,9 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         return options.getOverriddenProps();
     }
 
-    private QueryPlan getQueryPlan() throws SQLException {
-        String scn = options.getScn();
-        String tenantId = options.getTenantId();
-        String zkUrl = options.getZkUrl();
-        Properties overridingProps = getOverriddenPropsFromOptions();
-        if (scn != null) {
-            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
-        }
-        if (tenantId != null) {
-            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
-        }
-        try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
-            final Statement statement = conn.createStatement();
-            final String selectStatement = options.getSelectStatement();
-            if (selectStatement == null){
-                throw new NullPointerException();
-            }
-
-            final PhoenixStatement pstmt = statement.unwrap(PhoenixStatement.class);
-            // Optimize the query plan so that we potentially use secondary indexes
-            return pstmt.optimizeQuery(selectStatement);
-        }
-    }
-
     private void initialize() {
         try {
-            final QueryPlan queryPlan = getQueryPlan();
+            final QueryPlan queryPlan = options.getQueryPlan();
             final List<Scan> scans = phoenixInputSplit.value().getScans();
             List<PeekingResultIterator> iterators = new ArrayList<>(scans.size());
             StatementContext ctx = queryPlan.getContext();

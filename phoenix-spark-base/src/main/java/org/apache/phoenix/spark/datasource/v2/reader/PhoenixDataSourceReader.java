@@ -184,7 +184,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
 
                 PhoenixDataSourceReadOptions phoenixDataSourceOptions =
                         new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
-                                tenantId.orElse(null), selectStatement, overriddenProps);
+                                tenantId.orElse(null), selectStatement, overriddenProps, queryPlan);
                 if (splitByStats) {
                     for (Scan aScan : scans) {
                         partitions.add(getInputPartition(phoenixDataSourceOptions,
