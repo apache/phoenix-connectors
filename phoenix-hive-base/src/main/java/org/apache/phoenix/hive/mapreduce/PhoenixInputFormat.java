@@ -161,9 +161,8 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                         Future<List<InputSplit>> task = executorService.submit(
                                 new Callable<List<InputSplit>>() {
                                     @Override public List<InputSplit> call() throws Exception {
-                                        return generateSplitsInternal(jobConf, qplan, splits, query,
-                                                scans, splitByStats, connection, regionLocator,
-                                                tablePaths);
+                                        return generateSplitsInternal(query, scans, splitByStats,
+                                                connection, regionLocator, tablePaths);
                                     }
                                 });
                         tasks.add(task);
@@ -179,7 +178,7 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
             } else {
                 LOG.info("generate splits in serial");
                 for (final List<Scan> scans : qplan.getScans()) {
-                    psplits.addAll(generateSplitsInternal(jobConf, qplan, splits, query, scans,
+                    psplits.addAll(generateSplitsInternal(query, scans,
                             splitByStats, connection, regionLocator, tablePaths));
                 }
             }
@@ -188,33 +187,28 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
         return psplits;
     }
 
-    /*
-    * This method is used to check whether need to run in parallel to reduce
-    * time costs.
-    * @param parallelThreshold
-    * @param scans: number of scans
-    * @return true indicates should generate split in parallel.
-    * */
-    private boolean needRunInParallel(int parallelThreshold, int scans) {
+    /**
+     * This method is used to check whether need to run in parallel to reduce time costs.
+     * @param parallelThreshold parameter parallelThreshold
+     * @param scans number of scans
+     * @return true indicates should generate split in parallel.
+     */
+    private boolean needRunInParallel(final int parallelThreshold, final int scans) {
         return parallelThreshold > 0 && scans >= parallelThreshold;
     }
 
     /**
      * This method is used to generate splits for each scan list.
-     * @param jobConf MapReduce Job Configuration
-     * @param qplan phoenix query plan
-     * @param splits phoenix table splits
      * @param query phoenix query statement
      * @param scans scan list slice of query plan
      * @param splitByStats split by stat enabled
-     * @param tablePaths table paths
      * @param connection phoenix connection
-     * @param regionLocator
+     * @param regionLocator Hbase Region Locator
+     * @param tablePaths table paths
      * @return List of Input Splits
      * @throws IOException if function fails
      */
-    private List<InputSplit> generateSplitsInternal(final JobConf jobConf, final QueryPlan qplan,
-            final List<KeyRange> splits, final String query, final List<Scan> scans,
+    private List<InputSplit> generateSplitsInternal(final String query, final List<Scan> scans,
             final boolean splitByStats, final org.apache.hadoop.hbase.client.Connection connection,
             final RegionLocator regionLocator, final Path[] tablePaths) throws IOException {
 
