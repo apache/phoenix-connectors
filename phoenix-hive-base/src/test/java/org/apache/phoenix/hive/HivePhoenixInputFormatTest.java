@@ -74,9 +74,16 @@ public class HivePhoenixInputFormatTest extends ParallelStatsDisabledIT {
         Configuration conf = getUtility().getConfiguration();
         JobConf jobConf = new JobConf(conf);
         configureTestInput(jobConf);
-        // warm up
         inputFormat.getSplits(jobConf, SPLITS);
         InputSplit[] inputSplitsSerial;
+        // test get splits in serial
+        start = System.currentTimeMillis();
+        jobConf.set(PhoenixStorageHandlerConstants.PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD, "0");
+        inputSplitsSerial = inputFormat.getSplits(jobConf, SPLITS);
+        end = System.currentTimeMillis();
+        long durationInSerial = end - start;
+        System.out.println(String.format("get split in serial requires:%s ms",
+                String.valueOf(durationInSerial)));
 
         // test get splits in parallel
         start = System.currentTimeMillis();
@@ -88,14 +95,6 @@ public class HivePhoenixInputFormatTest extends ParallelStatsDisabledIT {
         System.out.println(String.format("get split in parallel requires:%s ms",
                 String.valueOf(durationInParallel)));
 
-        // test get splits in serial
-        start = System.currentTimeMillis();
-        jobConf.set(PhoenixStorageHandlerConstants.PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD, "0");
-        inputSplitsSerial = inputFormat.getSplits(jobConf, SPLITS);
-        end = System.currentTimeMillis();
-        long durationInSerial = end - start;
-        System.out.println(String.format("get split in serial requires:%s ms",
-                String.valueOf(durationInSerial)));
         // Test if performance of parallel method is better than serial method
         Assert.assertTrue(durationInParallel < durationInSerial);
         // Test if the input split returned by serial method and parallel method are the same
