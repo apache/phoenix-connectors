@@ -150,13 +150,12 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                             qplan.getTableRef().getTable().getPhysicalName().toString()));
             final int scanSize = qplan.getScans().size();
             if (useParallelInputGeneration(parallelThreshold, scanSize)) {
-                final int parallism = jobConf.getInt(
+                final int parallelism = jobConf.getInt(
                         PhoenixStorageHandlerConstants.PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT,
                         PhoenixStorageHandlerConstants
                                 .DEFAULT_PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT);
-                ExecutorService executorService = Executors.newFixedThreadPool(parallism);
-                LOG.info("Generate Input Splits in Parallel with {} threads", parallism);
-
+                ExecutorService executorService = Executors.newFixedThreadPool(parallelism);
+                LOG.info("Generating Input Splits in Parallel with {} threads", parallelism);
                 List<Future<List<InputSplit>>> tasks = new ArrayList<>();
 
                 try {
@@ -173,14 +172,18 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                     for (Future<List<InputSplit>> task : tasks) {
                         psplits.addAll(task.get());
                     }
-                } catch (ExecutionException | InterruptedException exception) {
-                    throw new IOException("Failed to Generate Input Splits in Parallel, reason:",
-                            exception);
+                } catch (ExecutionException|InterruptedException e) {
+                    Throwable throwable = e.getCause();
+                    if (throwable instanceof IOException) {
+                        throw (IOException) throwable;
+                    } else {
+                        throw new IOException(e);
+                    }
                 } finally {
                     executorService.shutdown();
                 }
             } else {
-                LOG.info("Generate Input Splits in Serial");
+                LOG.info("Generating Input Splits in Serial");
                 for (final List<Scan> scans : qplan.getScans()) {
                     psplits.addAll(generateSplitsInternal(query, scans,
                             splitByStats, connection, regionLocator, tablePaths));
