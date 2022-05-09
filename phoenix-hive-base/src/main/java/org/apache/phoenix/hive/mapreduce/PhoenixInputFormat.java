@@ -172,7 +172,7 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                         psplits.addAll(task.get());
                     }
                 } catch (ExecutionException | InterruptedException exception) {
-                    throw new IOException("failed to get splits,reason:", exception);
+                    throw new IOException("failed to generate splits, reason:", exception);
                 } finally {
                     executorService.shutdown();
                 }
