@@ -22,10 +22,13 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
@@ -123,37 +126,60 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
     private List<InputSplit> generateSplits(final JobConf jobConf, final QueryPlan qplan,
                                             final List<KeyRange> splits, String query) throws
             IOException {
-        if (qplan == null){
+        if (qplan == null) {
             throw new NullPointerException();
-        }if (splits == null){
+        }
+        if (splits == null) {
             throw new NullPointerException();
         }
         final List<InputSplit> psplits = new ArrayList<>(splits.size());
 
-        final Path[] tablePaths = FileInputFormat.getInputPaths(ShimLoader.getHadoopShims()
-                .newJobContext(new Job(jobConf)));
-        final boolean splitByStats = jobConf.getBoolean(PhoenixStorageHandlerConstants.SPLIT_BY_STATS,
+        final Path[] tablePaths = FileInputFormat.getInputPaths(
+                ShimLoader.getHadoopShims().newJobContext(new Job(jobConf)));
+        final boolean splitByStats = jobConf.getBoolean(
+                PhoenixStorageHandlerConstants.SPLIT_BY_STATS,
                 false);
-        final int parallelThreshould = jobConf.getInt("hive.phoenix.split.parallel.threshold", 32);
+        final int parallelThreshould = jobConf.getInt(
+                "hive.phoenix.split.parallel.threshold",
+                32);
         setScanCacheSize(jobConf);
-        if ( (parallelThreshould) <=0 || (qplan.getScans().size() < parallelThreshould) ){
+        if (needGenSplitSerially(parallelThreshould, qplan)) {
             LOG.info("generate splits in serial");
             for (final List<Scan> scans : qplan.getScans()) {
-                psplits.addAll(generateSplitsInternal(jobConf,qplan, splits, query,scans,splitByStats,tablePaths));
+                psplits.addAll(
+                        generateSplitsInternal(
+                                jobConf,
+                                qplan,
+                                splits,
+                                query,
+                                scans,
+                                splitByStats,
+                                tablePaths)
+                );
             }
         } else {
-            final int parallism = jobConf.getInt("hive.phoenix.split.parallel.level",Runtime.getRuntime().availableProcessors()*2);
-            ExecutorService executorService = Executors.newFixedThreadPool(parallism);
-            LOG.info("generate splits in parallel with {} threads",parallism);
+            final int parallism = jobConf.getInt(
+                    "hive.phoenix.split.parallel.level",
+                    Runtime.getRuntime().availableProcessors() * 2);
+            ExecutorService executorService = Executors.newFixedThreadPool(
+                    parallism);
+            LOG.info("generate splits in parallel with {} threads", parallism);
 
             List<Future<List<InputSplit>>> tasks = new ArrayList<>();
 
-            try{
+            try {
                 for (final List<Scan> scans : qplan.getScans()) {
-                    Future<List<InputSplit>> task= executorService.submit(new Callable<List<InputSplit>>() {
+                    Future<List<InputSplit>> task = executorService.submit(
+                            new Callable<List<InputSplit>>() {
                         @Override
                         public List<InputSplit> call() throws Exception {
-                            return generateSplitsInternal(jobConf,qplan, splits, query,scans,splitByStats,tablePaths);
+                            return generateSplitsInternal(jobConf,
+                                    qplan,
+                                    splits,
+                                    query,
+                                    scans,
+                                    splitByStats,
+                                    tablePaths);
                         }
                     });
                     tasks.add(task);
@@ -161,69 +187,123 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                 for (Future<List<InputSplit>> task : tasks) {
                     psplits.addAll(task.get());
                 }
-            }catch (ExecutionException | InterruptedException exception){
-                throw new RuntimeException("failed to get splits,reason:",exception);
-            }finally {
+            } catch (ExecutionException | InterruptedException exception) {
+                throw new IOException("failed to get splits,reason:",
+                        exception);
+            } finally {
                 executorService.shutdown();
             }
         }
         return psplits;
     }
 
-    private List<InputSplit> generateSplitsInternal(final JobConf jobConf, final QueryPlan qplan,
-            final List<KeyRange> splits, final String query,final List<Scan> scans,final boolean splitByStats,final Path[] tablePaths) throws
-            IOException {
+    private boolean needGenSplitSerially(int threshold, QueryPlan qplan) {
+        if (threshold <= 0) {
+            return true;
+        }
+        if (qplan.getScans().size() < threshold) {
+            return true;
+        }
+        return false;
+    }
+    private List<InputSplit> generateSplitsInternal(final JobConf jobConf,
+            final QueryPlan qplan,
+            final List<KeyRange> splits,
+            final String query,
+            final List<Scan> scans,
+            final boolean splitByStats,
+            final Path[] tablePaths) throws IOException {
 
         final List<InputSplit> psplits = new ArrayList<>(scans.size());
-        try (org.apache.hadoop.hbase.client.Connection connection = ConnectionFactory.createConnection(
+        try (org.apache.hadoop.hbase.client.Connection connection =
+                ConnectionFactory.createConnection(
                 PhoenixConnectionUtil.getConfiguration(jobConf))) {
-            RegionLocator
-                    regionLocator =
+            RegionLocator regionLocator =
                     connection.getRegionLocator(TableName.valueOf(
-                            qplan.getTableRef().getTable().getPhysicalName().toString()));
+                            qplan.getTableRef().getTable()
+                                    .getPhysicalName().toString()));
+            PhoenixInputSplit inputSplit;
 
-            {
-                PhoenixInputSplit inputSplit;
+            HRegionLocation location = regionLocator.getRegionLocation(
+                    scans.get(0).getStartRow(),
+                    false);
+            long regionSize = CompatUtil.getSize(regionLocator,
+                    connection.getAdmin(),
+                    location);
+            String regionLocation =
+                    PhoenixStorageHandlerUtil.getRegionLocation(location,
+                    LOG);
 
-                HRegionLocation location = regionLocator.getRegionLocation(scans.get(0).getStartRow(), false);
-                long regionSize = CompatUtil.getSize(regionLocator, connection.getAdmin(), location);
-                String regionLocation = PhoenixStorageHandlerUtil.getRegionLocation(location, LOG);
-
-                if (splitByStats) {
-                    for (Scan aScan : scans) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Split for  scan : " + aScan + "with scanAttribute : " + aScan.getAttributesMap()
-                                    + " [scanCache, cacheBlock, scanBatch] : [" + aScan.getCaching()
-                                    + ", " + aScan.getCacheBlocks() + ", " + aScan.getBatch() + "] and  regionLocation : " + regionLocation);
-                        }
-
-                        inputSplit =
-                                new PhoenixInputSplit(new ArrayList<>(Arrays.asList(aScan)),
-                                        tablePaths[0], regionLocation, regionSize);
-                        inputSplit.setQuery(query);
-                        psplits.add(inputSplit);
-                    }
-                } else {
+            if (splitByStats) {
+                for (Scan aScan : scans) {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Scan count[" + scans.size() + "] : " + Bytes.toStringBinary(
-                                scans.get(0).getStartRow()) + " ~ " + Bytes.toStringBinary(
-                                scans.get(scans.size() - 1).getStopRow()));
-                        LOG.debug("First scan : " + scans.get(0) + "with scanAttribute : " + scans.get(0).getAttributesMap()
-                                + " [scanCache, cacheBlock, scanBatch] : " + "[" + scans.get(0).getCaching() + ", " + scans.get(0).getCacheBlocks()
-                                + ", " + scans.get(0).getBatch() + "] and  regionLocation : "
+                        LOG.debug("Split for  scan : "
+                                + aScan
+                                + "with scanAttribute : "
+                                + aScan.getAttributesMap()
+                                + " [scanCache, cacheBlock, scanBatch] : ["
+                                + aScan.getCaching()
+                                + ", "
+                                + aScan.getCacheBlocks()
+                                + ", "
+                                + aScan.getBatch()
+                                + "] and  regionLocation : "
                                 + regionLocation);
-
-                        for (int i = 0, limit = scans.size(); i < limit; i++) {
-                            LOG.debug("EXPECTED_UPPER_REGION_KEY[" + i + "] : " + Bytes.toStringBinary(scans.get(i).getAttribute(
-                                    BaseScannerRegionObserver.EXPECTED_UPPER_REGION_KEY)));
-                        }
                     }
 
                     inputSplit =
-                            new PhoenixInputSplit(scans, tablePaths[0], regionLocation, regionSize);
+                            new PhoenixInputSplit(
+                                    new ArrayList<>(Arrays.asList(aScan)),
+                                    tablePaths[0],
+                                    regionLocation,
+                                    regionSize);
                     inputSplit.setQuery(query);
                     psplits.add(inputSplit);
                 }
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Scan count["
+                            + scans.size()
+                            + "] : "
+                            + Bytes.toStringBinary(
+                            scans.get(0).getStartRow())
+                            + " ~ "
+                            + Bytes.toStringBinary(
+                            scans.get(scans.size() - 1).getStopRow()));
+                    LOG.debug("First scan : "
+                            + scans.get(0)
+                            + "with scanAttribute : "
+                            + scans.get(0).getAttributesMap()
+                            + " [scanCache, cacheBlock, scanBatch] : "
+                            + "[" + scans.get(0).getCaching()
+                            + ", "
+                            + scans.get(0).getCacheBlocks()
+                            + ", "
+                            + scans.get(0).getBatch()
+                            + "] and  regionLocation : "
+                            + regionLocation);
+
+                    for (int i = 0, limit = scans.size(); i < limit; i++) {
+                        LOG.debug(
+                                "EXPECTED_UPPER_REGION_KEY["
+                                        + i
+                                        + "] : "
+                                        + Bytes.toStringBinary(
+                                            scans.get(i).getAttribute(
+                                                BaseScannerRegionObserver
+                                                    .EXPECTED_UPPER_REGION_KEY
+                                                )
+                                        ));
+                    }
+                }
+
+                inputSplit =
+                        new PhoenixInputSplit(scans,
+                                tablePaths[0],
+                                regionLocation,
+                                regionSize);
+                inputSplit.setQuery(query);
+                psplits.add(inputSplit);
             }
         }
         return psplits;
