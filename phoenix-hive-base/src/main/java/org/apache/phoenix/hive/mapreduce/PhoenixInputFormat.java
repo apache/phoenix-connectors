@@ -143,7 +143,11 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                 "hive.phoenix.split.parallel.threshold",
                 32);
         setScanCacheSize(jobConf);
-        if (needGenSplitSerially(parallelThreshould, qplan)) {
+        if (
+                (parallelThreshould <= 0)
+                ||
+                (qplan.getScans().size() < parallelThreshould)
+        ) {
             LOG.info("generate splits in serial");
             for (final List<Scan> scans : qplan.getScans()) {
                 psplits.addAll(
@@ -196,16 +200,18 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
         }
         return psplits;
     }
-
-    private boolean needGenSplitSerially(int threshold, QueryPlan qplan) {
-        if (threshold <= 0) {
-            return true;
-        }
-        if (qplan.getScans().size() < threshold) {
-            return true;
-        }
-        return false;
-    }
+    /**
+     * This method is used to generate splits for each scan list.
+     * @param jobConf MapReduce Job Configuration
+     * @param qplan phoenix query plan
+     * @param splits phoenix table splits
+     * @param query phoenix query statement
+     * @param scans scan list slice of query plan
+     * @param splitByStats split by stat enabled
+     * @param tablePaths table paths
+     * @return List of Input Splits
+     * @throws IOException if function fails
+     */
     private List<InputSplit> generateSplitsInternal(final JobConf jobConf,
             final QueryPlan qplan,
             final List<KeyRange> splits,
