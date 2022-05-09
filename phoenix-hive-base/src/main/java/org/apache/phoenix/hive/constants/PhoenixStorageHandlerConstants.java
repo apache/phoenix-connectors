@@ -110,15 +110,16 @@ public class PhoenixStorageHandlerConstants {
     // generation method (PSGM),instead of serial split generation method (SSGM).
     // According to test, SSGM is better when Nps is less than Nt, when Nps is larger than Nt,
     // PSGM will be better.
-    // Note: It is strongly recommend to leaf the setting with default,tuning the value doesn't
-    // make much difference.
+    // Note: It is strongly recommend to leave the setting as default,tuning the value doesn't
+    // make much difference.If you persist to use legeacy method(SSGM),set
+    // phoenix.minimum.parallel.scans.threshold = 0 .
     public static final String PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD =
             "phoenix.minimum.parallel.scans.threshold";
     public static final int DEFAULT_PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD = 8;
 
     // Number of worker threads used to generate input splits using PSGM.
     // Note: default setting is suitable for most use cases,
-    // you can set it to bigger value for seek better performance.
+    // you can set it to bigger value properly to get better performance.
     public static final String PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT =
             "phoenix.inputsplit.generation.thread.count";
     public static final int DEFAULT_PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT =
