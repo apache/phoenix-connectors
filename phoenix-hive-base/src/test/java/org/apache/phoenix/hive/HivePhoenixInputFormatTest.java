@@ -56,7 +56,7 @@ public class HivePhoenixInputFormatTest extends ParallelStatsDisabledIT {
     private static final String TABLE_NAME = "HivePhoenixInputFormatTest".toUpperCase(Locale.ROOT);
     private static final String DDL = "CREATE TABLE " + TABLE_NAME
             + " (V1 varchar NOT NULL PRIMARY KEY, V2 integer)";
-    private static final int SPLITS = 128;
+    private static final int SPLITS = 256;
 
     // This test will create phoenix table with 128 splits and compare performance of
     // serial split-generation method and parallel split-generation method.
@@ -88,6 +88,7 @@ public class HivePhoenixInputFormatTest extends ParallelStatsDisabledIT {
         // test get splits in parallel
         start = System.currentTimeMillis();
         jobConf.set(PhoenixStorageHandlerConstants.PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD, "1");
+        jobConf.set(PhoenixStorageHandlerConstants.PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT,"24");
         InputSplit[] inputSplitsParallel = inputFormat.getSplits(jobConf, SPLITS);
         end = System.currentTimeMillis();
         long durationInParallel = end - start;
