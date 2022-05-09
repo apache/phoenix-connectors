@@ -140,19 +140,22 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
         final boolean splitByStats = jobConf.getBoolean(
                 PhoenixStorageHandlerConstants.SPLIT_BY_STATS,
                 false);
-        final int parallelThreshold = jobConf.getInt("hive.phoenix.split.parallel.threshold",
-                8);
+        final int parallelThreshold = jobConf.getInt(
+                PhoenixStorageHandlerConstants.PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD,
+                PhoenixStorageHandlerConstants.DEFAULT_PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD);
         setScanCacheSize(jobConf);
         try (org.apache.hadoop.hbase.client.Connection connection = ConnectionFactory
                 .createConnection(PhoenixConnectionUtil.getConfiguration(jobConf))) {
             final RegionLocator regionLocator = connection.getRegionLocator(TableName.valueOf(
                             qplan.getTableRef().getTable().getPhysicalName().toString()));
             final int scanSize = qplan.getScans().size();
-            if (needRunInParallel(parallelThreshold, scanSize)) {
-                final int parallism = jobConf.getInt("hive.phoenix.split.parallel.level",
-                        Runtime.getRuntime().availableProcessors() * 2);
+            if (useParallelInputGeneration(parallelThreshold, scanSize)) {
+                final int parallism = jobConf.getInt(
+                        PhoenixStorageHandlerConstants.PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT,
+                        PhoenixStorageHandlerConstants
+                                .DEFAULT_PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT);
                 ExecutorService executorService = Executors.newFixedThreadPool(parallism);
-                LOG.info("generate splits in parallel with {} threads", parallism);
+                LOG.info("Generate Input Splits in Parallel with {} threads", parallism);
 
                 List<Future<List<InputSplit>>> tasks = new ArrayList<>();
 
@@ -171,12 +174,13 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                         psplits.addAll(task.get());
                     }
                 } catch (ExecutionException | InterruptedException exception) {
-                    throw new IOException("failed to generate splits, reason:", exception);
+                    throw new IOException("Failed to Generate Input Splits in Parallel, reason:",
+                            exception);
                 } finally {
                     executorService.shutdown();
                 }
             } else {
-                LOG.info("generate splits in serial");
+                LOG.info("Generate Input Splits in Serial");
                 for (final List<Scan> scans : qplan.getScans()) {
                     psplits.addAll(generateSplitsInternal(query, scans,
                             splitByStats, connection, regionLocator, tablePaths));
@@ -193,7 +197,7 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
      * @param scans number of scans
      * @return true indicates should generate split in parallel.
      */
-    private boolean needRunInParallel(final int parallelThreshold, final int scans) {
+    private boolean useParallelInputGeneration(final int parallelThreshold, final int scans) {
         return parallelThreshold > 0 && scans >= parallelThreshold;
     }
 
