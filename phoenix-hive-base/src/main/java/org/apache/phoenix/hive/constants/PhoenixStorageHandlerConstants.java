@@ -117,6 +117,9 @@ public class PhoenixStorageHandlerConstants {
      */
     public static final String PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD =
             "phoenix.minimum.parallel.scans.threshold";
+    /**
+     * Default minimum number of parallel scans threshold,value is acquired by local testing.
+     */
     public static final int DEFAULT_PHOENIX_MINIMUM_PARALLEL_SCANS_THRESHOLD = 8;
 
     /**
@@ -126,6 +129,9 @@ public class PhoenixStorageHandlerConstants {
      */
     public static final String PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT =
             "phoenix.inputsplit.generation.thread.count";
+    /**
+     * Default worker threads used to generate input splits using PSGM.
+     */
     public static final int DEFAULT_PHOENIX_INPUTSPLIT_GENERATION_THREAD_COUNT =
             Runtime.getRuntime().availableProcessors() * 2;
 
