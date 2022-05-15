@@ -27,9 +27,10 @@ class PhoenixDataSourceReadOptions implements Serializable {
     private final String scn;
     private final String selectStatement;
     private final Properties overriddenProps;
+    private final byte[] tableBytes;
 
     PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
-            String selectStatement, Properties overriddenProps) {
+            String selectStatement, Properties overriddenProps, byte[] tableBytes) {
         if(overriddenProps == null){
             throw new NullPointerException();
         }
@@ -38,6 +39,7 @@ class PhoenixDataSourceReadOptions implements Serializable {
         this.tenantId = tenantId;
         this.selectStatement = selectStatement;
         this.overriddenProps = overriddenProps;
+        this.tableBytes = tableBytes;
     }
 
     String getSelectStatement() {
@@ -58,5 +60,9 @@ class PhoenixDataSourceReadOptions implements Serializable {
 
     Properties getOverriddenProps() {
         return overriddenProps;
+    }
+
+    public byte[] getTableBytes() {
+        return tableBytes;
     }
 }

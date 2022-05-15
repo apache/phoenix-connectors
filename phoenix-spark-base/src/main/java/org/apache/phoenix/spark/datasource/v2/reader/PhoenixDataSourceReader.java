@@ -23,12 +23,15 @@ import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.compile.QueryPlan;
+import org.apache.phoenix.coprocessor.generated.PTableProtos.PTable;
 import org.apache.phoenix.iterate.MapReduceParallelScanGrouper;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.mapreduce.PhoenixInputSplit;
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
+import org.apache.phoenix.protobuf.ProtobufUtil;
 import org.apache.phoenix.query.KeyRange;
+import org.apache.phoenix.schema.PTableImpl;
 import org.apache.phoenix.spark.FilterExpressionCompiler;
 import org.apache.phoenix.spark.SparkSchemaUtil;
 import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
@@ -181,10 +184,12 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
 
                 // Get the region size
                 long regionSize = CompatUtil.getSize(regionLocator, connection.getAdmin(), location);
-
+                byte[] tableBytes = PTableImpl.toProto(queryPlan.getTableRef().getTable()).
+                    toByteArray();
                 PhoenixDataSourceReadOptions phoenixDataSourceOptions =
-                        new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
-                                tenantId.orElse(null), selectStatement, overriddenProps);
+                     new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
+                            tenantId.orElse(null), selectStatement, overriddenProps,
+                            tableBytes);
                 if (splitByStats) {
                     for (Scan aScan : scans) {
                         partitions.add(getInputPartition(phoenixDataSourceOptions,

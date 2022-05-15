@@ -17,6 +17,7 @@
  */
 package org.apache.phoenix.spark.datasource.v2.reader;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,6 +34,8 @@ import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.compile.StatementContext;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
+import org.apache.phoenix.coprocessor.generated.PTableProtos;
+import org.apache.phoenix.coprocessor.generated.PTableProtos.PTable;
 import org.apache.phoenix.iterate.ConcatResultIterator;
 import org.apache.phoenix.iterate.LookAheadResultIterator;
 import org.apache.phoenix.iterate.MapReduceParallelScanGrouper;
@@ -41,12 +44,14 @@ import org.apache.phoenix.iterate.ResultIterator;
 import org.apache.phoenix.iterate.RoundRobinResultIterator;
 import org.apache.phoenix.iterate.SequenceResultIterator;
 import org.apache.phoenix.iterate.TableResultIterator;
+import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixResultSet;
 import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.mapreduce.PhoenixInputSplit;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 import org.apache.phoenix.query.ConnectionQueryServices;
+import org.apache.phoenix.schema.PTableImpl;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.SerializableWritable;
 import org.apache.spark.executor.InputMetrics;
@@ -81,7 +86,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         return options.getOverriddenProps();
     }
 
-    private QueryPlan getQueryPlan() throws SQLException {
+    private QueryPlan getQueryPlan() throws SQLException, InvalidProtocolBufferException {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
@@ -94,6 +99,10 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         }
         try (Connection conn = DriverManager.getConnection(
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
+            PTable pTable = PTable.parseFrom(options.getTableBytes());
+            org.apache.phoenix.schema.PTable table = PTableImpl.createFromProto(pTable);
+            PhoenixConnection phoenixConnection = conn.unwrap(PhoenixConnection.class);
+            phoenixConnection.addTable(table, System.currentTimeMillis());
             final Statement statement = conn.createStatement();
             final String selectStatement = options.getSelectStatement();
             if (selectStatement == null){
@@ -150,7 +159,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
                     queryPlan.getContext());
             this.iterator = SparkJdbcUtil.resultSetToSparkInternalRows(resultSet, schema, new InputMetrics());
         }
-        catch (SQLException e) {
+        catch (SQLException | InvalidProtocolBufferException e) {
             throw new RuntimeException(e);
         }
     }
