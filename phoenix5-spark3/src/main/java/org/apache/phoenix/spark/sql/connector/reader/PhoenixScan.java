@@ -17,6 +17,7 @@
  */
 package org.apache.phoenix.spark.sql.connector.reader;
 
+import org.apache.phoenix.schema.PTableImpl;
 import org.apache.phoenix.thirdparty.com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.TableName;
@@ -146,10 +147,11 @@ public class PhoenixScan implements Scan, Batch {
 
                 // Get the region size
                 long regionSize = CompatUtil.getSize(regionLocator, connection.getAdmin(), location);
-
+                byte[] pTableCacheBytes = PTableImpl.toProto(queryPlan.getTableRef().getTable()).
+                    toByteArray();
                 phoenixDataSourceOptions =
                         new PhoenixDataSourceReadOptions(zkUrl, currentScnValue,
-                                tenantId, selectStatement, overriddenProps);
+                                tenantId, selectStatement, overriddenProps, pTableCacheBytes);
 
                 if (splitByStats) {
                     for (org.apache.hadoop.hbase.client.Scan aScan : scans) {

@@ -86,7 +86,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         return options.getOverriddenProps();
     }
 
-    private QueryPlan getQueryPlan() throws SQLException, InvalidProtocolBufferException {
+    private QueryPlan getQueryPlan() throws SQLException {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
@@ -99,7 +99,12 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         }
         try (Connection conn = DriverManager.getConnection(
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
-            PTable pTable = PTable.parseFrom(options.getTableBytes());
+            PTable pTable = null;
+            try {
+                pTable = PTable.parseFrom(options.getPTableCacheBytes());
+            } catch (InvalidProtocolBufferException e) {
+                throw new RuntimeException("Parsing the PTable Cache Bytes is failing ", e);
+            }
             org.apache.phoenix.schema.PTable table = PTableImpl.createFromProto(pTable);
             PhoenixConnection phoenixConnection = conn.unwrap(PhoenixConnection.class);
             phoenixConnection.addTable(table, System.currentTimeMillis());
@@ -159,7 +164,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
                     queryPlan.getContext());
             this.iterator = SparkJdbcUtil.resultSetToSparkInternalRows(resultSet, schema, new InputMetrics());
         }
-        catch (SQLException | InvalidProtocolBufferException e) {
+        catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

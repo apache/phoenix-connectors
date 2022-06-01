@@ -184,12 +184,12 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
 
                 // Get the region size
                 long regionSize = CompatUtil.getSize(regionLocator, connection.getAdmin(), location);
-                byte[] tableBytes = PTableImpl.toProto(queryPlan.getTableRef().getTable()).
+                byte[] pTableCacheBytes = PTableImpl.toProto(queryPlan.getTableRef().getTable()).
                     toByteArray();
                 PhoenixDataSourceReadOptions phoenixDataSourceOptions =
                      new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
                             tenantId.orElse(null), selectStatement, overriddenProps,
-                            tableBytes);
+                         pTableCacheBytes);
                 if (splitByStats) {
                     for (Scan aScan : scans) {
                         partitions.add(getInputPartition(phoenixDataSourceOptions,
