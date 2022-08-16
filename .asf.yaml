@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file controls the integration of the Phoenix Connectors subproject 
+# This file controls the integration of the Phoenix Connectors repo
 # with ASF infrastructure. Refer to
 # https://cwiki.apache.org/confluence/display/INFRA/git+-+.asf.yaml+features
 # for details. Be careful when changing the contents of this file since it
@@ -22,7 +22,13 @@
 # changes with dev@ before committing.
 
 notifications:
-    commits:      commits@phoenix.apache.org
-    issues:       issues@phoenix.apache.org
-    pullrequests: issues@phoenix.apache.org
-    jira_options: link label comment
+  commits: commits@phoenix.apache.org
+  issues: issues@phoenix.apache.org
+  pullrequests: issues@phoenix.apache.org
+  jira_options: link label comment
+
+github:
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: false
