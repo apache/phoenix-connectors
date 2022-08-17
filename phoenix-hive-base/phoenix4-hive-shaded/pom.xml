@@ -103,6 +103,12 @@ adding the provided dependencies -->
       <version>${zookeeper.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- We want to take the implementation from Hive -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>

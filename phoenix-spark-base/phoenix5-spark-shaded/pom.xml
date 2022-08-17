@@ -52,6 +52,12 @@
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <!-- We want to take the implementation from Spark -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>

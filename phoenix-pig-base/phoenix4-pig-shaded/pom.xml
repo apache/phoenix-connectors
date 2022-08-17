@@ -68,5 +68,16 @@
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <!-- We want to take the implementation from Pig -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>
