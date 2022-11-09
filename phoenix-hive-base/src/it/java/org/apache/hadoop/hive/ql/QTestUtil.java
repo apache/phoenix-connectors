@@ -121,7 +121,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.compat.HiveCompatUtil;
 import org.apache.phoenix.compat.MyResult;
-import org.apache.tools.ant.BuildException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -2176,7 +2175,7 @@ public class QTestUtil {
     }
     int pos = Arrays.binarySearch(cachedQvFileList, tname, String.CASE_INSENSITIVE_ORDER);
     if (pos >= 0) {
-      throw new BuildException("Unexpected file list element: " + cachedQvFileList[pos]);
+      throw new IllegalArgumentException("Unexpected file list element: " + cachedQvFileList[pos]);
     }
     List<String> result = null;
     for (pos = (-pos - 1); pos < cachedQvFileList.length; ++pos) {
