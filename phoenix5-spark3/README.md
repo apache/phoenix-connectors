@@ -120,6 +120,13 @@ from pyspark.sql.functions import col
 
 ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
 df = ss.read.format("phoenix").option("table", "TABLE1").option("zkUrl", "phoenix-server:2181").load()
+
+# Approach - 1
+df.filter((df.COL1 == "test_row_1") | (df.ID == 1)).select(col("ID")).show()
+
+# Approach - 2
+df.createOrReplaceTempView("INPUT_TABLE_TEMP")
+ss.sql("SELECT * FROM TABLE1 WHERE COL1='test_row_1' AND ID=1L").show()
 ```
 
 ## Saving to Phoenix
@@ -142,8 +149,10 @@ CREATE TABLE OUTPUT_TABLE (id BIGINT NOT NULL PRIMARY KEY, col1 VARCHAR, col2 IN
 UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (1, 'test_row_1', 1);
 UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (2, 'test_row_2', 2);
 ```
-you can load from an input table and save to an output table as a DataFrame as follows in Scala:
 
+You can load from an input table and save to an output table as a DataFrame as follows:
+
+Scala example:
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession, SaveMode}
@@ -203,6 +212,7 @@ public class PhoenixSparkWriteFromInputTable {
     }
 }
 ```
+PySpark example:
 ```python
 from pyspark.sql import SparkSession
 
@@ -225,8 +235,10 @@ Given an output Phoenix table with the following DDL:
 ```sql
 CREATE TABLE OUTPUT_TABLE (id BIGINT NOT NULL PRIMARY KEY, col1 VARCHAR, col2 INTEGER);
 ```
-you can save a dataframe from an RDD as follows in Scala: 
 
+You can save a dataframe from an RDD as follows: 
+
+Scala example:
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType, StructField}
@@ -308,14 +320,14 @@ public class PhoenixSparkWriteFromRDDWithSchema {
     }
 }
 ```
+PySpark example:
 ```python
 from pyspark.sql import SparkSession
 from pyspark.sql.types import LongType, StringType
 
 ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
 schema = StructType([StructField("ID", LongType()), StructField("COL1", StringType()), StructField("COL2", LongType())])
-dataSet = [Row(1, "1", 1),Row(2, "2", 2), Row(3, "3", 3)
-]
+dataSet = [Row(1, "1", 1),Row(2, "2", 2), Row(3, "3", 3)]
 
 rdd = ss.sparkContext.parallelize(data)
 df = ss.createDataFrame(rdd, schema)
