@@ -64,7 +64,10 @@ Additionally, You must add the hbase mapredcp libraries and the hbase
 NOTE:
 
 * Use the exact paths as appropiate to your system.
-* Set both `spark.driver.extraClassPath` and `spark.executor.extraClassPath` properties to the aforementioned classpath. You can add them to the `spark-defaults.conf`, Or specify them in the `spark-shell` or `spark-submit` command line utilities.
+* Set both `spark.driver.extraClassPath` and `spark.executor.extraClassPath`
+ properties to the aforementioned classpath. You can add them to the
+ `spark-defaults.conf`,
+Or specify them in the `spark-shell` or `spark-submit` command line utilities.
 
 ## Reading Phoenix Tables
 
@@ -363,7 +366,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import LongType, StringType
 
 ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
-schema = StructType([StructField("ID", LongType()), StructField("COL1", StringType()), StructField("COL2", LongType())])
+schema = StructType([
+  StructField("ID", LongType()),
+  StructField("COL1", StringType()),
+  StructField("COL2", LongType())
+])
 dataSet = [Row(1, "1", 1),Row(2, "2", 2), Row(3, "3", 3)]
 
 rdd = ss.sparkContext.parallelize(data)
@@ -381,8 +388,10 @@ optionally specifying a `conf` Hadoop configuration parameter with custom Phoeni
 as well as an optional `zkUrl` parameter for the Phoenix connection URL.
 * If `zkUrl` isn't specified, it's assumed that the "hbase.zookeeper.quorum" property has been set
 in the `conf` parameter. Similarly, if no configuration is passed in, `zkUrl` must be specified.
-* As of [PHOENIX-5197]("https://issues.apache.org/jira/browse/PHOENIX-5197"), you can pass configurations from the driver
-to executors as a comma-separated list against the key `phoenixConfigs` i.e (PhoenixDataSource.PHOENIX_CONFIGS), for ex:
+* As of [PHOENIX-5197]("https://issues.apache.org/jira/browse/PHOENIX-5197"),
+ you can pass configurations from the driver
+ to executors as a comma-separated list against the key `phoenixConfigs`
+ i.e (PhoenixDataSource.PHOENIX_CONFIGS), for ex:
 
     ```scala
     df = spark
@@ -393,9 +402,11 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
       .load;
     ```
 
-    This list of properties is parsed and populated into a properties map which is passed to `DriverManager.getConnection(connString, propsMap)`.
-    Note that the same property values will be used for both the driver and all executors and
-    these configurations are used each time a connection is made (both on the driver and executors).
+    This list of properties is parsed and populated into a properties map
+     which is passed to `DriverManager.getConnection(connString, propsMap)`.
+     Note that the same property values will be used for both the driver
+     and all executors and these configurations are used each time a connection
+     is made (both on the driver and executors).
 
 ## Limitations
 
