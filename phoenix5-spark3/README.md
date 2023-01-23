@@ -14,17 +14,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+# Phoenix5-Spark3 Connector
 
-The phoenix5-spark3 plugin extends Phoenix's MapReduce support to allow Spark to load Phoenix tables as DataFrames,
-and enables persisting DataFrames back to Phoenix.
+The phoenix5-spark3 plugin extends Phoenix's MapReduce support to allow Spark
+ to load Phoenix tables as DataFrames,
+ and enables persisting DataFrames back to Phoenix.
 
 ## Pre-Requisites
+
 * Phoenix 5.1.2+
 * Spark 3.0.3+
 
 ## Why not JDBC?
 
-Although Spark supports connecting directly to JDBC databases, it’s only able to parallelize queries by partioning on a numeric column. It also requires a known lower bound, upper bound and partition count in order to create split queries.
+Although Spark supports connecting directly to JDBC databases,
+ It’s only able to parallelize queries by partioning on a numeric column.
+ It also requires a known lower bound,
+ upper bound and partition count in order to create split queries.
 
 In contrast, the phoenix-spark integration is able to leverage the underlying splits provided by Phoenix in order to retrieve and save data across multiple workers. All that’s required is a database URL and a table name. Optional SELECT columns can be given, as well as pushdown predicates for efficient filtering.
 
@@ -33,7 +39,8 @@ The choice of which method to use to access Phoenix comes down to each specific 
 ## Setup
 
 To setup connector add `phoenix5-spark3-shaded` JAR as a dependency in your Spark job like -
-```
+
+```xml
 <dependency>
   <groupId>org.apache.phoenix</groupId>
   <artifactId>phoenix5-spark3-shaded</artifactId>
@@ -46,6 +53,7 @@ Additionally, You must add the hbase mapredcp libraries and the hbase configurat
 `/etc/hbase/conf:$(hbase mapredcp):phoenix5-spark3-shaded-{phoenix.connectors.version}.jar`
 
 NOTE:
+
 * Use the exact paths as appropiate to your system.
 * Set both `spark.driver.extraClassPath` and `spark.executor.extraClassPath` properties to the aforementioned classpath. You can add them to the `spark-defaults.conf`, Or specify them in the `spark-shell` or `spark-submit` command line utilities.
 
@@ -60,7 +68,9 @@ UPSERT INTO TABLE1 (ID, COL1) VALUES (2, 'test_row_2');
 ```
 
 ### Load as a DataFrame using the DataSourceV2 API
+
 Scala example:
+
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession}
@@ -82,7 +92,9 @@ df.filter(df("COL1") === "test_row_1" && df("ID") === 1L)
   .select(df("ID"))
   .show
 ```
+
 Java example:
+
 ```java
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -113,7 +125,9 @@ public class PhoenixSparkRead {
     }
 }
 ```
+
 PySpark example:
+
 ```python
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
@@ -125,8 +139,8 @@ df = ss.read.format("phoenix").option("table", "TABLE1").option("zkUrl", "phoeni
 df.filter((df.COL1 == "test_row_1") | (df.ID == 1)).select(col("ID")).show()
 
 # Approach - 2
-df.createOrReplaceTempView("INPUT_TABLE_TEMP")
-ss.sql("SELECT * FROM TABLE1 WHERE COL1='test_row_1' AND ID=1L").show()
+df.createOrReplaceTempView("TABLE1_TEMP")
+ss.sql("SELECT * FROM TABLE1_TEMP WHERE COL1='test_row_1' AND ID=1L").show()
 ```
 
 ## Saving to Phoenix
@@ -153,6 +167,7 @@ UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (2, 'test_row_2', 2);
 You can load from an input table and save to an output table as a DataFrame as follows:
 
 Scala example:
+
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession, SaveMode}
@@ -177,7 +192,9 @@ df.write
   .options(Map("table" -> "OUTPUT_TABLE", "zkUrl" -> "phoenix-server:2181"))
   .save()
 ```
+
 Java example:
+
 ```java
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -212,7 +229,9 @@ public class PhoenixSparkWriteFromInputTable {
     }
 }
 ```
+
 PySpark example:
+
 ```python
 from pyspark.sql import SparkSession
 
@@ -236,9 +255,10 @@ Given an output Phoenix table with the following DDL:
 CREATE TABLE OUTPUT_TABLE (id BIGINT NOT NULL PRIMARY KEY, col1 VARCHAR, col2 INTEGER);
 ```
 
-You can save a dataframe from an RDD as follows: 
+You can save a dataframe from an RDD as follows:
 
 Scala example:
+
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType, StructField}
@@ -268,7 +288,9 @@ df.write
   .mode(SaveMode.Append)
   .save()
 ```
+
 Java example:
+
 ```java
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -320,7 +342,9 @@ public class PhoenixSparkWriteFromRDDWithSchema {
     }
 }
 ```
+
 PySpark example:
+
 ```python
 from pyspark.sql import SparkSession
 from pyspark.sql.types import LongType, StringType
@@ -337,15 +361,16 @@ df.write.format("phoenix").option("table", "OUTPUT_TABLE").option("zkUrl", "phoe
 
 ## Notes
 
-- If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"` 
+* If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"` 
   instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
-- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and `saveToPhoenix` all support
+* The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and `saveToPhoenix` all support
 optionally specifying a `conf` Hadoop configuration parameter with custom Phoenix client settings,
 as well as an optional `zkUrl` parameter for the Phoenix connection URL.
-- If `zkUrl` isn't specified, it's assumed that the "hbase.zookeeper.quorum" property has been set
+* If `zkUrl` isn't specified, it's assumed that the "hbase.zookeeper.quorum" property has been set
 in the `conf` parameter. Similarly, if no configuration is passed in, `zkUrl` must be specified.
-- As of [PHOENIX-5197](https://issues.apache.org/jira/browse/PHOENIX-5197), you can pass configurations from the driver
+* As of [PHOENIX-5197]("https://issues.apache.org/jira/browse/PHOENIX-5197"), you can pass configurations from the driver
 to executors as a comma-separated list against the key `phoenixConfigs` i.e (PhoenixDataSource.PHOENIX_CONFIGS), for ex:
+
     ```scala
     df = spark
       .sqlContext
@@ -354,26 +379,27 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
       .options(Map("table" -> "Table1", "zkUrl" -> "phoenix-server:2181", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
       .load;
     ```
+
     This list of properties is parsed and populated into a properties map which is passed to `DriverManager.getConnection(connString, propsMap)`.
     Note that the same property values will be used for both the driver and all executors and
     these configurations are used each time a connection is made (both on the driver and executors).
 
 ## Limitations
 
-- Basic support for column and predicate pushdown using the Data Source API
-- The Data Source API does not support passing custom Phoenix settings in configuration, you must
+* Basic support for column and predicate pushdown using the Data Source API
+* The Data Source API does not support passing custom Phoenix settings in configuration, you must
 create the DataFrame or RDD directly if you need fine-grained configuration.
-- No support for aggregate or distinct functions (http://phoenix.apache.org/phoenix_mr.html)
+* No support for aggregate or distinct functions (http://phoenix.apache.org/phoenix_mr.html)
 
 ## Limitations of the Spark3 connector comapred to the Spark2 Connector
 
-- Non-uppercase column names cannot be used for mapping DataFrames. (PHOENIX-6668)
-- When writing to a DataFrame, every SQL column in the table must be specified. (PHOENIX-6667)
-
+* Non-uppercase column names cannot be used for mapping DataFrames. (PHOENIX-6668)
+* When writing to a DataFrame, every SQL column in the table must be specified. (PHOENIX-6667)
 
 ## Deprecated Usages
 
 ### Load as a DataFrame directly using a Configuration object
+
 ```scala
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.SparkContext
@@ -395,6 +421,7 @@ df.show
 ```
 
 ### Load as an RDD, using a Zookeeper URL
+
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
@@ -417,7 +444,7 @@ val firstCol = rdd.first()("COL1").asInstanceOf[String]
 ### Saving RDDs to Phoenix
 
 `saveToPhoenix` is an implicit method on RDD[Product], or an RDD of Tuples. The data types must
-correspond to the Java types Phoenix supports (http://phoenix.apache.org/language/datatypes.html)
+correspond to the Java types Phoenix supports ("http://phoenix.apache.org/language/datatypes.html")
 
 Given a Phoenix table with the following DDL:
 
