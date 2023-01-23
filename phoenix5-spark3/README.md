@@ -313,10 +313,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import LongType, StringType
 
 ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
-dataSet = [
-  Row("Maharastra", "Mumbai", 20667655),
-  Row("West Bengal", "Kolkata", 14974073), 
-  Row("Karnatka", "Bangalore", 12764935)
+schema = StructType([StructField("ID", LongType()), StructField("COL1", StringType()), StructField("COL2", LongType())])
+dataSet = [Row(1, "1", 1),Row(2, "2", 2), Row(3, "3", 3)
 ]
 
 rdd = ss.sparkContext.parallelize(data)
