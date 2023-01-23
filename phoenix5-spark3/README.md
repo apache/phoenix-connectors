@@ -15,18 +15,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-phoenix-spark extends Phoenix's MapReduce support to allow Spark to load Phoenix tables as DataFrames,
+The phoenix5-spark3 plugin extends Phoenix's MapReduce support to allow Spark to load Phoenix tables as DataFrames,
 and enables persisting DataFrames back to Phoenix.
 
-## Configuring Spark to use the connector
+## Pre-Requisites
+* Phoenix 5.1.2+
+* Spark 3.0.3+
 
-Use the shaded connector JAR `phoenix5-spark3-shaded-6.0.0-SNAPSHOT.jar` .
-Apart from the shaded connector JAR, you also need to add the hbase mapredcp libraries and the hbase configuration directory to the classpath. The final classpath should be something like
+## Why not JDBC?
 
-`/etc/hbase/conf:$(hbase mapredcp):phoenix5-spark3-shaded-6.0.0-SNAPSHOT.jar`
+Although Spark supports connecting directly to JDBC databases, it’s only able to parallelize queries by partioning on a numeric column. It also requires a known lower bound, upper bound and partition count in order to create split queries.
 
-(add the exact paths as appropiate to your system)
-Both the `spark.driver.extraClassPath` and `spark.executor.extraClassPath` properties need to be set the above classpath. You may add them spark-defaults.conf, or specify them on the spark-shell or spark-submit command line.
+In contrast, the phoenix-spark integration is able to leverage the underlying splits provided by Phoenix in order to retrieve and save data across multiple workers. All that’s required is a database URL and a table name. Optional SELECT columns can be given, as well as pushdown predicates for efficient filtering.
+
+The choice of which method to use to access Phoenix comes down to each specific use case.
+
+## Setup
+
+To setup connector add `phoenix5-spark3-shaded` JAR as a dependency in your Spark job like -
+```
+<dependency>
+  <groupId>org.apache.phoenix</groupId>
+  <artifactId>phoenix5-spark3-shaded</artifactId>
+  <version>${phoenix.connectors.version}</version>
+</dependency>
+```
+
+Additionally, You must add the hbase mapredcp libraries and the hbase configuration directory to the classpath. The final classpath should be something like -
+
+`/etc/hbase/conf:$(hbase mapredcp):phoenix5-spark3-shaded-{phoenix.connectors.version}.jar`
+
+NOTE:
+* Use the exact paths as appropiate to your system.
+* Set both `spark.driver.extraClassPath` and `spark.executor.extraClassPath` properties to the aforementioned classpath. You can add them to the `spark-defaults.conf`, Or specify them in the `spark-shell` or `spark-submit` command line utilities.
 
 ## Reading Phoenix Tables
 
@@ -92,6 +113,14 @@ public class PhoenixSparkRead {
     }
 }
 ```
+PySpark example:
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
+df = ss.read.format("phoenix").option("table", "TABLE1").option("zkUrl", "phoenix-server:2181").load()
+```
 
 ## Saving to Phoenix
 
@@ -109,6 +138,9 @@ Given two Phoenix tables with the following DDL:
 ```sql
 CREATE TABLE INPUT_TABLE (id BIGINT NOT NULL PRIMARY KEY, col1 VARCHAR, col2 INTEGER);
 CREATE TABLE OUTPUT_TABLE (id BIGINT NOT NULL PRIMARY KEY, col1 VARCHAR, col2 INTEGER);
+
+UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (1, 'test_row_1', 1);
+UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (2, 'test_row_2', 2);
 ```
 you can load from an input table and save to an output table as a DataFrame as follows in Scala:
 
@@ -170,6 +202,14 @@ public class PhoenixSparkWriteFromInputTable {
         jsc.stop();
     }
 }
+```
+```python
+from pyspark.sql import SparkSession
+
+ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
+
+df = ss.read.format("phoenix").option("table", "INPUT_TABLE").option("zkUrl", "phoenix-server:2181").load()
+df.write.format("phoenix").option("table", "OUTPUT_TABLE").option("zkUrl", "phoenix-server:2181").mode("append").save()
 ```
 
 ### Save from an external RDD with a schema to a Phoenix table
@@ -267,6 +307,22 @@ public class PhoenixSparkWriteFromRDDWithSchema {
         jsc.stop();
     }
 }
+```
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql.types import LongType, StringType
+
+ss = SparkSession.builder.appName("phoenix-test").getOrCreate()
+dataSet = [
+  Row("Maharastra", "Mumbai", 20667655),
+  Row("West Bengal", "Kolkata", 14974073), 
+  Row("Karnatka", "Bangalore", 12764935)
+]
+
+rdd = ss.sparkContext.parallelize(data)
+df = ss.createDataFrame(rdd, schema)
+
+df.write.format("phoenix").option("table", "OUTPUT_TABLE").option("zkUrl", "phoenix-server:2181").mode("append").save()
 ```
 
 ## Notes
