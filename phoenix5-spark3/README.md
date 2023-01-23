@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+
 # Phoenix5-Spark3 Connector
 
 The phoenix5-spark3 plugin extends Phoenix's MapReduce support to allow Spark
@@ -25,20 +26,26 @@ The phoenix5-spark3 plugin extends Phoenix's MapReduce support to allow Spark
 * Phoenix 5.1.2+
 * Spark 3.0.3+
 
-## Why not JDBC?
+## Why not JDBC
 
 Although Spark supports connecting directly to JDBC databases,
  It’s only able to parallelize queries by partioning on a numeric column.
  It also requires a known lower bound,
  upper bound and partition count in order to create split queries.
 
-In contrast, the phoenix-spark integration is able to leverage the underlying splits provided by Phoenix in order to retrieve and save data across multiple workers. All that’s required is a database URL and a table name. Optional SELECT columns can be given, as well as pushdown predicates for efficient filtering.
+In contrast, the phoenix-spark integration is able to leverage the underlying
+ splits provided by Phoenix in order to retrieve and save data across multiple
+ workers. All that’s required is a database URL and a table name.
+ Optional SELECT columns can be given,
+ as well as pushdown predicates for efficient filtering.
 
-The choice of which method to use to access Phoenix comes down to each specific use case.
+The choice of which method to use to access
+ Phoenix comes down to each specific use case.
 
 ## Setup
 
-To setup connector add `phoenix5-spark3-shaded` JAR as a dependency in your Spark job like -
+To setup connector add `phoenix5-spark3-shaded` JAR as
+ a dependency in your Spark job like -
 
 ```xml
 <dependency>
@@ -48,7 +55,9 @@ To setup connector add `phoenix5-spark3-shaded` JAR as a dependency in your Spar
 </dependency>
 ```
 
-Additionally, You must add the hbase mapredcp libraries and the hbase configuration directory to the classpath. The final classpath should be something like -
+Additionally, You must add the hbase mapredcp libraries and the hbase
+ configuration directory to the classpath.
+ The final classpath should be something like -
 
 `/etc/hbase/conf:$(hbase mapredcp):phoenix5-spark3-shaded-{phoenix.connectors.version}.jar`
 
@@ -147,12 +156,14 @@ ss.sql("SELECT * FROM TABLE1_TEMP WHERE COL1='test_row_1' AND ID=1L").show()
 
 ### Save DataFrames to Phoenix using DataSourceV2
 
-The `save` is method on DataFrame allows passing in a data source type. You can use
-`phoenix` for DataSourceV2 and must also pass in a `table` and `zkUrl` parameter to
-specify which table and server to persist the DataFrame to. The column names are derived from
-the DataFrame's schema field names, and must match the Phoenix column names.
+The `save` is method on DataFrame allows passing in a data source type.
+ You can use `phoenix` for DataSourceV2 and must also pass in a
+ `table` and `zkUrl` parameter to specify which table and server
+ to persist the DataFrame to. The column names are derived from the
+ DataFrame's schema field names, and must match the Phoenix column names.
 
-The `save` method also takes a `SaveMode` option, for which only `SaveMode.Append` is supported.
+The `save` method also takes a `SaveMode` option,
+ for which only `SaveMode.Append` is supported.
 
 Given two Phoenix tables with the following DDL:
 
@@ -164,7 +175,8 @@ UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (1, 'test_row_1', 1);
 UPSERT INTO INPUT_TABLE (ID, COL1, COL2) VALUES (2, 'test_row_2', 2);
 ```
 
-You can load from an input table and save to an output table as a DataFrame as follows:
+You can load from an input table and save to
+ an output table as a DataFrame as follows:
 
 Scala example:
 
@@ -243,11 +255,12 @@ df.write.format("phoenix").option("table", "OUTPUT_TABLE").option("zkUrl", "phoe
 
 ### Save from an external RDD with a schema to a Phoenix table
 
-Just like the previous example, you can pass in the data source type as `phoenix` and specify the `table` and
-`zkUrl` parameters indicating which table and server to persist the DataFrame to.
+Just like the previous example, you can pass in the data source type as
+ `phoenix` and specify the `table` and `zkUrl` parameters indicating which
+ table and server to persist the DataFrame to.
 
-Note that the schema of the RDD must match its column data and this must match the schema of the Phoenix table
-that you save to.
+Note that the schema of the RDD must match its column data and this must match
+ the schema of the Phoenix table that you save to.
 
 Given an output Phoenix table with the following DDL:
 
@@ -361,7 +374,7 @@ df.write.format("phoenix").option("table", "OUTPUT_TABLE").option("zkUrl", "phoe
 
 ## Notes
 
-* If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"` 
+* If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"`
   instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
 * The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and `saveToPhoenix` all support
 optionally specifying a `conf` Hadoop configuration parameter with custom Phoenix client settings,
@@ -389,7 +402,7 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
 * Basic support for column and predicate pushdown using the Data Source API
 * The Data Source API does not support passing custom Phoenix settings in configuration, you must
 create the DataFrame or RDD directly if you need fine-grained configuration.
-* No support for aggregate or distinct functions (http://phoenix.apache.org/phoenix_mr.html)
+* No support for aggregate or distinct functions [Phoenix MR](http://phoenix.apache.org/phoenix_mr.html)
 
 ## Limitations of the Spark3 connector comapred to the Spark2 Connector
 
@@ -443,8 +456,10 @@ val firstCol = rdd.first()("COL1").asInstanceOf[String]
 
 ### Saving RDDs to Phoenix
 
-`saveToPhoenix` is an implicit method on RDD[Product], or an RDD of Tuples. The data types must
-correspond to the Java types Phoenix supports ("http://phoenix.apache.org/language/datatypes.html")
+`saveToPhoenix` is an implicit method on RDD[Product],
+ or an RDD of Tuples. The data types must
+ correspond to the Java types Phoenix supports
+ [Phoenix Datatypes]("http://phoenix.apache.org/language/datatypes.html")
 
 Given a Phoenix table with the following DDL:
 
