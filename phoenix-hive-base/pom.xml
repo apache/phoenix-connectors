@@ -50,6 +50,9 @@
     <hive4.calcite.version>1.10.0</hive4.calcite.version>
     <hive5.calcite.version>1.16.0</hive5.calcite.version>
     <calcite.version>${hive4.calcite.version}</calcite.version>
+    <sonar.sources>src/main/</sonar.sources>
+    <sonar.test.sources>src/it/,src/test/</sonar.test.sources>
+    <sonar.exclusions>src/**/it/**/*,src/**/test/**/*</sonar.exclusions>
   </properties>
 
   <dependencies>

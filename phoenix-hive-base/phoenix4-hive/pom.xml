@@ -35,6 +35,8 @@
   <properties>
     <hive.version>${hive2.version}</hive.version>
     <hive-storage.version>${hive2-storage.version}</hive-storage.version>
+    <sonar.tests></sonar.tests>
+    <sonar.test.exclusions>**/src/**/*</sonar.test.exclusions>
   </properties>
 
   <dependencies>

@@ -42,6 +42,7 @@
     <hive.version>${hive3.version}</hive.version>
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
+    <sonar.skip>true</sonar.skip>
   </properties>
 
   <dependencies>

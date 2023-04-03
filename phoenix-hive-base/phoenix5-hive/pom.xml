@@ -43,6 +43,8 @@
     <jdk.version>1.8</jdk.version>
     <phoenix.main.version>5</phoenix.main.version>
     <calcite.version>${hive5.calcite.version}</calcite.version>
+    <sonar.tests></sonar.tests>
+    <sonar.test.exclusions>**/src/**/*</sonar.test.exclusions>
   </properties>
 
   <dependencies>
