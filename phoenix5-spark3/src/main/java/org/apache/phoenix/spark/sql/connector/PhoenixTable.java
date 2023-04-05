@@ -38,7 +38,8 @@ public class PhoenixTable implements SupportsRead, SupportsWrite{
     private final Map<String,String> options;
     private final String tableName;
     private final StructType schema;
-    private static final Set<TableCapability> capabilities = ImmutableSet.of(TableCapability.BATCH_READ, TableCapability.BATCH_WRITE);
+    private static final Set<TableCapability> capabilities =
+      ImmutableSet.of(TableCapability.BATCH_READ, TableCapability.BATCH_WRITE, TableCapability.ACCEPT_ANY_SCHEMA);
 
     public PhoenixTable(StructType schema, Map<String,String> options) {
         this.options = options;

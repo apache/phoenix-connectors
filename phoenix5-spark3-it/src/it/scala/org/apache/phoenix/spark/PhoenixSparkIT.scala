@@ -363,10 +363,10 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     stringValue shouldEqual "test_row_1"
   }
 
-  // This works with Spark2, but Spark3 enforces specifying every column
-  ignore("Can save to phoenix table from Spark2") {
+  test("Can save to phoenix table from Spark without specifying all the columns") {
     val dataSet = List(Row(1L, "1", 1), Row(2L, "2", 2), Row(3L, "3", 3))
 
+    // COL3 is missing both from the schema and from the dataset
     val schema = StructType(
       Seq(StructField("ID", LongType, nullable = false),
         StructField("COL1", StringType),
@@ -385,10 +385,10 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
 
     // Load the results back
     val stmt = conn.createStatement()
-    val rs = stmt.executeQuery("SELECT ID, COL1, COL2 FROM OUTPUT_TEST_TABLE")
+    val rs = stmt.executeQuery("SELECT ID, COL1, COL2, COL3 FROM OUTPUT_TEST_TABLE")
     val results = ListBuffer[Row]()
     while (rs.next()) {
-      results.append(Row(rs.getLong(1), rs.getString(2), rs.getInt(3)))
+      results.append(Row(rs.getLong(1), rs.getString(2), rs.getInt(3), rs.getDate(4)))
     }
   }
 
