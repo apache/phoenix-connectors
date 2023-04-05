@@ -616,23 +616,27 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     count shouldEqual 1L
   }
 
-  //Spark3 doesn't seem to be able to handle case sensitive column names
-  ignore("Ensure DataFrame field normalization (PHOENIX-2196)") {
+  test("Ensure DataFrame field normalization (PHOENIX-2196)") {
     val rdd1 = spark.sparkContext
       .parallelize(Seq((1L, 1L, "One"), (2L, 2L, "Two")))
       .map(p => Row(p._1, p._2, p._3))
 
     val schema = StructType(Seq(
-      StructField("id", LongType, nullable = false),
-      StructField("table1_id", LongType, nullable = true),
-      StructField("\"t2col1\"", StringType, nullable = true)
+      StructField("ID", LongType, nullable = false),
+      StructField("TABLE1_ID", LongType, nullable = true),
+      StructField("t2col1", StringType, nullable = true)
     ))
 
+    spark.sqlContext.sql("set spark.sql.caseSensitive=true")
     val df = spark.sqlContext.createDataFrame(rdd1, schema)
 
     df.write
       .format("phoenix")
-      .options(Map("table" -> "TABLE2", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
+      .options(
+        Map(
+          "table" -> "TABLE2",
+          PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress,
+          PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER -> "true"))
       .mode(SaveMode.Append)
       .save()
   }
