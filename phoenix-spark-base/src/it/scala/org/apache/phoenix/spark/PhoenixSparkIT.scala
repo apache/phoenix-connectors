@@ -363,7 +363,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     stringValue shouldEqual "test_row_1"
   }
 
-  test("Can save to phoenix table") {
+  test("Can save to phoenix table from Spark without specifying all the columns") {
     val dataSet = List(Row(1L, "1", 1), Row(2L, "2", 2), Row(3L, "3", 3))
 
     val schema = StructType(

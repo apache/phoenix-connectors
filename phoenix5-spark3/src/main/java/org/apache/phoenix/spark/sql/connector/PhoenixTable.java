@@ -17,9 +17,16 @@
  */
 package org.apache.phoenix.spark.sql.connector;
 
-import org.apache.phoenix.thirdparty.com.google.common.collect.ImmutableSet;
+import static org.apache.spark.sql.connector.catalog.TableCapability.ACCEPT_ANY_SCHEMA;
+import static org.apache.spark.sql.connector.catalog.TableCapability.BATCH_READ;
+import static org.apache.spark.sql.connector.catalog.TableCapability.BATCH_WRITE;
+
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.phoenix.spark.sql.connector.reader.PhoenixScanBuilder;
 import org.apache.phoenix.spark.sql.connector.writer.PhoenixWriteBuilder;
+import org.apache.phoenix.thirdparty.com.google.common.collect.ImmutableSet;
 import org.apache.spark.sql.connector.catalog.SupportsRead;
 import org.apache.spark.sql.connector.catalog.SupportsWrite;
 import org.apache.spark.sql.connector.catalog.TableCapability;
@@ -29,16 +36,14 @@ import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
-import java.util.Map;
-import java.util.Set;
-
 
 public class PhoenixTable implements SupportsRead, SupportsWrite{
 
     private final Map<String,String> options;
     private final String tableName;
     private final StructType schema;
-    private static final Set<TableCapability> capabilities = ImmutableSet.of(TableCapability.BATCH_READ, TableCapability.BATCH_WRITE);
+    private static final Set<TableCapability> CAPABILITIES =
+      ImmutableSet.of(BATCH_READ, BATCH_WRITE, ACCEPT_ANY_SCHEMA);
 
     public PhoenixTable(StructType schema, Map<String,String> options) {
         this.options = options;
@@ -63,7 +68,7 @@ public class PhoenixTable implements SupportsRead, SupportsWrite{
 
     @Override
     public Set<TableCapability> capabilities() {
-        return capabilities;
+        return CAPABILITIES;
     }
 
     public Map<String, String> getOptions() {

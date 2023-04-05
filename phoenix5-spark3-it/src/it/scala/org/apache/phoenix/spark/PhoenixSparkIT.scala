@@ -363,10 +363,10 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     stringValue shouldEqual "test_row_1"
   }
 
-  // This works with Spark2, but Spark3 enforces specifying every column
-  ignore("Can save to phoenix table from Spark2") {
+  test("Can save to phoenix table from Spark without specifying all the columns") {
     val dataSet = List(Row(1L, "1", 1), Row(2L, "2", 2), Row(3L, "3", 3))
 
+    // COL3 is missing both from the schema and from the dataset
     val schema = StructType(
       Seq(StructField("ID", LongType, nullable = false),
         StructField("COL1", StringType),
@@ -390,42 +390,10 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     while (rs.next()) {
       results.append(Row(rs.getLong(1), rs.getString(2), rs.getInt(3)))
     }
-  }
-
-  test("Can save to phoenix table from Spark3") {
-    //We must specify every column for writing for Spark3
-    val dataSet = List(Row(1L, "1", 1, null), Row(2L, "2", 2, null), Row(3L, "3", 3, null))
-    //But partial reads are OK
-    val dataSetWoCol3 = List(Row(1L, "1", 1), Row(2L, "2", 2), Row(3L, "3", 3))
-
-    val schema = StructType(
-      Seq(StructField("ID", LongType, nullable = false),
-        StructField("COL1", StringType),
-        StructField("COL2", IntegerType),
-        StructField("COL3", DateType)))
-
-    val rowRDD = spark.sparkContext.parallelize(dataSet)
-
-    // Apply the schema to the RDD.
-    val df = spark.sqlContext.createDataFrame(rowRDD, schema)
-
-    df.write
-      .format("phoenix")
-      .options(Map("table" -> "OUTPUT_TEST_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress))
-      .mode(SaveMode.Append)
-      .save()
-
-    // Load the results back
-    val stmt = conn.createStatement()
-    val rs = stmt.executeQuery("SELECT ID, COL1, COL2 FROM OUTPUT_TEST_TABLE")
-    val results = ListBuffer[Row]()
-    while (rs.next()) {
-      results.append(Row(rs.getLong(1), rs.getString(2), rs.getInt(3)))
-    }
 
     // Verify they match
     (0 to results.size - 1).foreach { i =>
-      dataSetWoCol3(i) shouldEqual results(i)
+      dataSet(i) shouldEqual results(i)
     }
   }
 
@@ -435,15 +403,14 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
 
     val records = new mutable.MutableList[Row]
     for (x <- 1 to totalRecords) {
-      records += Row(x.toLong, x.toString, x, null)
+      records += Row(x.toLong, x.toString, x)
     }
     val dataSet = records.toList
 
     val schema = StructType(
       Seq(StructField("ID", LongType, nullable = false),
         StructField("COL1", StringType),
-        StructField("COL2", IntegerType),
-        StructField("COL3", DateType)))
+        StructField("COL2", IntegerType)))
 
     // Distribute the dataset into an RDD with just 1 partition so we use only 1 executor.
     // This makes it easy to deterministically count the batched commits from that executor
@@ -616,8 +583,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     count shouldEqual 1L
   }
 
-  //Spark3 doesn't seem to be able to handle case sensitive column names
-  ignore("Ensure DataFrame field normalization (PHOENIX-2196)") {
+  test("Ensure DataFrame field normalization (PHOENIX-2196)") {
     val rdd1 = spark.sparkContext
       .parallelize(Seq((1L, 1L, "One"), (2L, 2L, "Two")))
       .map(p => Row(p._1, p._2, p._3))
