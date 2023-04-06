@@ -616,8 +616,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     count shouldEqual 1L
   }
 
-  //Spark3 doesn't seem to be able to handle case sensitive column names
-  ignore("Ensure DataFrame field normalization (PHOENIX-2196)") {
+  test("Ensure DataFrame field normalization (PHOENIX-2196)") {
     val rdd1 = spark.sparkContext
       .parallelize(Seq((1L, 1L, "One"), (2L, 2L, "Two")))
       .map(p => Row(p._1, p._2, p._3))
