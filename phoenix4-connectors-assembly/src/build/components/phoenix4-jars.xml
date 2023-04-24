@@ -40,14 +40,6 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-pig-base/phoenix4-pig-shaded/target</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>phoenix4-pig-shaded-${project.version}.jar</include>
-        <include>phoenix4-pig-shaded.jar</include>
-      </includes>
-    </fileSet>
-    <fileSet>
       <directory>${project.basedir}/../phoenix-spark-base/phoenix4-spark-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>

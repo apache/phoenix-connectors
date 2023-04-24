@@ -22,4 +22,4 @@ limitations under the License.
 Copyright ©2019 [Apache Software Foundation](http://www.apache.org/). All Rights Reserved. 
 
 ## Introduction
-This repo contains the Flume, Pig, Kafka, Spark and Hive connectors for Phoenix.
+This repo contains the Flume, Kafka, Spark and Hive connectors for Phoenix.
