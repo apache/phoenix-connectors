@@ -47,7 +47,6 @@
       <!-- Changing the module order here may cause maven to get stuck in an infinite loop -->
       <module>phoenix-hive-base</module>
       <module>phoenix-flume-base</module>
-      <module>phoenix-pig-base</module>
       <module>phoenix-kafka-base</module>
       <module>phoenix-spark-base</module>
       <module>phoenix5-spark3</module>
@@ -93,7 +92,6 @@
     <hive2-storage.version>2.4.0</hive2-storage.version>
     <hive3-storage.version>2.7.0</hive3-storage.version>
     <hive-storage.version>${hive3-storage.version}</hive-storage.version>
-    <pig.version>0.13.0</pig.version>
     <flume.version>1.4.0</flume.version>
     <kafka.version>0.9.0.0</kafka.version>
     <spark.version>2.4.0</spark.version>
@@ -458,8 +456,6 @@
             <exclude>dev/release_files/NOTICE</exclude>
             <!-- Exclude data files for examples -->
             <exclude>docs/*.csv</exclude>
-            <!-- Data files -->
-            <exclude>examples/pig/testdata</exclude>
             <!-- precommit? -->
             <exclude>**/patchprocess/**</exclude>
             <exclude>**/derby.log</exclude>
@@ -527,16 +523,6 @@
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix4-pig</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix4-pig-shaded</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.phoenix</groupId>
         <artifactId>phoenix4-spark</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -563,16 +549,6 @@
       <dependency>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>phoenix5-kafka</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix5-pig</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix5-pig-shaded</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -887,18 +863,6 @@
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>${log4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pig</groupId>
-        <artifactId>pig</artifactId>
-        <version>${pig.version}</version>
-        <classifier>h2</classifier>
-        <exclusions>
-          <exclusion>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.flume</groupId>
