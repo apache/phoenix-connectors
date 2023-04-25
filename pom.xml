@@ -145,6 +145,7 @@
     <phoenix.main.version>4</phoenix.main.version>
 
     <skip-scala-tests>true</skip-scala-tests>
+    <skip.spark.javadoc>false</skip.spark.javadoc>
 
     <!-- Coverage properties -->
     <jacoco.version>0.8.8</jacoco.version>
@@ -933,6 +934,16 @@
       <properties>
         <javadoc.opts>-Xdoclint:none</javadoc.opts>
       </properties>
+    </profile>
+    <!-- Skip Javadoc for 1.8+ See PHOENIX-6922 -->
+    <profile>
+        <id>disable-javadoc-for-spark</id>
+        <activation>
+            <jdk>(8,)</jdk>
+        </activation>
+        <properties>
+            <skip.spark.javadoc>true</skip.spark.javadoc>
+        </properties>
     </profile>
     <!-- this profile should be activated for release builds -->
     <profile>
