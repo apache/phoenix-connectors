@@ -35,6 +35,7 @@
   <properties>
     <hive.version>${hive2.version}</hive.version>
     <hive-storage.version>${hive2-storage.version}</hive-storage.version>
+    <sonar.skip>true</sonar.skip>
   </properties>
 
   <dependencies>

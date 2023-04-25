@@ -40,6 +40,8 @@
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
+    <sonar.sources>src/main/</sonar.sources>
+    <sonar.exclusions>src/**/it/**/*</sonar.exclusions>
   </properties>
 
   <dependencies>

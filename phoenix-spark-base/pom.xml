@@ -36,6 +36,8 @@
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
     <skip-scala-tests>true</skip-scala-tests>
+    <sonar.sources>src/main/</sonar.sources>
+    <sonar.exclusions>src/**/test/,src/**/it/</sonar.exclusions>
   </properties>
 
   <packaging>pom</packaging>
@@ -591,7 +593,7 @@
                   to https://github.com/junit-team/junit4/issues/1223 -->
                 <parallel>false</parallel>
                 <tagsToExclude>Integration-Test</tagsToExclude>
-                <argLine>-Xmx1536m -XX:ReservedCodeCacheSize=512m</argLine>
+                <argLine>@{jacocoArgLine} -Xmx1536m -XX:ReservedCodeCacheSize=512m</argLine>
               </configuration>
             </execution>
           </executions>

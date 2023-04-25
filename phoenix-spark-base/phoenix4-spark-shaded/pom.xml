@@ -32,6 +32,10 @@
   <artifactId>phoenix4-spark-shaded</artifactId>
   <name>Shaded Phoenix Spark Connector for Phoenix 4</name>
 
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.phoenix</groupId>

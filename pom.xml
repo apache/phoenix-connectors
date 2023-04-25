@@ -146,6 +146,11 @@
 
     <skip-scala-tests>true</skip-scala-tests>
     <skip.spark.javadoc>false</skip.spark.javadoc>
+
+    <!-- Coverage properties -->
+    <jacoco.version>0.8.8</jacoco.version>
+    <sonar.version>3.9.1.2184</sonar.version>
+    <jacocoArgLine />
   </properties>
 
   <build>
@@ -313,13 +318,14 @@
             <shutdown>kill</shutdown>
             <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
             <trimStackTrace>false</trimStackTrace>
+            <includes>**/*IT*</includes>
           </configuration>
           <executions>
             <execution>
               <id>ParallelStatsDisabledTest</id>
               <configuration>
                 <reuseForks>true</reuseForks>
-                <argLine>-Xmx3000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
+                <argLine>@{jacocoArgLine} -Xmx3000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
                 <groups>org.apache.phoenix.end2end.ParallelStatsDisabledTest</groups>
               </configuration>
               <goals>
@@ -331,7 +337,7 @@
               <id>NeedsOwnMiniClusterTest</id>
               <configuration>
                 <reuseForks>false</reuseForks>
-                <argLine>-enableassertions -Xmx3000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
+                <argLine>@{jacocoArgLine} -enableassertions -Xmx3000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
                 <groups>org.apache.phoenix.end2end.NeedsOwnMiniClusterTest</groups>
               </configuration>
               <goals>
@@ -415,11 +421,12 @@
         <configuration>
           <forkCount>${numForkedUT}</forkCount>
           <reuseForks>true</reuseForks>
-          <argLine>-enableassertions -Xmx2250m -XX:MaxPermSize=128m
+          <argLine>@{jacocoArgLine} -enableassertions -Xmx2250m -XX:MaxPermSize=128m
             -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
           <redirectTestOutputToFile>${test.output.tofile}</redirectTestOutputToFile>
           <shutdown>kill</shutdown>
           <trimStackTrace>false</trimStackTrace>
+          <includes>**/*Test*</includes>
         </configuration>
       </plugin>
       <!-- All projects create a test jar -->
@@ -982,6 +989,65 @@
               <spotbugsXmlOutput>true</spotbugsXmlOutput>
               <xmlOutput>true</xmlOutput>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/examples/**/*,**/phoenix-connectors-phoenix4-compat/**/*,**/phoenix-connectors-phoenix5-compat/**/*,
+          **/phoenix4-connectors-assembly/**/*,**/phoenix5-connectors-assembly/**/*,**/scala/**/*
+        </sonar.coverage.exclusions>
+        <sonar.java.binaries>**/target/classes</sonar.java.binaries>
+        <sonar.surefire.reportsPath>${project.build.directory}/surefire-reports</sonar.surefire.reportsPath>
+        <sonar.projectBaseDir>.</sonar.projectBaseDir>
+        <sonar.coverage.jacoco.xmlReportPaths>
+          ${sonar.projectBaseDir}/phoenix-hive-base/phoenix4-hive/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-hive-base/phoenix5-hive/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-flume-base/phoenix4-flume/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-flume-base/phoenix5-flume/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-kafka-base/phoenix4-kafka/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-kafka-base/phoenix5-kafka/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-spark-base/phoenix4-spark/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix-spark-base/phoenix5-spark/target/site/jacoco/jacoco.xml,
+          ${sonar.projectBaseDir}/phoenix5-spark3/target/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <propertyName>jacocoArgLine</propertyName>
+                  <append>true</append>
+                </configuration>
+              </execution>
+              <execution>
+                <id>report</id>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>${sonar.version}</version>
           </plugin>
         </plugins>
       </build>

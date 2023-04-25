@@ -32,6 +32,10 @@
   <artifactId>phoenix4-kafka</artifactId>
   <name>Phoenix Kafka Connector for Phoenix 4</name>
 
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
