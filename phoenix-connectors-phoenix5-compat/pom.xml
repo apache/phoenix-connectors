@@ -32,11 +32,6 @@
   <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
   <name>Compatibility util for Phoenix 5</name>
 
-  <properties>
-    <phoenix.version>${phoenix-five.version}</phoenix.version>
-    <hbase.version>${hbase-two.version}</hbase.version>
-  </properties>
-
   <dependencies>
     <!-- HBase dependencies -->
     <dependency>

@@ -28,13 +28,6 @@
     <version>6.0.0-SNAPSHOT</version>
   </parent>
 
-  <properties>
-    <phoenix.version>${phoenix-five.version}</phoenix.version>
-    <hbase.version>${hbase-two.version}</hbase.version>
-    <hadoop.version>${hadoop-three.version}</hadoop.version>
-    <jdk.version>1.8</jdk.version>
-  </properties>
-
   <artifactId>phoenix5-connectors-assembly</artifactId>
   <packaging>pom</packaging>
   <name>Phoenix 5 Connectors Distribution Assembly</name>
@@ -84,14 +77,14 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-flume-base/phoenix5-flume/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix5-flume/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-flume-${project.version}-shaded.jar
+                  phoenix5-flume-${project.version}.jar
                 </argument>
                 <argument>
-                  phoenix5-flume-shaded.jar
+                  phoenix5-flume.jar
                 </argument>
               </arguments>
             </configuration>
@@ -104,7 +97,7 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-hive-base/phoenix5-hive-shaded/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix5-hive-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
@@ -124,7 +117,7 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-spark-base/phoenix5-spark-shaded/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix5-spark-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
@@ -164,14 +157,14 @@
             </goals>
             <configuration>
               <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix-kafka-base/phoenix5-kafka/target</workingDirectory>
+              <workingDirectory>${project.basedir}/../phoenix5-kafka/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
                 <argument>
-                  phoenix5-kafka-${project.version}-shaded-minimal.jar
+                  phoenix5-kafka-${project.version}.jar
                 </argument>
                 <argument>
-                  phoenix5-kafka-shaded-minimal.jar
+                  phoenix5-kafka.jar
                 </argument>
               </arguments>
             </configuration>

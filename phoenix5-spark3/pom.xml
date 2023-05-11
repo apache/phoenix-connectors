@@ -34,12 +34,6 @@
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
-    <phoenix.version>${phoenix-five.version}</phoenix.version>
-    <hbase.version>${hbase-two.version}</hbase.version>
-    <hbase.compat.version>${hbase-two.compat.version}</hbase.compat.version>
-    <hadoop.version>${hadoop-three.version}</hadoop.version>
-    <jdk.version>1.8</jdk.version>
-    <phoenix.main.version>5</phoenix.main.version>
     <spark.version>${spark3.version}</spark.version>
     <scala.version>2.12.10</scala.version>
     <scala.binary.version>2.12</scala.binary.version>
