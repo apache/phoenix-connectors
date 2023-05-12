@@ -34,7 +34,6 @@
 
   <properties>
     <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
-    <zookeeper.version>${hbase-two.zookeeper.version}</zookeeper.version>
     <hive.version>${hive3.version}</hive.version>
   </properties>
 
@@ -56,10 +55,6 @@
     </dependency>
     <!-- maven-shade-plugin doesn't inherit dependency settings, we must duplicate them to avoid
     adding the provided dependencies -->
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>

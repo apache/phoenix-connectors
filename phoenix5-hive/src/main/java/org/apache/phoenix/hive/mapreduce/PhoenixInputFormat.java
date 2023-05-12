@@ -32,6 +32,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RegionLocator;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.mapreduce.RegionSizeCalculator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.ql.exec.SerializationUtilities;
@@ -61,7 +62,6 @@ import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
 import org.apache.phoenix.query.KeyRange;
 import org.apache.phoenix.util.PhoenixRuntime;
-import org.apache.phoenix.compat.CompatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +145,8 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
 
             HRegionLocation location = regionLocator.getRegionLocation(scans.get(0).getStartRow()
                     , false);
-            long regionSize = CompatUtil.getSize(regionLocator, connection.getAdmin(), location);
+            RegionSizeCalculator sizeCalculator = new RegionSizeCalculator(regionLocator, connection.getAdmin());
+            long regionSize =  sizeCalculator.getRegionSize(location.getRegionInfo().getRegionName());
             String regionLocation = PhoenixStorageHandlerUtil.getRegionLocation(location, LOG);
 
             if (splitByStats) {

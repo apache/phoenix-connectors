@@ -37,16 +37,11 @@
     <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     <tez.version>0.9.1</tez.version>
     <commons-lang3.version>3.9</commons-lang3.version>
-    <zookeeper.version>${hbase-two.zookeeper.version}</zookeeper.version>
     <hive.version>${hive3.version}</hive.version>
     <calcite.version>1.16.0</calcite.version>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-connectors-phoenix5-compat</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>

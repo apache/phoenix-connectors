@@ -40,7 +40,6 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.sink.DefaultSinkFactory;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
 import org.apache.phoenix.flume.serializer.CustomSerializer;
 import org.apache.phoenix.flume.serializer.EventSerializers;
@@ -207,8 +206,12 @@ public class PhoenixSinkIT extends BaseTest {
         sink.setChannel(channel);
         
         sink.start();
-        Assert.assertTrue(CompatUtil.tableExists(driver.getConnectionQueryServices(getUrl(),
-                TestUtil.TEST_PROPERTIES).getAdmin(), fullTableName));
+        try {
+            Assert.assertTrue(driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin()
+                    .tableExists(TableName.valueOf(fullTableName)));
+        } finally {
+            admin.close();
+        }
     }
 
     @Test

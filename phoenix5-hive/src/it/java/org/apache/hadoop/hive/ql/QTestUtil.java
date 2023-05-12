@@ -118,7 +118,6 @@ import org.apache.hadoop.hive.shims.HadoopShims;
 import org.apache.hadoop.hive.shims.ShimLoader;
 import org.apache.hive.common.util.StreamPrinter;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.phoenix.compat.CompatUtil;
 import org.apache.phoenix.compat.HiveCompatUtil;
 import org.apache.phoenix.compat.MyResult;
 import org.apache.zookeeper.WatchedEvent;
@@ -638,7 +637,7 @@ public class QTestUtil {
       cleanUp();
     }
 
-    if (CompatUtil.isPhoenix5() && clusterType.getCoreClusterType() == CoreClusterType.TEZ){
+    if (clusterType.getCoreClusterType() == CoreClusterType.TEZ){
       HiveCompatUtil.destroyTEZSession(SessionState.get());
     }
 
@@ -949,9 +948,7 @@ public class QTestUtil {
       return;
     }
 
-    if(CompatUtil.isPhoenix5()){
-      HiveCompatUtil.cleanupQueryResultCache();
-    }
+    HiveCompatUtil.cleanupQueryResultCache();
 
     // allocate and initialize a new conf since a test can
     // modify conf by using 'set' commands
@@ -1087,10 +1084,8 @@ public class QTestUtil {
       createRemoteDirs();
     }
 
-    if (CompatUtil.isPhoenix5()) {
-      // Create views registry
-      HiveCompatUtil.initHiveMaterializedViewsRegistry();
-    }
+    // Create views registry
+    HiveCompatUtil.initHiveMaterializedViewsRegistry();
 
     testWarehouse = conf.getVar(HiveConf.ConfVars.METASTOREWAREHOUSE);
     String execEngine = conf.get("hive.execution.engine");
@@ -1099,9 +1094,6 @@ public class QTestUtil {
     conf.set("hive.execution.engine", execEngine);
     db = Hive.get(conf);
     drv = HiveCompatUtil.getDriver(conf);
-    if(CompatUtil.isPhoenix4()) {
-      HiveCompatUtil.initHiveMaterializedViewsRegistry(db);
-    }
     pd = new ParseDriver();
     sem = new SemanticAnalyzer(queryState);
   }
