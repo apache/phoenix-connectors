@@ -33,6 +33,7 @@
   <name>Shaded Phoenix Hive Connector for Phoenix 5</name>
 
   <properties>
+    <top.dir>${project.basedir}/..</top.dir>
     <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     <hive.version>${hive3.version}</hive.version>
   </properties>
