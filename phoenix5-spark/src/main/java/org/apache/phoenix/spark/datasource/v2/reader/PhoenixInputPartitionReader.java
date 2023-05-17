@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.spark.sql.connector.reader;
+package org.apache.phoenix.spark.datasource.v2.reader;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
@@ -34,6 +34,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.compile.StatementContext;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
+import org.apache.phoenix.coprocessor.generated.PTableProtos;
 import org.apache.phoenix.coprocessor.generated.PTableProtos.PTable;
 import org.apache.phoenix.iterate.ConcatResultIterator;
 import org.apache.phoenix.iterate.LookAheadResultIterator;
@@ -46,44 +47,56 @@ import org.apache.phoenix.iterate.TableResultIterator;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixResultSet;
 import org.apache.phoenix.jdbc.PhoenixStatement;
+import org.apache.phoenix.mapreduce.PhoenixInputSplit;
 import org.apache.phoenix.monitoring.ReadMetricQueue;
 import org.apache.phoenix.monitoring.ScanMetricsHolder;
 import org.apache.phoenix.query.ConnectionQueryServices;
 import org.apache.phoenix.schema.PTableImpl;
+import org.apache.phoenix.util.PhoenixRuntime;
+import org.apache.spark.SerializableWritable;
 import org.apache.spark.executor.InputMetrics;
 import org.apache.spark.sql.catalyst.InternalRow;
-import org.apache.spark.sql.connector.read.PartitionReader;
 import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
+import org.apache.spark.sql.sources.v2.reader.InputPartitionReader;
 import org.apache.spark.sql.types.StructType;
+
 import scala.collection.Iterator;
 
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
-public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
+public class PhoenixInputPartitionReader implements InputPartitionReader<InternalRow>  {
 
-    private final PhoenixInputPartition inputPartition;
-    private final PhoenixDataSourceReadOptions options;
+    private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
     private final StructType schema;
+    private final PhoenixDataSourceReadOptions options;
+    private Iterator<InternalRow> iterator;
     private PhoenixResultSet resultSet;
     private InternalRow currentRow;
-    private Iterator<InternalRow> iterator;
 
-    PhoenixPartitionReader(PhoenixDataSourceReadOptions options, StructType schema, PhoenixInputPartition inputPartition){
-        this.inputPartition = inputPartition;
+    PhoenixInputPartitionReader(PhoenixDataSourceReadOptions options, StructType schema,
+            SerializableWritable<PhoenixInputSplit> phoenixInputSplit) {
         this.options = options;
+        this.phoenixInputSplit = phoenixInputSplit;
         this.schema = schema;
         initialize();
     }
 
     Properties getOverriddenPropsFromOptions() {
-        return options.getEffectiveProps();
+        return options.getOverriddenProps();
     }
 
     private QueryPlan getQueryPlan() throws SQLException {
+        String scn = options.getScn();
+        String tenantId = options.getTenantId();
         String zkUrl = options.getZkUrl();
         Properties overridingProps = getOverriddenPropsFromOptions();
-        overridingProps.put("phoenix.skip.system.tables.existence.check", Boolean.valueOf("true"));
+        if (scn != null) {
+            overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
+        }
+        if (tenantId != null) {
+            overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
+        }
         try (Connection conn = DriverManager.getConnection(
                 JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
             PTable pTable = null;
@@ -110,7 +123,7 @@ public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
     private void initialize() {
         try {
             final QueryPlan queryPlan = getQueryPlan();
-            final List<Scan> scans = inputPartition.getPhoenixInputSplit().value().getScans();
+            final List<Scan> scans = phoenixInputSplit.value().getScans();
             List<PeekingResultIterator> iterators = new ArrayList<>(scans.size());
             StatementContext ctx = queryPlan.getContext();
             ReadMetricQueue readMetrics = ctx.getReadMetricsQueue();

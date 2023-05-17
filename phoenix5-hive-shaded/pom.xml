@@ -23,114 +23,102 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>phoenix-connectors</artifactId>
     <groupId>org.apache.phoenix</groupId>
+    <artifactId>phoenix-connectors</artifactId>
     <version>6.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>phoenix5-spark3-shaded</artifactId>
-  <name>Shaded Phoenix Spark 3 Connector for Phoenix 5</name>
+  <artifactId>phoenix5-hive-shaded</artifactId>
+  <name>Shaded Phoenix Hive Connector for Phoenix 5</name>
 
   <properties>
-    <top.dir>${project.basedir}/..</top.dir>
+    <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
+    <hive.version>${hive3.version}</hive.version>
   </properties>
 
   <dependencies>
-
-    <!-- Phoenix comes first, as we shade most dependencies anyway -->
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix5-spark3</artifactId>
+      <artifactId>phoenix5-hive</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper-jute</artifactId>
+      <version>${zookeeper.version}</version>
       <scope>provided</scope>
     </dependency>
-
-    <!-- Mark every Hadoop jar as provided -->
+    <!-- maven-shade-plugin doesn't inherit dependency settings, we must duplicate them to avoid
+    adding the provided dependencies -->
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-      <scope>provided</scope>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
     </dependency>
+    <!-- Hive dependencies cannot be specified in the phoenix-hive-common, because of
+    hbase transitive dependency version conflicts -->
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-annotations</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-auth</artifactId>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-cli</artifactId>
+      <version>${hive.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-yarn-api</artifactId>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-common</artifactId>
+      <version>${hive.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>${hive.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- These three dependencies are falsely flagged by dependency plugin -->
+    <dependency>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-serde</artifactId>
+      <version>${hive.version}</version>
+      <exclusions>
+        <!-- Fix conflict with Minicluster -->
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs-client</artifactId>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-storage-api</artifactId>
+      <version>${hive-storage.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-distcp</artifactId>
+      <groupId> org.apache.hive.shims</groupId>
+      <artifactId>hive-shims-common</artifactId>
+      <version>${hive.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- These are actually different between phoenix 5 and phoenix 4 -->
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
+      <groupId> org.apache.hive</groupId>
+      <artifactId>hive-standalone-metastore</artifactId>
+      <version>${hive.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-common</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <!-- We want to take the implementation from Spark -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Mark HBase as provided, too -->
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-client</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-common</artifactId>
-      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
@@ -139,32 +127,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-replication</artifactId>
+      <artifactId>hbase-zookeeper</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-endpoint</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-endpoint</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-metrics-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-metrics</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-protocol</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-client-core</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -174,61 +142,35 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-server</artifactId>
+      <artifactId>hbase-endpoint</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-hadoop-compat</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs-client</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-hadoop2-compat</artifactId>
-      <scope>provided</scope>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-minicluster</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-zookeeper</artifactId>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- We want to take the implementation from Hive -->
     <dependency>
-      <groupId>org.apache.hbase.thirdparty</groupId>
-      <artifactId>hbase-shaded-netty</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase.thirdparty</groupId>
-      <artifactId>hbase-shaded-miscellaneous</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase.thirdparty</groupId>
-      <artifactId>hbase-shaded-protobuf</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Other dependencies we don't want to shade in, but are not transitively excluded by the
-    above for some reason -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <!-- random version, for exclusion only -->
-      <version>11.0.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.stephenc.findbugs</groupId>
-      <artifactId>findbugs-annotations</artifactId>
-      <!-- random version, for exclusion only -->
-      <version>1.3.9-1</version>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
+  
   <build>
     <plugins>
-      <!-- Taken from phoenix-client-parent this should be kept in sync with 
-        Phoenix as much as possible -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -248,7 +190,6 @@
                 <exclude>NOTICE.*</exclude>
                 <exclude>NOTICE</exclude>
                 <exclude>README*</exclude>
-                <exclude>META-INF/versions/11/org/glassfish/jersey/internal/jsr166/*.class</exclude>
                 <!-- Coming from Omid, should be fixed there -->
                 <exclude>log4j.properties</exclude>
               </excludes>
@@ -281,32 +222,31 @@
           </filters>
           <transformers>
             <transformer
-              implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
             <transformer
-              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>csv-bulk-load-config.properties</resource>
               <file>
                 ${project.basedir}/../config/csv-bulk-load-config.properties
               </file>
             </transformer>
             <transformer
-              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>README.md</resource>
               <file>${project.basedir}/../README.md</file>
             </transformer>
             <transformer
-              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>LICENSE.txt</resource>
               <file>${project.basedir}/../LICENSE</file>
             </transformer>
             <transformer
-              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>NOTICE</resource>
               <file>${project.basedir}/../NOTICE</file>
             </transformer>
           </transformers>
           <relocations>
-            <!-- Keep phoenix-client-byo-shaded-hadoop in sync with this -->
             <relocation>
               <pattern>org/</pattern>
               <shadedPattern>${shaded.package}.org.</shadedPattern>
@@ -323,80 +263,34 @@
                 <exclude>org/w3c/dom/**</exclude>
                 <exclude>org/xml/sax/**</exclude>
                 <!-- Extras compared to Hadoop -->
-                <!-- Hbase classes - Maybe these could be shaded as well
-                  ? -->
+                <!-- Hbase classes - Maybe these could be shaded as well ? -->
                 <exclude>org/apache/hbase/**</exclude>
-                <!-- We use the spark classpath directly -->
-                <exclude>org/apache/spark/**</exclude>
                 <!-- Phoenix classes -->
                 <exclude>org/apache/phoenix/**</exclude>
                 <exclude>org/apache/omid/**</exclude>
-                <!-- We must not shade this, as this is provided by HBase.
-                  This is specific to -->
-                <!-- the cases where we rely on external HBase / Hadoop -->
-                <exclude>org.apache.commons.beanutils/**</exclude>
                 <!-- Do want/need to expose Tephra as well ? -->
               </excludes>
             </relocation>
-            <!-- We cannot use the more elegant shading rules in -client
-              and -server for com packages, but it SHOULD be equivalent, except for the
-              changes for hbase-shaded-client compatibility -->
             <relocation>
-              <pattern>com/beust/</pattern>
-              <shadedPattern>${shaded.package}.com.beust.</shadedPattern>
+              <pattern>com/</pattern>
+              <shadedPattern>${shaded.package}.com.</shadedPattern>
+              <excludes>
+                <!-- Not the com/ packages that are a part of particular jdk implementations -->
+                <exclude>com/sun/tools/**</exclude>
+                <exclude>com/sun/javadoc/**</exclude>
+                <exclude>com/sun/security/**</exclude>
+                <exclude>com/sun/jndi/**</exclude>
+                <exclude>com/sun/management/**</exclude>
+                <!-- We are getting unshaded HBase from Hive, we must leave protobuf generated
+                classes alone -->
+                <exclude>com/google/protobuf/**</exclude>
+              </excludes>
             </relocation>
-            <relocation>
-              <pattern>com/clearspring/</pattern>
-              <shadedPattern>${shaded.package}.com.clearspring.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/codahale/</pattern>
-              <shadedPattern>${shaded.package}.come.codahale.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/fasterxml/</pattern>
-              <shadedPattern>${shaded.package}.com.fasterxml.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/force/</pattern>
-              <shadedPattern>${shaded.package}.com.force.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/google/gson/</pattern>
-              <shadedPattern>${shaded.package}.com.google.gson.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/google/inject/</pattern>
-              <shadedPattern>${shaded.package}.com.google.inject.</shadedPattern>
-            </relocation>
-            <!-- HBase shaded ! -->
-            <relocation>
-              <pattern>com/google/protobuf/</pattern>
-              <shadedPattern>${hbase.shaded.package}.com.google.protobuf.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/ibm/</pattern>
-              <shadedPattern>${shaded.package}.com.ibm.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/lmax/</pattern>
-              <shadedPattern>${shaded.package}.com.lmax.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/sun/jna/</pattern>
-              <shadedPattern>${shaded.package}.com.sun.jna.</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com/squareup</pattern>
-              <shadedPattern>${shaded.package}.com.squareup.</shadedPattern>
-            </relocation>
-
             <relocation>
               <pattern>io/</pattern>
               <shadedPattern>${shaded.package}.io.</shadedPattern>
               <excludes>
-                <!-- Exclude config keys for Hadoop that look like package
-                  names -->
+                <!-- Exclude config keys for Hadoop that look like package names -->
                 <exclude>io/compression/**</exclude>
                 <exclude>io/mapfile/**</exclude>
                 <exclude>io/map/index/*</exclude>
@@ -440,8 +334,7 @@
               <pattern>net/</pattern>
               <shadedPattern>${shaded.package}.net.</shadedPattern>
               <excludes>
-                <!-- Exclude config keys for Hadoop that look like package 
-                  names -->
+                <!-- Exclude config keys for Hadoop that look like package names -->
                 <exclude>net/topology/**</exclude>
               </excludes>
             </relocation>
@@ -498,8 +391,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
           <execution>
-            <id>default-compile</id>
-            <phase>none</phase>
+             <id>default-compile</id>
+             <phase>none</phase>
           </execution>
         </executions>
       </plugin>
@@ -512,5 +405,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

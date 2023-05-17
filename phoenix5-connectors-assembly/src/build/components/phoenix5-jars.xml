@@ -24,23 +24,23 @@
     <fileSet>
       <!-- We don't actually have shaded flume JARs ATM, 
       but there's no point in packaging the unshaded ones. -->
-      <directory>${project.basedir}/../phoenix-flume-base/phoenix5-flume/target</directory>
+      <directory>${project.basedir}/../phoenix5-flume/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-flume-${project.version}-shaded.jar</include>
-        <include>phoenix5-flume-shaded.jar</include>
+        <include>phoenix5-flume-${project.version}.jar</include>
+        <include>phoenix5-flume.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-kafka-base/phoenix5-kafka/target</directory>
+      <directory>${project.basedir}/../phoenix5-kafka/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-kafka-${project.version}-shaded-minimal.jar</include>
-        <include>phoenix5-kafka-shaded-minimal.jar</include>
+        <include>phoenix5-kafka-${project.version}.jar</include>
+        <include>phoenix5-kafka.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-spark-base/phoenix5-spark-shaded/target</directory>
+      <directory>${project.basedir}/../phoenix5-spark-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-spark-shaded-${project.version}.jar</include>
@@ -56,7 +56,7 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix-hive-base/phoenix5-hive-shaded/target</directory>
+      <directory>${project.basedir}/../phoenix5-hive-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>phoenix5-hive-shaded-${project.version}.jar</include>
