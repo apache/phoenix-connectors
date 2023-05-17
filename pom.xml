@@ -62,7 +62,7 @@
     <!-- Hadoop Versions -->
     <hbase.version>2.1.10</hbase.version>
     <hbase.compat.version>2.1.6</hbase.compat.version>
-    <hadoop.version>3.0.3</hadoop.version>
+    <hadoop.version>3.2.4</hadoop.version>
     <zookeeper.version>3.5.9</zookeeper.version>
 
     <hbase-thirdparty-version>2.1.0</hbase-thirdparty-version>
