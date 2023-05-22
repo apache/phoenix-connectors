@@ -349,19 +349,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>${top.dir}/src/main/config/checkstyle/checker.xml</configLocation>
+          <suppressionsLocation>${top.dir}/src/main/config/checkstyle/suppressions.xml</suppressionsLocation>
+          <consoleOutput>true</consoleOutput>
+          <headerLocation>${top.dir}/src/main/config/checkstyle/header.txt</headerLocation>
+          <failOnViolation><!--true-->false</failOnViolation>
+          <includeTestSourceDirectory><!--true-->false</includeTestSourceDirectory>
+        </configuration>
         <executions>
           <execution>
             <id>validate</id>
             <phase>validate</phase>
-            <configuration>
-              <skip>true</skip>
-              <configLocation>${top.dir}/src/main/config/checkstyle/checker.xml</configLocation>
-              <suppressionsLocation>${top.dir}/src/main/config/checkstyle/suppressions.xml</suppressionsLocation>
-              <consoleOutput>true</consoleOutput>
-              <headerLocation>${top.dir}/src/main/config/checkstyle/header.txt</headerLocation>
-              <failOnViolation><!--true-->false</failOnViolation>
-              <includeTestSourceDirectory><!--true-->false</includeTestSourceDirectory>
-            </configuration>
             <goals>
               <goal>check</goal>
             </goals>
