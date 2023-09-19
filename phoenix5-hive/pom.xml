@@ -417,7 +417,6 @@
             <configuration>
               <forkCount>1</forkCount>
               <reuseForks>false</reuseForks>
-              <argLine>-Xmx3000m -XX:MaxPermSize=256m -Djava.security.egd=file:/dev/./urandom "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/</argLine>
               <groups>org.apache.phoenix.end2end.ParallelStatsDisabledTest</groups>
             </configuration>
             <goals>
