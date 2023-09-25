@@ -57,9 +57,6 @@ import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
 import org.apache.spark.sql.types.StructType;
 import scala.collection.Iterator;
 
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
-
 public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
 
     private final PhoenixInputPartition inputPartition;
@@ -81,11 +78,10 @@ public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
     }
 
     private QueryPlan getQueryPlan() throws SQLException {
-        String zkUrl = options.getZkUrl();
+        String jdbcUrl = options.getJdbcUrl();
         Properties overridingProps = getOverriddenPropsFromOptions();
         overridingProps.put("phoenix.skip.system.tables.existence.check", Boolean.valueOf("true"));
-        try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, overridingProps)) {
             PTable pTable = null;
             try {
                 pTable = PTable.parseFrom(options.getPTableCacheBytes());

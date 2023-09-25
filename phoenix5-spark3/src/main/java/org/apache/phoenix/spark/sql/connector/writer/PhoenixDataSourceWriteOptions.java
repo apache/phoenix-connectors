@@ -28,20 +28,20 @@ import java.util.Properties;
 class PhoenixDataSourceWriteOptions implements Serializable {
 
     private final String tableName;
-    private final String zkUrl;
+    private final String jdbcUrl;
     private final String tenantId;
     private final String scn;
     private final StructType schema;
     private final boolean skipNormalizingIdentifier;
     private final Properties overriddenProps;
 
-    private PhoenixDataSourceWriteOptions(String tableName, String zkUrl, String scn,
+    private PhoenixDataSourceWriteOptions(String tableName, String jdbcUrl, String scn,
                                           String tenantId, StructType schema, boolean skipNormalizingIdentifier,
                                           Properties overriddenProps) {
         if (tableName == null) {
             throw new NullPointerException();
         }
-        if (zkUrl == null) {
+        if (jdbcUrl == null) {
             throw new NullPointerException();
         }
         if (schema == null) {
@@ -51,7 +51,7 @@ class PhoenixDataSourceWriteOptions implements Serializable {
             throw new NullPointerException();
         }
         this.tableName = tableName;
-        this.zkUrl = zkUrl;
+        this.jdbcUrl = jdbcUrl;
         this.scn = scn;
         this.tenantId = tenantId;
         this.schema = schema;
@@ -63,8 +63,8 @@ class PhoenixDataSourceWriteOptions implements Serializable {
         return scn;
     }
 
-    String getZkUrl() {
-        return zkUrl;
+    String getJdbcUrl() {
+        return jdbcUrl;
     }
 
     String getTenantId() {
@@ -97,7 +97,7 @@ class PhoenixDataSourceWriteOptions implements Serializable {
 
     static class Builder {
         private String tableName;
-        private String zkUrl;
+        private String jdbcUrl;
         private String scn;
         private String tenantId;
         private StructType schema;
@@ -109,8 +109,8 @@ class PhoenixDataSourceWriteOptions implements Serializable {
             return this;
         }
 
-        Builder setZkUrl(String zkUrl) {
-            this.zkUrl = zkUrl;
+        Builder setJdbcUrl(String jdbcUrl) {
+            this.jdbcUrl = jdbcUrl;
             return this;
         }
 
@@ -140,7 +140,7 @@ class PhoenixDataSourceWriteOptions implements Serializable {
         }
 
         PhoenixDataSourceWriteOptions build() {
-            return new PhoenixDataSourceWriteOptions(tableName, zkUrl, scn, tenantId, schema,
+            return new PhoenixDataSourceWriteOptions(tableName, jdbcUrl, scn, tenantId, schema,
                     skipNormalizingIdentifier, overriddenProps);
         }
     }

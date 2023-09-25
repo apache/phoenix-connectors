@@ -17,6 +17,7 @@
  */
 package org.apache.phoenix.spark.sql.connector;
 
+import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 import org.junit.Test;
 
@@ -80,6 +81,32 @@ public class PhoenixDataSourceTest {
     @Test
     public void testNullOptionsReturnsEmptyMap() {
         assertTrue(extractPhoenixHBaseConfFromOptions(null).isEmpty());
+    }
+
+    @Test
+    public void testUrlFallbackLogic() {
+        Map<String, String> props = new HashMap<>();
+
+        assertEquals(PhoenixRuntime.JDBC_PROTOCOL, PhoenixDataSource.getJdbcUrlFromOptions(props));
+
+        // The fallback logic doesn't attempt to check the URL, except for the presence of
+        // the "jdbc:phoenix" prefix
+        String NOTANURL = "notanurl";
+
+        props.put(PhoenixDataSource.JDBC_URL, NOTANURL);
+        assertEquals(NOTANURL, PhoenixDataSource.getJdbcUrlFromOptions(props));
+
+        props.remove(PhoenixDataSource.JDBC_URL);
+        props.put(PhoenixDataSource.ZOOKEEPER_URL, NOTANURL);
+        assertEquals(
+            PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + NOTANURL,
+            PhoenixDataSource.getJdbcUrlFromOptions(props));
+
+        props.put(PhoenixDataSource.ZOOKEEPER_URL,
+            PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + NOTANURL);
+        assertEquals(
+            PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + NOTANURL,
+            PhoenixDataSource.getJdbcUrlFromOptions(props));
     }
 
 }

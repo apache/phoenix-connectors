@@ -33,7 +33,6 @@ Scala example:
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession}
-import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource
 
 val spark = SparkSession
   .builder()
@@ -45,7 +44,7 @@ val spark = SparkSession
 val df = spark.sqlContext
   .read
   .format("phoenix")
-  .options(Map("table" -> "TABLE1", PhoenixDataSource.ZOOKEEPER_URL -> "phoenix-server:2181"))
+  .options(Map("table" -> "TABLE1"))
   .load
 
 df.filter(df("COL1") === "test_row_1" && df("ID") === 1L)
@@ -60,8 +59,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
-
 public class PhoenixSparkRead {
     
     public static void main() throws Exception {
@@ -74,7 +71,6 @@ public class PhoenixSparkRead {
             .read()
             .format("phoenix")
             .option("table", "TABLE1")
-            .option(ZOOKEEPER_URL, "phoenix-server:2181")
             .load();
         df.createOrReplaceTempView("TABLE1");
     
@@ -108,7 +104,6 @@ you can load from an input table and save to an output table as a DataFrame as f
 ```scala
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession, SaveMode}
-import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource
 
 val spark = SparkSession
   .builder()
@@ -120,14 +115,14 @@ val spark = SparkSession
 val df = spark.sqlContext
   .read
   .format("phoenix")
-  .options(Map("table" -> "INPUT_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> "phoenix-server:2181"))
+  .options(Map("table" -> "INPUT_TABLE"))
   .load
 
 // Save to OUTPUT_TABLE
 df.write
   .format("phoenix")
   .mode(SaveMode.Overwrite)
-  .options(Map("table" -> "OUTPUT_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> "phoenix-server:2181"))
+  .options(Map("table" -> "OUTPUT_TABLE"))
   .save()
 ```
 Java example:
@@ -138,8 +133,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SQLContext;
-
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
 
 public class PhoenixSparkWriteFromInputTable {
     
@@ -153,7 +146,6 @@ public class PhoenixSparkWriteFromInputTable {
             .read()
             .format("phoenix")
             .option("table", "INPUT_TABLE")
-            .option(ZOOKEEPER_URL, "phoenix-server:2181")
             .load();
         
         // Save to OUTPUT_TABLE
@@ -161,7 +153,6 @@ public class PhoenixSparkWriteFromInputTable {
           .format("phoenix")
           .mode(SaveMode.Overwrite)
           .option("table", "OUTPUT_TABLE")
-          .option(ZOOKEEPER_URL, "phoenix-server:2181")
           .save();
         jsc.stop();
     }
@@ -187,7 +178,6 @@ you can save a dataframe from an RDD as follows in Scala:
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType, StructField}
 import org.apache.spark.sql.{Row, SQLContext, SparkSession, SaveMode}
-import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource
 
 val spark = SparkSession
   .builder()
@@ -209,7 +199,7 @@ val df = spark.sqlContext.createDataFrame(rowRDD, schema)
 
 df.write
   .format("phoenix")
-  .options(Map("table" -> "OUTPUT_TABLE", PhoenixDataSource.ZOOKEEPER_URL -> "phoenix-server:2181"))
+  .options(Map("table" -> "OUTPUT_TABLE"))
   .mode(SaveMode.Overwrite)
   .save()
 ```
@@ -229,8 +219,6 @@ import org.apache.spark.sql.types.StructType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
 
 public class PhoenixSparkWriteFromRDDWithSchema {
  
@@ -260,7 +248,6 @@ public class PhoenixSparkWriteFromRDDWithSchema {
             .format("phoenix")
             .mode(SaveMode.Overwrite)
             .option("table", "OUTPUT_TABLE")
-            .option(ZOOKEEPER_URL,  "phoenix-server:2181")
             .save();
   
         jsc.stop();
@@ -270,13 +257,21 @@ public class PhoenixSparkWriteFromRDDWithSchema {
 
 ## Notes
 
-- If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"` 
-  instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
-- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and `saveToPhoenix` all support
+- The DataSourceV2 based "phoenix" data source accepts the `"jdbcUrl"` parameter, which can be 
+used to override the default Hbase/Phoenix instance specified in hbase-site.xml. It also accepts
+the deprected `zkUrl` parameter for backwards compatibility purposes. If neither is specified, 
+it falls back to using connection defined by hbase-site.xml.
+- `"jdbcUrl"` expects a full Phoenix JDBC URL, i.e. "jdbc:phoenix" or "jdbc:phoenix:zkHost:zkport",
+while `"zkUrl"` expects the ZK quorum only, i.e. "zkHost:zkPort"
+- If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"`
+instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
+The `"org.apache.phoenix.spark"` datasource does not accept the `"jdbcUrl"` parameter,
+only `"zkUrl"`
+- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and 
+`saveToPhoenix` use the deprecated `"org.apache.phoenix.spark"` datasource, and allow
 optionally specifying a `conf` Hadoop configuration parameter with custom Phoenix client settings,
-as well as an optional `zkUrl` parameter for the Phoenix connection URL.
-- If `zkUrl` isn't specified, it's assumed that the "hbase.zookeeper.quorum" property has been set
-in the `conf` parameter. Similarly, if no configuration is passed in, `zkUrl` must be specified.
+as well as an optional `zkUrl` parameter.
+
 - As of [PHOENIX-5197](https://issues.apache.org/jira/browse/PHOENIX-5197), you can pass configurations from the driver
 to executors as a comma-separated list against the key `phoenixConfigs` i.e (PhoenixDataSource.PHOENIX_CONFIGS), for ex:
     ```scala
@@ -284,7 +279,7 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
       .sqlContext
       .read
       .format("phoenix")
-      .options(Map("table" -> "Table1", "zkUrl" -> "phoenix-server:2181", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
+      .options(Map("table" -> "Table1", "jdbcUrl" -> "jdbc:phoenix:phoenix-server:2181", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
       .load;
     ```
     This list of properties is parsed and populated into a properties map which is passed to `DriverManager.getConnection(connString, propsMap)`.

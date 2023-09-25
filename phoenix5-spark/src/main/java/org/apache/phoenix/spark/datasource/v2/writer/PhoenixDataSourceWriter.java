@@ -17,6 +17,7 @@
  */
 package org.apache.phoenix.spark.datasource.v2.writer;
 
+import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.catalyst.InternalRow;
@@ -28,8 +29,6 @@ import org.apache.spark.sql.types.StructType;
 
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.CURRENT_SCN_VALUE;
 import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER;
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
 
 public class PhoenixDataSourceWriter implements DataSourceWriter {
 
@@ -41,9 +40,6 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
         }
         if (!options.tableName().isPresent()) {
             throw new RuntimeException("No Phoenix option " + DataSourceOptions.TABLE_KEY + " defined");
-        }
-        if (!options.get(ZOOKEEPER_URL).isPresent()) {
-            throw new RuntimeException("No Phoenix option " + ZOOKEEPER_URL + " defined");
         }
         this.options = createPhoenixDataSourceWriteOptions(options, schema);
     }
@@ -74,16 +70,16 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
                                                                               StructType schema) {
         String scn = options.get(CURRENT_SCN_VALUE).orElse(null);
         String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB).orElse(null);
-        String zkUrl = options.get(ZOOKEEPER_URL).get();
+        String jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
         boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
         return new PhoenixDataSourceWriteOptions.Builder()
                 .setTableName(options.tableName().get())
-                .setZkUrl(zkUrl)
+                .setJdbcUrl(jdbcUrl)
                 .setScn(scn)
                 .setTenantId(tenantId)
                 .setSchema(schema)
                 .setSkipNormalizingIdentifier(skipNormalizingIdentifier)
-                .setOverriddenProps(extractPhoenixHBaseConfFromOptions(options))
+                .setOverriddenProps(PhoenixDataSource.extractPhoenixHBaseConfFromOptions(options))
                 .build();
     }
 }

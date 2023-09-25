@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 
+import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.SchemaUtil;
@@ -67,7 +68,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     PhoenixDataWriter(PhoenixDataSourceWriteOptions options) {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
-        String zkUrl = options.getZkUrl();
+        String jdbcUrl = options.getJdbcUrl();
         Properties overridingProps = options.getOverriddenProps();
         if (scn != null) {
             overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
@@ -84,8 +85,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         }
         encoder = RowEncoder$.MODULE$.apply(schema).resolveAndBind( scala.collection.JavaConverters.asScalaIteratorConverter(attrs.iterator()).asScala().toSeq(), SimpleAnalyzer$.MODULE$);
         try {
-            this.conn = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl,
-                    overridingProps);
+            this.conn = DriverManager.getConnection(jdbcUrl, overridingProps);
             List<String> colNames =  new ArrayList<>(Arrays.asList(options.getSchema().names()));
             if (!options.skipNormalizingIdentifier()){
                 colNames = colNames.stream().map(SchemaUtil::normalizeIdentifier).collect(Collectors.toList());

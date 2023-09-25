@@ -64,7 +64,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
     private ExpressionEncoder<Row> encoder;
 
     PhoenixDataWriter(StructType schema, PhoenixDataSourceWriteOptions options) {
-        String zkUrl = options.getZkUrl();
+        String jdbcUrl = options.getJdbcUrl();
         Properties connectionProps = options.getEffectiveProps();
         this.schema = options.getSchema();
 
@@ -74,8 +74,7 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         }
         encoder = RowEncoder$.MODULE$.apply(schema).resolveAndBind( scala.collection.JavaConverters.asScalaIteratorConverter(attrs.iterator()).asScala().toSeq(), SimpleAnalyzer$.MODULE$);
         try {
-            this.conn = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl,
-                    connectionProps);
+            this.conn = DriverManager.getConnection(jdbcUrl, connectionProps);
             List<String> colNames =  new ArrayList<>(Arrays.asList(options.getSchema().names()));
             if (!options.skipNormalizingIdentifier()){
                 colNames = colNames.stream().map(SchemaUtil::normalizeIdentifier).collect(Collectors.toList());

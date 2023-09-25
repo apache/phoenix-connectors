@@ -48,23 +48,20 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
+    @Deprecated
     public static final String ZOOKEEPER_URL = "zkUrl";
+    public static final String JDBC_URL = "jdbcUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";
     protected StructType schema;
-    private CaseInsensitiveStringMap options;
 
     @Override
     public StructType inferSchema(CaseInsensitiveStringMap options){
         if (options.get("table") == null) {
             throw new RuntimeException("No Phoenix option " + "Table" + " defined");
         }
-        if (options.get(ZOOKEEPER_URL) == null) {
-            throw new RuntimeException("No Phoenix option " + ZOOKEEPER_URL + " defined");
-        }
 
-        this.options = options;
+        String jdbcUrl = getJdbcUrlFromOptions(options);
         String tableName = options.get("table");
-        String zkUrl = options.get(ZOOKEEPER_URL);
         String tenant = options.get(PhoenixRuntime.TENANT_ID_ATTRIB);
         boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
         Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
@@ -75,8 +72,7 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
         /**
          * Sets the schema using all the table columns before any column pruning has been done
          */
-        try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
             schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
@@ -85,6 +81,32 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
             throw new RuntimeException(e);
         }
         return schema;
+    }
+
+    public static String getJdbcUrlFromOptions(Map<String, String> options) {
+        if(options.get(JDBC_URL) != null && options.get(ZOOKEEPER_URL) != null) {
+            throw new RuntimeException("If " + JDBC_URL + " is specified, then  " + ZOOKEEPER_URL
+                    + " must not be specified");
+        }
+
+        String jdbcUrl = options.get(JDBC_URL);
+        String zkUrl = options.get(ZOOKEEPER_URL);
+        // Backward compatibility logic
+        if (jdbcUrl == null) {
+            if (zkUrl != null) {
+                if (zkUrl.startsWith(JDBC_PROTOCOL)) {
+                    // full URL specified, use it
+                    jdbcUrl = zkUrl;
+                } else {
+                    // backwards compatibility, assume ZK, and missing protocol
+                    // Don't use the specific protocol, as we need to work with older releases.
+                    jdbcUrl = JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl;
+                }
+            } else {
+                jdbcUrl = JDBC_PROTOCOL;
+            }
+        }
+        return jdbcUrl;
     }
 
     @Override
