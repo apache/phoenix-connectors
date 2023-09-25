@@ -513,7 +513,7 @@
                   to https://github.com/junit-team/junit4/issues/1223 -->
                 <parallel>false</parallel>
                 <tagsToExclude>Integration-Test</tagsToExclude>
-                <argLine>--XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
+                <argLine>-XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
               </configuration>
             </execution>
           </executions>

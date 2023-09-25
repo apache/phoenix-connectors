@@ -83,37 +83,16 @@
 
     <!-- Profiling is not enabled in the repo. Placeholder. -->
     <jacocoArgLine></jacocoArgLine>
-    <phoenix-surefire.argLine>-enableassertions -Xmx${surefire.Xmx}
-      -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true
-      -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true
-      -Dorg.apache.hbase.thirdparty.io.netty.leakDetection.level=advanced
-      -Dio.netty.eventLoopThreads=3 -Duser.timezone="America/Los_Angeles"
-      -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/
-      "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}"
-    </phoenix-surefire.argLine>
-    <phoenix-surefire.jdk8.tuning.flags>
-        -XX:NewRatio=4 -XX:SurvivorRatio=8 -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC
-        -XX:+DisableExplicitGC -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSClassUnloadingEnabled
-        -XX:+CMSScavengeBeforeRemark -XX:CMSInitiatingOccupancyFraction=68
-    </phoenix-surefire.jdk8.tuning.flags>
-    <phoenix-surefire.jdk11.flags>-Dorg.apache.hbase.thirdparty.io.netty.tryReflectionSetAccessible=true
-      --add-modules jdk.unsupported
-      --add-opens java.base/java.nio=ALL-UNNAMED
-      --add-opens java.base/sun.nio.ch=ALL-UNNAMED
-      --add-opens java.base/java.lang=ALL-UNNAMED
-      --add-opens java.base/jdk.internal.ref=ALL-UNNAMED
-      --add-opens java.base/java.lang.reflect=ALL-UNNAMED
-      --add-opens java.base/java.util=ALL-UNNAMED
-      --add-opens java.base/java.util.concurrent=ALL-UNNAMED
-      --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-      --add-exports java.security.jgss/sun.security.krb5=ALL-UNNAMED</phoenix-surefire.jdk11.flags>
-    <phoenix-surefire.jdk11.tuning.flags>
-        ${phoenix-surefire.jdk8.tuning.flags}
-    </phoenix-surefire.jdk11.tuning.flags>
+    <!-- Hard to read, but ScalaTest cannot handle multiline argLine. 
+         It cannot resolve @{} either-->
+    <phoenix-surefire.argLine>-enableassertions -Xmx${surefire.Xmx} -Djava.security.egd=file:/dev/./urandom -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true -Dorg.apache.hbase.thirdparty.io.netty.leakDetection.level=advanced -Dio.netty.eventLoopThreads=3 -Duser.timezone="America/Los_Angeles" -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./target/ "-Djava.library.path=${hadoop.library.path}${path.separator}${java.library.path}"</phoenix-surefire.argLine>
+    <phoenix-surefire.jdk8.tuning.flags>-XX:NewRatio=4 -XX:SurvivorRatio=8 -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+DisableExplicitGC -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSClassUnloadingEnabled -XX:+CMSScavengeBeforeRemark -XX:CMSInitiatingOccupancyFraction=68</phoenix-surefire.jdk8.tuning.flags>
+    <phoenix-surefire.jdk11.flags>-Dorg.apache.hbase.thirdparty.io.netty.tryReflectionSetAccessible=true --add-modules jdk.unsupported --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.security.jgss/sun.security.krb5=ALL-UNNAMED</phoenix-surefire.jdk11.flags>
+    <phoenix-surefire.jdk11.tuning.flags>${phoenix-surefire.jdk8.tuning.flags}</phoenix-surefire.jdk11.tuning.flags>
     <phoenix-surefire.jdk17.flags>--add-opens java.base/jdk.internal.util.random=ALL-UNNAMED</phoenix-surefire.jdk17.flags>
     <phoenix-surefire.jdk17.tuning.flags></phoenix-surefire.jdk17.tuning.flags>
     <!-- Surefire argLine defaults for Linux + JDK8 -->
-    <argLine>${phoenix-surefire.argLine} ${phoenix-surefire.jdk8.tuning.flags} @{jacocoArgLine}</argLine>
+    <argLine>${phoenix-surefire.argLine} ${phoenix-surefire.jdk8.tuning.flags}</argLine>
 
     <!-- Dependency versions -->
     <hive3.version>3.1.2</hive3.version>
