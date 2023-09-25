@@ -54,7 +54,7 @@ val spark = SparkSession
 val df = spark.sqlContext
   .read
   .format("phoenix")
-  .options(Map("table" -> "TABLE1", "zkUrl" -> "phoenix-server:2181"))
+  .options(Map("table" -> "TABLE1"))
   .load
 
 df.filter(df("COL1") === "test_row_1" && df("ID") === 1L)
@@ -81,7 +81,6 @@ public class PhoenixSparkRead {
             .read()
             .format("phoenix")
             .option("table", "TABLE1")
-            .option("zkUrl", "phoenix-server:2181")
             .load();
         df.createOrReplaceTempView("TABLE1");
     
@@ -126,14 +125,14 @@ val spark = SparkSession
 val df = spark.sqlContext
   .read
   .format("phoenix")
-  .options(Map("table" -> "INPUT_TABLE", "zkUrl" -> "phoenix-server:2181"))
+  .options(Map("table" -> "INPUT_TABLE"))
   .load
 
 // Save to OUTPUT_TABLE
 df.write
   .format("phoenix")
   .mode(SaveMode.Append)
-  .options(Map("table" -> "OUTPUT_TABLE", "zkUrl" -> "phoenix-server:2181"))
+  .options(Map("table" -> "OUTPUT_TABLE"))
   .save()
 ```
 Java example:
@@ -157,7 +156,6 @@ public class PhoenixSparkWriteFromInputTable {
             .read()
             .format("phoenix")
             .option("table", "INPUT_TABLE")
-            .option("zkUrl", "phoenix-server:2181")
             .load();
         
         // Save to OUTPUT_TABLE
@@ -165,7 +163,6 @@ public class PhoenixSparkWriteFromInputTable {
           .format("phoenix")
           .mode(SaveMode.Append)
           .option("table", "OUTPUT_TABLE")
-          .option("zkUrl", "phoenix-server:2181")
           .save();
         jsc.stop();
     }
@@ -212,7 +209,7 @@ val df = spark.sqlContext.createDataFrame(rowRDD, schema)
 
 df.write
   .format("phoenix")
-  .options(Map("table" -> "OUTPUT_TABLE", "zkUrl" -> "phoenix-server:2181"))
+  .options(Map("table" -> "OUTPUT_TABLE"))
   .mode(SaveMode.Append)
   .save()
 ```
@@ -261,7 +258,6 @@ public class PhoenixSparkWriteFromRDDWithSchema {
             .format("phoenix")
             .mode(SaveMode.Append)
             .option("table", "OUTPUT_TABLE")
-            .option("zkUrl",  "phoenix-server:2181")
             .save();
   
         jsc.stop();
@@ -271,13 +267,21 @@ public class PhoenixSparkWriteFromRDDWithSchema {
 
 ## Notes
 
-- If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"` 
-  instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
-- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and `saveToPhoenix` all support
+- The DataSourceV2 based "phoenix" data source accepts the `"jdbcUrl"` parameter, which can be
+used to override the default Hbase/Phoenix instance specified in hbase-site.xml. It also accepts
+the deprected `zkUrl` parameter for backwards compatibility purposes. If neither is specified,
+it falls back to using connection defined by hbase-site.xml.
+- `"jdbcUrl"` expects a full Phoenix JDBC URL, i.e. "jdbc:phoenix" or "jdbc:phoenix:zkHost:zkport",
+while `"zkUrl"` expects the ZK quorum only, i.e. "zkHost:zkPort"
+- If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"`
+instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
+The `"org.apache.phoenix.spark"` datasource does not accept the `"jdbcUrl"` parameter,
+only `"zkUrl"`
+- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and
+`saveToPhoenix` use the deprecated `"org.apache.phoenix.spark"` datasource, and allow
 optionally specifying a `conf` Hadoop configuration parameter with custom Phoenix client settings,
-as well as an optional `zkUrl` parameter for the Phoenix connection URL.
-- If `zkUrl` isn't specified, it's assumed that the "hbase.zookeeper.quorum" property has been set
-in the `conf` parameter. Similarly, if no configuration is passed in, `zkUrl` must be specified.
+as well as an optional `zkUrl` parameter.
+
 - As of [PHOENIX-5197](https://issues.apache.org/jira/browse/PHOENIX-5197), you can pass configurations from the driver
 to executors as a comma-separated list against the key `phoenixConfigs` i.e (PhoenixDataSource.PHOENIX_CONFIGS), for ex:
     ```scala
@@ -285,7 +289,7 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
       .sqlContext
       .read
       .format("phoenix")
-      .options(Map("table" -> "Table1", "zkUrl" -> "phoenix-server:2181", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
+      .options(Map("table" -> "Table1", "jdbcUrl" -> "jdbc:phoenix:phoenix-server:2181", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
       .load;
     ```
     This list of properties is parsed and populated into a properties map which is passed to `DriverManager.getConnection(connString, propsMap)`.
@@ -298,12 +302,6 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
 - The Data Source API does not support passing custom Phoenix settings in configuration, you must
 create the DataFrame or RDD directly if you need fine-grained configuration.
 - No support for aggregate or distinct functions (http://phoenix.apache.org/phoenix_mr.html)
-
-## Limitations of the Spark3 connector comapred to the Spark2 Connector
-
-- Non-uppercase column names cannot be used for mapping DataFrames. (PHOENIX-6668)
-- When writing to a DataFrame, every SQL column in the table must be specified. (PHOENIX-6667)
-
 
 ## Deprecated Usages
 

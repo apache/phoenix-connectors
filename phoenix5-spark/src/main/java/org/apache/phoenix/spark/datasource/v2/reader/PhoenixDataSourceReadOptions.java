@@ -23,18 +23,18 @@ import java.util.Properties;
 class PhoenixDataSourceReadOptions implements Serializable {
 
     private final String tenantId;
-    private final String zkUrl;
+    private final String jdbcUrl;
     private final String scn;
     private final String selectStatement;
     private final Properties overriddenProps;
     private final byte[] pTableCacheBytes;
 
-    PhoenixDataSourceReadOptions(String zkUrl, String scn, String tenantId,
+    PhoenixDataSourceReadOptions(String jdbcUrl, String scn, String tenantId,
             String selectStatement, Properties overriddenProps, byte[] pTableCacheBytes) {
-        if(overriddenProps == null){
+        if (overriddenProps == null){
             throw new NullPointerException();
         }
-        this.zkUrl = zkUrl;
+        this.jdbcUrl = jdbcUrl;
         this.scn = scn;
         this.tenantId = tenantId;
         this.selectStatement = selectStatement;
@@ -50,8 +50,8 @@ class PhoenixDataSourceReadOptions implements Serializable {
         return scn;
     }
 
-    String getZkUrl() {
-        return zkUrl;
+    String getJdbcUrl() {
+        return jdbcUrl;
     }
 
     String getTenantId() {

@@ -61,16 +61,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
-
 public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDownFilters,
         SupportsPushDownRequiredColumns {
 
     private final DataSourceOptions options;
     private final String tableName;
-    private final String zkUrl;
+    private final String jdbcUrl;
     private final boolean dateAsTimestamp;
     private final Properties overriddenProps;
 
@@ -83,14 +79,12 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         if (!options.tableName().isPresent()) {
             throw new RuntimeException("No Phoenix option " + DataSourceOptions.TABLE_KEY + " defined");
         }
-        if (!options.get(PhoenixDataSource.ZOOKEEPER_URL).isPresent()) {
-            throw new RuntimeException("No Phoenix option " + PhoenixDataSource.ZOOKEEPER_URL + " defined");
-        }
+
         this.options = options;
         this.tableName = options.tableName().get();
-        this.zkUrl = options.get(PhoenixDataSource.ZOOKEEPER_URL).get();
+        this.jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
         this.dateAsTimestamp = options.getBoolean("dateAsTimestamp", false);
-        this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
+        this.overriddenProps = PhoenixDataSource.extractPhoenixHBaseConfFromOptions(options);
         setSchema();
     }
 
@@ -98,8 +92,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
      * Sets the schema using all the table columns before any column pruning has been done
      */
     private void setSchema() {
-        try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
             schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
@@ -134,14 +127,13 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         // Generate splits based off statistics, or just region splits?
         boolean splitByStats = options.getBoolean(
                 PhoenixConfigurationUtil.MAPREDUCE_SPLIT_BY_STATS, PhoenixConfigurationUtil.DEFAULT_SPLIT_BY_STATS);
-        if(currentScnValue.isPresent()) {
+        if (currentScnValue.isPresent()) {
             overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue.get());
         }
         if (tenantId.isPresent()){
             overriddenProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId.get());
         }
-        try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, new ArrayList<>(
                 Arrays.asList(schema.names())));
             final Statement statement = conn.createStatement();
@@ -188,7 +180,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
                 byte[] pTableCacheBytes = PTableImpl.toProto(queryPlan.getTableRef().getTable()).
                     toByteArray();
                 PhoenixDataSourceReadOptions phoenixDataSourceOptions =
-                     new PhoenixDataSourceReadOptions(zkUrl, currentScnValue.orElse(null),
+                     new PhoenixDataSourceReadOptions(jdbcUrl, currentScnValue.orElse(null),
                             tenantId.orElse(null), selectStatement, overriddenProps,
                          pTableCacheBytes);
                 if (splitByStats) {

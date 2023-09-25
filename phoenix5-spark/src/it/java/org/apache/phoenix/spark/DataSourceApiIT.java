@@ -20,7 +20,7 @@ package org.apache.phoenix.spark;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.phoenix.end2end.ParallelStatsDisabledIT;
 import org.apache.phoenix.query.ConfigurationFactory;
-import org.apache.phoenix.spark.sql.connector.PhoenixDataSource;
+import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
 import org.apache.phoenix.util.InstanceResolver;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -36,8 +36,8 @@ import org.junit.Test;
 import java.sql.*;
 import java.util.Arrays;
 
-import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.JDBC_URL;
-import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.ZOOKEEPER_URL;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.JDBC_URL;
+import static org.apache.phoenix.spark.datasource.v2.PhoenixDataSource.ZOOKEEPER_URL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 import static org.junit.Assert.*;
@@ -94,7 +94,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                         Arrays.asList(RowFactory.create(1, "x")),
                         schema);
 
-            df1.write().format("phoenix").mode(SaveMode.Append)
+            df1.write().format("phoenix").mode(SaveMode.Overwrite)
             .option("table", tableName)
             .option(ZOOKEEPER_URL, getUrl())
             .save();
@@ -105,7 +105,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                         Arrays.asList(RowFactory.create(2, "x")),
                         schema);
 
-            df2.write().format("phoenix").mode(SaveMode.Append)
+            df2.write().format("phoenix").mode(SaveMode.Overwrite)
                 .option("table", tableName)
                 .option(JDBC_URL, JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + getUrl())
                 .save();
@@ -116,7 +116,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                         Arrays.asList(RowFactory.create(3, "x")),
                         schema);
 
-            df3.write().format("phoenix").mode(SaveMode.Append)
+            df3.write().format("phoenix").mode(SaveMode.Overwrite)
                 .option("table", tableName)
                 .save();
 
@@ -192,7 +192,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
             df.write()
                     .format("phoenix")
-                    .mode(SaveMode.Append)
+                    .mode(SaveMode.Overwrite)
                     .option("table", tableName)
                     .option(ZOOKEEPER_URL, getUrl())
                     .save();

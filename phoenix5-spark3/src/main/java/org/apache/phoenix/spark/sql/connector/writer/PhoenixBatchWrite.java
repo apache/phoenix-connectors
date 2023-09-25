@@ -17,6 +17,7 @@
  */
 package org.apache.phoenix.spark.sql.connector.writer;
 
+import org.apache.phoenix.spark.sql.connector.PhoenixDataSource;
 import org.apache.phoenix.thirdparty.com.google.common.annotations.VisibleForTesting;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.connector.write.BatchWrite;
@@ -29,7 +30,6 @@ import org.apache.spark.sql.types.StructType;
 import java.util.Map;
 
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.CURRENT_SCN_VALUE;
-import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.ZOOKEEPER_URL;
 import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER;
 import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
 
@@ -60,12 +60,12 @@ public class PhoenixBatchWrite implements BatchWrite {
                                                                                          StructType schema) {
         String scn = options.get(CURRENT_SCN_VALUE);
         String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB);
-        String zkUrl = options.get(ZOOKEEPER_URL);
+        String jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
         String tableName = options.get("table");
         boolean skipNormalizingIdentifier = Boolean.parseBoolean(options.getOrDefault(SKIP_NORMALIZING_IDENTIFIER, Boolean.toString(false)));
         return new PhoenixDataSourceWriteOptions.Builder()
                 .setTableName(tableName)
-                .setZkUrl(zkUrl)
+                .setJdbcUrl(jdbcUrl)
                 .setScn(scn)
                 .setTenantId(tenantId)
                 .setSchema(schema)

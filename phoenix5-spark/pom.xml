@@ -447,6 +447,25 @@
   <build>
       <plugins>
         <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>add-test-source</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>add-test-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>src/it/java</source>
+                  <source>src/it/scala</source>
+                </sources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
           <configuration>
             <ignoreNonCompile>true</ignoreNonCompile>
@@ -513,7 +532,7 @@
                   to https://github.com/junit-team/junit4/issues/1223 -->
                 <parallel>false</parallel>
                 <tagsToExclude>Integration-Test</tagsToExclude>
-                <argLine>--XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
+                <argLine>-XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
               </configuration>
             </execution>
           </executions>

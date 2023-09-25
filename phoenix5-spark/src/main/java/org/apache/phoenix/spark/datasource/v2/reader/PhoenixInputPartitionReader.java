@@ -62,9 +62,6 @@ import org.apache.spark.sql.types.StructType;
 
 import scala.collection.Iterator;
 
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
-
 public class PhoenixInputPartitionReader implements InputPartitionReader<InternalRow>  {
 
     private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
@@ -89,7 +86,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
     private QueryPlan getQueryPlan() throws SQLException {
         String scn = options.getScn();
         String tenantId = options.getTenantId();
-        String zkUrl = options.getZkUrl();
+        String jdbcUrl = options.getJdbcUrl();
         Properties overridingProps = getOverriddenPropsFromOptions();
         if (scn != null) {
             overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, scn);
@@ -97,8 +94,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
         if (tenantId != null) {
             overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         }
-        try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overridingProps)) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl, overridingProps)) {
             PTable pTable = null;
             try {
                 pTable = PTable.parseFrom(options.getPTableCacheBytes());
@@ -185,7 +181,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
 
     @Override
     public void close() throws IOException {
-        if(resultSet != null) {
+        if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException e) {

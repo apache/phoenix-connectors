@@ -51,14 +51,12 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.extractPhoenixHBaseConfFromOptions;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 
 public class PhoenixScan implements Scan, Batch {
 
     private final StructType schema;
     private final CaseInsensitiveStringMap options;
-    private final String zkUrl;
+    private final String jdbcUrl;
     private final Properties overriddenProps;
     private PhoenixDataSourceReadOptions phoenixDataSourceOptions;
     private final String tableName;
@@ -72,8 +70,8 @@ public class PhoenixScan implements Scan, Batch {
         this.options = options;
         this.whereClause = whereClause;
         this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
-        this.zkUrl = options.get(PhoenixDataSource.ZOOKEEPER_URL);
-        tableName = options.get("table");
+        this.jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
+        this.tableName = options.get("table");
     }
 
     private void populateOverriddenProperties(){
@@ -82,7 +80,7 @@ public class PhoenixScan implements Scan, Batch {
         // Generate splits based off statistics, or just region splits?
         splitByStats = options.getBoolean(
                 PhoenixConfigurationUtil.MAPREDUCE_SPLIT_BY_STATS, PhoenixConfigurationUtil.DEFAULT_SPLIT_BY_STATS);
-        if(currentScnValue != null) {
+        if (currentScnValue != null) {
             overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue);
         }
         if (tenantId != null){
@@ -109,7 +107,7 @@ public class PhoenixScan implements Scan, Batch {
     public InputPartition[] planInputPartitions() {
         populateOverriddenProperties();
         try (Connection conn = DriverManager.getConnection(
-                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl, overriddenProps)) {
+                jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, new ArrayList<>(
                     Arrays.asList(schema.names())));
             final Statement statement = conn.createStatement();
@@ -151,7 +149,7 @@ public class PhoenixScan implements Scan, Batch {
                 byte[] pTableCacheBytes = PTableImpl.toProto(queryPlan.getTableRef().getTable()).
                     toByteArray();
                 phoenixDataSourceOptions =
-                        new PhoenixDataSourceReadOptions(zkUrl, currentScnValue,
+                        new PhoenixDataSourceReadOptions(jdbcUrl, currentScnValue,
                                 tenantId, selectStatement, overriddenProps, pTableCacheBytes);
 
                 if (splitByStats) {

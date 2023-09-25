@@ -34,6 +34,9 @@ import org.apache.spark.sql.sources.v2.reader.DataSourceReader;
 import org.apache.spark.sql.sources.v2.writer.DataSourceWriter;
 import org.apache.spark.sql.types.StructType;
 
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
+
 /**
  * Implements the DataSourceV2 api to read and write from Phoenix tables
  */
@@ -41,7 +44,9 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
 
     private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
+    @Deprecated
     public static final String ZOOKEEPER_URL = "zkUrl";
+    public static final String JDBC_URL = "jdbcUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";
 
     @Override
@@ -53,6 +58,33 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
     public Optional<DataSourceWriter> createWriter(String writeUUID, StructType schema,
             SaveMode mode, DataSourceOptions options) {
         return Optional.of(new PhoenixDataSourceWriter(mode, schema, options));
+    }
+
+    public static String getJdbcUrlFromOptions(final DataSourceOptions options) {
+        if (options.get(JDBC_URL).orElse(null) != null
+                && options.get(ZOOKEEPER_URL).orElse(null) != null) {
+            throw new RuntimeException("If " + JDBC_URL + " is specified, then  " + ZOOKEEPER_URL
+                    + " must not be specified");
+        }
+
+        String jdbcUrl = options.get(JDBC_URL).orElse(null);
+        String zkUrl = options.get(ZOOKEEPER_URL).orElse(null);
+        // Backward compatibility logic
+        if (jdbcUrl == null) {
+            if (zkUrl != null) {
+                if (zkUrl.startsWith(JDBC_PROTOCOL)) {
+                    // full URL specified, use it
+                    jdbcUrl = zkUrl;
+                } else {
+                    // backwards compatibility, assume ZK, and missing protocol
+                    // Don't use the specific protocol, as we need to work with older releases.
+                    jdbcUrl = JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + zkUrl;
+                }
+            } else {
+                jdbcUrl = JDBC_PROTOCOL;
+            }
+        }
+        return jdbcUrl;
     }
 
     /**
