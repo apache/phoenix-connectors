@@ -61,9 +61,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
-
 public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDownFilters,
         SupportsPushDownRequiredColumns {
 
@@ -130,7 +127,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         // Generate splits based off statistics, or just region splits?
         boolean splitByStats = options.getBoolean(
                 PhoenixConfigurationUtil.MAPREDUCE_SPLIT_BY_STATS, PhoenixConfigurationUtil.DEFAULT_SPLIT_BY_STATS);
-        if(currentScnValue.isPresent()) {
+        if (currentScnValue.isPresent()) {
             overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue.get());
         }
         if (tenantId.isPresent()){

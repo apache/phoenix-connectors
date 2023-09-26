@@ -80,7 +80,7 @@ public class PhoenixScan implements Scan, Batch {
         // Generate splits based off statistics, or just region splits?
         splitByStats = options.getBoolean(
                 PhoenixConfigurationUtil.MAPREDUCE_SPLIT_BY_STATS, PhoenixConfigurationUtil.DEFAULT_SPLIT_BY_STATS);
-        if(currentScnValue != null) {
+        if (currentScnValue != null) {
             overriddenProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue);
         }
         if (tenantId != null){

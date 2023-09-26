@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.spark.datasource.v2;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -61,7 +60,7 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
     }
 
     public static String getJdbcUrlFromOptions(final DataSourceOptions options) {
-        if(options.get(JDBC_URL).orElse(null) != null
+        if (options.get(JDBC_URL).orElse(null) != null
                 && options.get(ZOOKEEPER_URL).orElse(null) != null) {
             throw new RuntimeException("If " + JDBC_URL + " is specified, then  " + ZOOKEEPER_URL
                     + " must not be specified");

@@ -62,9 +62,6 @@ import org.apache.spark.sql.types.StructType;
 
 import scala.collection.Iterator;
 
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
-import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
-
 public class PhoenixInputPartitionReader implements InputPartitionReader<InternalRow>  {
 
     private final SerializableWritable<PhoenixInputSplit> phoenixInputSplit;
@@ -184,7 +181,7 @@ public class PhoenixInputPartitionReader implements InputPartitionReader<Interna
 
     @Override
     public void close() throws IOException {
-        if(resultSet != null) {
+        if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException e) {

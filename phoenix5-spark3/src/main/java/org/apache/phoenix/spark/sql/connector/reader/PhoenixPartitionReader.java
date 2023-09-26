@@ -168,7 +168,7 @@ public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
 
     @Override
     public void close() throws IOException {
-        if(resultSet != null) {
+        if (resultSet != null) {
             try {
                 resultSet.close();
             } catch (SQLException e) {

@@ -257,9 +257,9 @@ public class PhoenixSparkWriteFromRDDWithSchema {
 
 ## Notes
 
-- The DataSourceV2 based "phoenix" data source accepts the `"jdbcUrl"` parameter, which can be 
+- The DataSourceV2 based "phoenix" data source accepts the `"jdbcUrl"` parameter, which can be
 used to override the default Hbase/Phoenix instance specified in hbase-site.xml. It also accepts
-the deprected `zkUrl` parameter for backwards compatibility purposes. If neither is specified, 
+the deprected `zkUrl` parameter for backwards compatibility purposes. If neither is specified,
 it falls back to using connection defined by hbase-site.xml.
 - `"jdbcUrl"` expects a full Phoenix JDBC URL, i.e. "jdbc:phoenix" or "jdbc:phoenix:zkHost:zkport",
 while `"zkUrl"` expects the ZK quorum only, i.e. "zkHost:zkPort"
@@ -267,7 +267,7 @@ while `"zkUrl"` expects the ZK quorum only, i.e. "zkHost:zkPort"
 instead of `"phoenix"`, however this is deprecated as of `connectors-1.0.0`.
 The `"org.apache.phoenix.spark"` datasource does not accept the `"jdbcUrl"` parameter,
 only `"zkUrl"`
-- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and 
+- The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and
 `saveToPhoenix` use the deprecated `"org.apache.phoenix.spark"` datasource, and allow
 optionally specifying a `conf` Hadoop configuration parameter with custom Phoenix client settings,
 as well as an optional `zkUrl` parameter.
@@ -282,7 +282,8 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
       .options(Map("table" -> "Table1", "jdbcUrl" -> "jdbc:phoenix:phoenix-server:2181", "phoenixConfigs" -> "hbase.client.retries.number=10,hbase.client.pause=10000"))
       .load;
     ```
-    This list of properties is parsed and populated into a properties map which is passed to `DriverManager.getConnection(connString, propsMap)`.
+    This list of properties is parsed and populated into a properties map which is passed to 
+    `DriverManager.getConnection(connString, propsMap)`.
     Note that the same property values will be used for both the driver and all executors and
     these configurations are used each time a connection is made (both on the driver and executors).
 

@@ -31,7 +31,7 @@ class PhoenixDataSourceReadOptions implements Serializable {
 
     PhoenixDataSourceReadOptions(String jdbcUrl, String scn, String tenantId,
             String selectStatement, Properties overriddenProps, byte[] pTableCacheBytes) {
-        if(overriddenProps == null){
+        if (overriddenProps == null){
             throw new NullPointerException();
         }
         this.jdbcUrl = jdbcUrl;

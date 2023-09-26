@@ -84,7 +84,7 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
     }
 
     public static String getJdbcUrlFromOptions(Map<String, String> options) {
-        if(options.get(JDBC_URL) != null && options.get(ZOOKEEPER_URL) != null) {
+        if (options.get(JDBC_URL) != null && options.get(ZOOKEEPER_URL) != null) {
             throw new RuntimeException("If " + JDBC_URL + " is specified, then  " + ZOOKEEPER_URL
                     + " must not be specified");
         }
