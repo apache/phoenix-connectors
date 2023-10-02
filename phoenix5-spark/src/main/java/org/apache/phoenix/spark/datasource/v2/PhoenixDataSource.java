@@ -44,6 +44,7 @@ public class PhoenixDataSource  implements DataSourceV2,  ReadSupport, WriteSupp
 
     private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
+    @Deprecated
     public static final String ZOOKEEPER_URL = "zkUrl";
     public static final String JDBC_URL = "jdbcUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";

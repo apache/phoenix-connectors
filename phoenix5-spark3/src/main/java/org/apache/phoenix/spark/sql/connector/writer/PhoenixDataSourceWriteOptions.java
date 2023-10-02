@@ -39,16 +39,16 @@ class PhoenixDataSourceWriteOptions implements Serializable {
                                           String tenantId, StructType schema, boolean skipNormalizingIdentifier,
                                           Properties overriddenProps) {
         if (tableName == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("tableName must not be null");
         }
         if (jdbcUrl == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("jdbcUrl must not be null");
         }
         if (schema == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("schema must not be null");
         }
         if (overriddenProps == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("overriddenProps must not be null");
         }
         this.tableName = tableName;
         this.jdbcUrl = jdbcUrl;

@@ -38,6 +38,9 @@ class PhoenixDataSourceWriteOptions implements Serializable {
         if (tableName == null) {
             throw new IllegalArgumentException("tableName must not be null");
         }
+        if (jdbcUrl == null) {
+            throw new IllegalArgumentException("jdbcUrl must not be null");
+        }
         if (schema == null) {
             throw new IllegalArgumentException("schema must not be null");
         }
