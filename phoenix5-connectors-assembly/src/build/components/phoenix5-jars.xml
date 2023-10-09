@@ -22,16 +22,6 @@
 <component>
   <fileSets>
     <fileSet>
-      <!-- We don't actually have shaded flume JARs ATM, 
-      but there's no point in packaging the unshaded ones. -->
-      <directory>${project.basedir}/../phoenix5-flume/target</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>phoenix5-flume-${project.version}.jar</include>
-        <include>phoenix5-flume.jar</include>
-      </includes>
-    </fileSet>
-    <fileSet>
       <directory>${project.basedir}/../phoenix5-spark-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>

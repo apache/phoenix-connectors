@@ -45,7 +45,6 @@
       <!-- Changing the module order here may cause maven to get stuck in an infinite loop -->
       <module>phoenix5-hive</module>
       <module>phoenix5-hive-shaded</module>
-      <module>phoenix5-flume</module>
       <module>phoenix5-spark</module>
       <module>phoenix5-spark-shaded</module>
       <module>phoenix5-spark3</module>
@@ -98,7 +97,6 @@
     <hive.version>${hive3.version}</hive.version>
     <hive3-storage.version>2.7.0</hive3-storage.version>
     <hive-storage.version>${hive3-storage.version}</hive-storage.version>
-    <flume.version>1.4.0</flume.version>
     <spark.version>2.4.0</spark.version>
     <spark3.version>3.0.3</spark3.version>
     <scala.version>2.11.12</scala.version>
@@ -508,11 +506,6 @@
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix5-flume</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.phoenix</groupId>
         <artifactId>phoenix5-spark</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -814,39 +807,6 @@
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>${log4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.flume</groupId>
-        <artifactId>flume-ng-core</artifactId>
-        <version>${flume.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.flume</groupId>
-        <artifactId>flume-ng-sdk</artifactId>
-        <version>${flume.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.flume</groupId>
-        <artifactId>flume-ng-configuration</artifactId>
-        <version>${flume.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
