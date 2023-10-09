@@ -32,14 +32,6 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix5-kafka/target</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>phoenix5-kafka-${project.version}.jar</include>
-        <include>phoenix5-kafka.jar</include>
-      </includes>
-    </fileSet>
-    <fileSet>
       <directory>${project.basedir}/../phoenix5-spark-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>

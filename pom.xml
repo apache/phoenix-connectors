@@ -46,7 +46,6 @@
       <module>phoenix5-hive</module>
       <module>phoenix5-hive-shaded</module>
       <module>phoenix5-flume</module>
-      <module>phoenix5-kafka</module>
       <module>phoenix5-spark</module>
       <module>phoenix5-spark-shaded</module>
       <module>phoenix5-spark3</module>
@@ -100,7 +99,6 @@
     <hive3-storage.version>2.7.0</hive3-storage.version>
     <hive-storage.version>${hive3-storage.version}</hive-storage.version>
     <flume.version>1.4.0</flume.version>
-    <kafka.version>0.9.0.0</kafka.version>
     <spark.version>2.4.0</spark.version>
     <spark3.version>3.0.3</spark3.version>
     <scala.version>2.11.12</scala.version>
@@ -118,8 +116,6 @@
     <jodatime.version>2.10.5</jodatime.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-compress.version>1.9</commons-compress.version>
-    <!-- For Kafka -->
-    <com-101tek-zkclient.version>0.7</com-101tek-zkclient.version>
     <!-- For hive -->
     <commons-io.version>2.11.0</commons-io.version>
 
@@ -513,11 +509,6 @@
       <dependency>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>phoenix5-flume</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.phoenix</groupId>
-        <artifactId>phoenix5-kafka</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
