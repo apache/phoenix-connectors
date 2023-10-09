@@ -51,10 +51,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix5-kafka</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix5-spark</artifactId>
     </dependency>
     <dependency>
@@ -153,26 +149,6 @@
               </arguments>
             </configuration>
           </execution>          
-          <execution>
-            <id>kafka without version</id>
-            <phase>package</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>ln</executable>
-              <workingDirectory>${project.basedir}/../phoenix5-kafka/target</workingDirectory>
-              <arguments>
-                <argument>-fnsv</argument>
-                <argument>
-                  phoenix5-kafka-${project.version}.jar
-                </argument>
-                <argument>
-                  phoenix5-kafka.jar
-                </argument>
-              </arguments>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>
