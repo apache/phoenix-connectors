@@ -64,12 +64,21 @@ object ConfigurationUtil extends Serializable {
   }
 
   def setZookeeperURL(conf: Configuration, zkUrl: String) = {
-    val info = PhoenixEmbeddedDriver.ConnectionInfo.create(zkUrl)
-    conf.set(HConstants.ZOOKEEPER_QUORUM, info.getZookeeperQuorum)
-    if (info.getPort != null)
-      conf.setInt(HConstants.ZOOKEEPER_CLIENT_PORT, info.getPort)
-    if (info.getRootNode != null)
-      conf.set(HConstants.ZOOKEEPER_ZNODE_PARENT, info.getRootNode)
+    var zk = zkUrl
+    if (zk.startsWith("jdbc:phoenix:")) {
+      zk = zk.substring("jdbc:phoenix:".length)
+    }
+    if (zk.startsWith("jdbc:phoenix+zk:")) {
+      zk = zk.substring("jdbc:phoenix+zk:".length)
+    }
+    val escapedUrl = zk.replaceAll("\\\\:","=")
+    val parts = escapedUrl.split(":")
+    if (parts.length >= 1 && parts(0).length()>0)
+      conf.set(HConstants.ZOOKEEPER_QUORUM, parts(0).replaceAll("=", "\\\\:"))
+    if (parts.length >= 2 && parts(1).length()>0)
+      conf.setInt(HConstants.ZOOKEEPER_CLIENT_PORT, Integer.parseInt(parts(1).replaceAll("=", "\\\\:")))
+    if (parts.length >= 3 && parts(2).length()>0)
+      conf.set(HConstants.ZOOKEEPER_ZNODE_PARENT, parts(2).replaceAll("=", "\\\\:"))
   }
 
   def setTenantId(conf: Configuration, tenantId: String) = {
