@@ -73,11 +73,11 @@ object ConfigurationUtil extends Serializable {
     }
     val escapedUrl = zk.replaceAll("\\\\:","=")
     val parts = escapedUrl.split(":")
-    if (parts.length >= 1)
+    if (parts.length >= 1 && parts(0).length()>0)
       conf.set(HConstants.ZOOKEEPER_QUORUM, parts(0).replaceAll("=", "\\\\:"))
-    if (parts.length >= 2)
+    if (parts.length >= 2 && parts(1).length()>0)
       conf.setInt(HConstants.ZOOKEEPER_CLIENT_PORT, Integer.parseInt(parts(1).replaceAll("=", "\\\\:")))
-    if (parts.length >= 3)
+    if (parts.length >= 3 && parts(2).length()>0)
       conf.set(HConstants.ZOOKEEPER_ZNODE_PARENT, parts(2).replaceAll("=", "\\\\:"))
   }
 
