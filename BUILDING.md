@@ -24,23 +24,18 @@ Copyright ©2019 [Apache Software Foundation](http://www.apache.org/). All Right
 ## Building Apache Phoenix Connectors
 
 This repository will build jars for the different Phoenix connectors.
-Phoenix 4 and Phoenix 5 versions use different Hadoop and HBase versions, and require separate versions of the connectors.
-Phoenix 4 requires Hadoop 2.x and HBase 1.x, while Phoenix 5 requires Hadoop 3.x and HBase 2.x
-The standard build process builds the connectors both for Phoenix 4 and Phoenix 5.
 
 ```
 $ mvn package
 ```
 
 ### Building against specific Phoenix version
-To build a release of Phoenix Connectors which packages a specific version of Phoenix, specify the `phoenix-four.version` or the `phoenix-five.version` system property to indicate a specific Phoenix version.
+To build a release of Phoenix Connectors which packages a specific version of Phoenix, specify the `phoenix.version` system property to indicate a specific Phoenix version.
 
-Phoenix Connectors will package the same version of Phoenix used for build/test. This version is controlled by the
-`phoenix-four.version` and the `phoenix-five.version` system properties.
 
-When specifying `phoenix-four.version` and the `phoenix-five.version`, also specify the HBase version to be used
-by the corresponding `hbase-one.version` and `hbase-two.version` system properties.
-Similarly you can overwrite the `hadoop-two.version` and the `hadoop-three.version` system properties if necessary.
+When specifying `phoenix.version`, also specify the HBase version to be used
+by the corresponding `hbase-two.version` system property.
+Similarly you can override the `hadoop-three.version` system properties if necessary.
 
 ```
 $ mvn package -Dphoenix-five.version=5.1.0-SNAPSHOT
@@ -51,19 +46,8 @@ $ mvn package -Dphoenix-five.version=5.1.0-SNAPSHOT
 `mvn package` will run the unit tests while building, but it will not run the integration test suite.
 
 The IT suite is run when executing `mvn install` or `mvn verify`. The Phoenix version specified
-with `phoenix-four.version` and the `phoenix-five.version` are used for running the integration tests.
+with `phoenix.version` is used for running the integration tests.
 
-```
-$ mvn verify -Dphoenix-four.version=4.16.0-SNAPSHOT -Dhbase-one.version=1.5.0
-```
 ```
 $ mvn install -Dphoenix-five.version=5.1.0-SNAPSHOT -Dhbase-one.version=2.1.9 -Dhadoop-three.version=3.0.3
-```
-
-### Skipping Phoenix 4/5 modules
-
-You can specify `-Dskip-phoenix4` or `-Dskip-phoenix5` system property to skip building the connectors for Phoenix 4 or Phoenix 5 altogether. It is useful to reduce the feedback time while working on a change for a specific Phoenix version or when you don't actually need the connectors for both Phoenix 4 and 5.
-
-```
-mvn clean package -DskipTests -Dskip-phoenix4
 ```
