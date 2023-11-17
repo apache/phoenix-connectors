@@ -97,6 +97,17 @@
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.omid</groupId>
+      <artifactId>omid-tso-server-hbase2.x</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.omid</groupId>
+      <artifactId>omid-tso-server-hbase2.x</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -221,6 +232,7 @@
             <ignoredDependency>org.apache.hadoop:hadoop-minicluster</ignoredDependency>
             <ignoredDependency>org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}</ignoredDependency>
             <ignoredDependency>org.apache.hbase:hbase-it</ignoredDependency>
+            <ignoredDependency>org.apache.omid:*</ignoredDependency>
           </ignoredDependencies>
         </configuration>
       </plugin>

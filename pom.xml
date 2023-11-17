@@ -55,7 +55,8 @@
 
   <properties>
     <!-- Phoenix Version -->
-    <phoenix.version>5.1.2</phoenix.version>
+    <phoenix.version>5.1.3</phoenix.version>
+    <omid.version>1.0.2</omid.version>
     <phoenix.thirdparty.version>2.0.0</phoenix.thirdparty.version>
     <!-- Hadoop Versions -->
     <hbase.version>2.1.10</hbase.version>
@@ -498,6 +499,19 @@
         <version>${phoenix.version}</version>
         <classifier>tests</classifier>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.omid</groupId>
+        <artifactId>omid-tso-server-hbase2.x</artifactId>
+        <scope>test</scope>
+        <version>${omid.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.omid</groupId>
+        <artifactId>omid-tso-server-hbase2.x</artifactId>
+        <scope>test</scope>
+       <version>${omid.version}</version>
+        <type>test-jar</type>
       </dependency>
       <dependency>
         <groupId>org.apache.phoenix.thirdparty</groupId>
