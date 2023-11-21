@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.phoenix.end2end.BaseOrderByIT;
+import org.apache.phoenix.end2end.ParallelStatsDisabledTest;
 import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
 import org.apache.phoenix.util.PropertiesUtil;
 import org.apache.phoenix.util.QueryBuilder;
@@ -44,6 +45,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.Ignore;
 
 
@@ -51,6 +53,7 @@ import org.junit.Ignore;
 import scala.Option;
 import scala.collection.JavaConverters;
 
+@Category(ParallelStatsDisabledTest.class)
 public class OrderByIT extends BaseOrderByIT {
 
     @Override
