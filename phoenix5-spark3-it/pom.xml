@@ -219,7 +219,7 @@
           <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
           <junitxml>.</junitxml>
           <filereports>WDF TestSuite.txt</filereports>
-          <skipTests>${skip-scala-tests}</skipTests>
+          <skipTests>${skip.scalatest}</skipTests>
         </configuration>
         <executions>
           <execution>
@@ -257,17 +257,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>scala-tests-enabled</id>
-      <activation>
-        <property>
-          <name>scala-tests-enabled</name>
-        </property>
-      </activation>
-      <properties>
-        <skip-scala-tests>false</skip-scala-tests>
-      </properties>
-    </profile>
-  </profiles>
 </project>
