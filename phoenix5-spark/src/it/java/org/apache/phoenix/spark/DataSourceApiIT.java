@@ -19,6 +19,7 @@ package org.apache.phoenix.spark;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.phoenix.end2end.ParallelStatsDisabledIT;
+import org.apache.phoenix.end2end.ParallelStatsDisabledTest;
 import org.apache.phoenix.query.ConfigurationFactory;
 import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
 import org.apache.phoenix.util.InstanceResolver;
@@ -32,6 +33,7 @@ import org.apache.spark.sql.types.StructType;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.sql.*;
 import java.util.Arrays;
@@ -42,6 +44,7 @@ import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 import static org.junit.Assert.*;
 
+@Category(ParallelStatsDisabledTest.class)
 public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
     public DataSourceApiIT() {
