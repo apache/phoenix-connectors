@@ -145,7 +145,7 @@
     <hbase.shaded.package>org.apache.hadoop.hbase.shaded</hbase.shaded.package>
     <phoenix.main.version>5</phoenix.main.version>
 
-    <skip-scala-tests>true</skip-scala-tests>
+    <skip.scalatest>false</skip.scalatest>
     <skip.spark.javadoc>false</skip.spark.javadoc>
   </properties>
 
@@ -857,10 +857,7 @@
         <jdk>[11,17)</jdk>
       </activation>
       <properties>
-        <argLine>${phoenix-surefire.jdk11.flags}
-          ${phoenix-surefire.jdk11.tuning.flags}
-          ${phoenix-surefire.argLine}
-          @{jacocoArgLine}</argLine>
+        <argLine>${phoenix-surefire.jdk11.flags} ${phoenix-surefire.jdk11.tuning.flags} ${phoenix-surefire.argLine}</argLine>
       </properties>
     </profile>
     <profile>
@@ -869,11 +866,7 @@
         <jdk>[17,)</jdk>
       </activation>
       <properties>
-        <argLine>${phoenix-surefire.jdk11.flags}
-          ${phoenix-surefire.jdk17.flags}
-          ${phoenix-surefire.jdk17.tuning.flags}
-          ${phoenix-surefire.argLine}
-          @{jacocoArgLine}</argLine>
+        <argLine>${phoenix-surefire.jdk11.flags} ${phoenix-surefire.jdk17.flags} ${phoenix-surefire.jdk17.tuning.flags} ${phoenix-surefire.argLine}</argLine>
       </properties>
     </profile>
     <!-- disable doclint with 1.8+ JDKs-->

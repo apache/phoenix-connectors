@@ -35,7 +35,6 @@
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
-    <skip-scala-tests>true</skip-scala-tests>
   </properties>
 
   <dependencies>
@@ -530,7 +529,7 @@
             <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
             <junitxml>.</junitxml>
             <filereports>WDF TestSuite.txt</filereports>
-            <skipTests>${skip-scala-tests}</skipTests>
+            <skipTests>${skip.scalatest}</skipTests>
           </configuration>
           <executions>
             <execution>
@@ -589,17 +588,4 @@
         this should be kept in sync with Phoenix as much as possible -->
       </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>scala-tests-enabled</id>
-      <activation>
-        <property>
-          <name>scala-tests-enabled</name>
-        </property>
-      </activation>
-      <properties>
-        <skip-scala-tests>false</skip-scala-tests>
-      </properties>
-    </profile>
-  </profiles>
 </project>
