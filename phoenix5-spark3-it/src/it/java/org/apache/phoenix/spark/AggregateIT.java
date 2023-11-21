@@ -27,8 +27,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.phoenix.end2end.BaseAggregateIT;
+import org.apache.phoenix.end2end.ParallelStatsDisabledTest;
 import org.apache.phoenix.util.QueryBuilder;
+import org.junit.experimental.categories.Category;
 
+@Category(ParallelStatsDisabledTest.class)
 public class AggregateIT extends BaseAggregateIT {
 
     @Override
