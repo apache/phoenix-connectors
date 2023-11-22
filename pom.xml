@@ -57,15 +57,15 @@
     <!-- Phoenix Version -->
     <phoenix.version>5.1.3</phoenix.version>
     <omid.version>1.0.2</omid.version>
+    <commons-beanutils.version>1.9.4</commons-beanutils.version>
     <phoenix.thirdparty.version>2.0.0</phoenix.thirdparty.version>
     <!-- Hadoop Versions -->
     <hbase.version>2.1.10</hbase.version>
     <hbase.compat.version>2.1.6</hbase.compat.version>
     <hadoop.version>3.0.3</hadoop.version>
-    <zookeeper.version>3.5.9</zookeeper.version>
+    <zookeeper.version>3.4.10</zookeeper.version>
 
     <hbase-thirdparty-version>2.1.0</hbase-thirdparty-version>
-    
 
     <!-- General Properties -->
     <test.output.tofile>true</test.output.tofile>
@@ -548,7 +548,11 @@
         <artifactId>phoenix5-hive-shaded</artifactId>
         <version>${project.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>${commons-beanutils.version}</version>
+      </dependency>
       <!-- HBase dependencies -->
 
       <!-- These are only needed so that we can set them provided and exclude from the shaded jars -->

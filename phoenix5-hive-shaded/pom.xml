@@ -48,12 +48,6 @@
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper-jute</artifactId>
-      <version>${zookeeper.version}</version>
-      <scope>provided</scope>
-    </dependency>
     <!-- maven-shade-plugin doesn't inherit dependency settings, we must duplicate them to avoid
     adding the provided dependencies -->
     <dependency>
@@ -121,14 +115,29 @@
         </exclusion>
       </exclusions>
     </dependency>
+    
+    <!-- Dependencies below should be the same for Hive, Spark and Spark3 shading config -->
+    
+    <!-- Phoenix excludes commons-beanutils from the Omid dependency, but that's basically a bug.
+     We need to add it back, so that we don't depend on hadoop's common-beanutils, which may or
+     may not be shaded.
+     This can be removed once we use a Phoenix version that doesn't have this problem -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-mapreduce</artifactId>
-      <scope>provided</scope>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <scope>compile</scope>
     </dependency>
+
+    <!-- Mark every Hadoop jar as provided -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-zookeeper</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <exclusions>
+          <exclusion>
+              <groupId>commons-beanutils</groupId>
+              <artifactId>commons-beanutils</artifactId>
+          </exclusion>
+      </exclusions>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -137,13 +146,23 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-protocol-shaded</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-annotations</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-endpoint</artifactId>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-auth</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-yarn-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -153,19 +172,136 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-minicluster</artifactId>
-      <scope>test</scope>
+      <artifactId>hadoop-distcp</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>${zookeeper.version}</version>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-client-common</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- We want to take the implementation from Hive -->
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Mark HBase as provided, too -->
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-client</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-mapreduce</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-replication</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-endpoint</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-endpoint</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-metrics-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-metrics</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-protocol</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-protocol-shaded</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-server</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-hadoop-compat</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-hadoop2-compat</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-zookeeper</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase.thirdparty</groupId>
+      <artifactId>hbase-shaded-netty</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase.thirdparty</groupId>
+      <artifactId>hbase-shaded-miscellaneous</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase.thirdparty</groupId>
+      <artifactId>hbase-shaded-protobuf</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Other dependencies we don't want to shade in, but are not transitively excluded by the
+    above for some reason -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <!-- random version, for exclusion only -->
+      <version>11.0.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stephenc.findbugs</groupId>
+      <artifactId>findbugs-annotations</artifactId>
+      <!-- random version, for exclusion only -->
+      <version>1.3.9-1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -248,6 +384,7 @@
             </transformer>
           </transformers>
           <relocations>
+            <!-- Keep phoenix-client-byo-shaded-hadoop in sync with this -->
             <relocation>
               <pattern>org/</pattern>
               <shadedPattern>${shaded.package}.org.</shadedPattern>
@@ -266,27 +403,74 @@
                 <!-- Extras compared to Hadoop -->
                 <!-- Hbase classes - Maybe these could be shaded as well ? -->
                 <exclude>org/apache/hbase/**</exclude>
+                <!-- We use the spark classpath directly -->
+                <exclude>org/apache/spark/**</exclude>
                 <!-- Phoenix classes -->
                 <exclude>org/apache/phoenix/**</exclude>
                 <exclude>org/apache/omid/**</exclude>
                 <!-- Do want/need to expose Tephra as well ? -->
+                <!-- See PHOENIX-7118
+                 Depending on the Spark classpath we may need to leave this unshaded, relocate
+                 it under org/apache/hadoop/shaded/ or under org/apache/hadoop/hbase/shaded/.
+                 The only thing that is guaranteed not to work is relocating it under 
+                 ${shaded.package} -->
+                <exclude>org/apache/commons/configuration2/**</exclude>
               </excludes>
+            </relocation>
+            <!-- We cannot use the more elegant shading rules in -client
+              and -server for com packages, but it SHOULD be equivalent, except for the
+              protobuf change for hbase-shaded-client compatibility -->
+            <relocation>
+              <pattern>com/beust/</pattern>
+              <shadedPattern>${shaded.package}.com.beust.</shadedPattern>
             </relocation>
             <relocation>
-              <pattern>com/</pattern>
-              <shadedPattern>${shaded.package}.com.</shadedPattern>
-              <excludes>
-                <!-- Not the com/ packages that are a part of particular jdk implementations -->
-                <exclude>com/sun/tools/**</exclude>
-                <exclude>com/sun/javadoc/**</exclude>
-                <exclude>com/sun/security/**</exclude>
-                <exclude>com/sun/jndi/**</exclude>
-                <exclude>com/sun/management/**</exclude>
-                <!-- We are getting unshaded HBase from Hive, we must leave protobuf generated
-                classes alone -->
-                <exclude>com/google/protobuf/**</exclude>
-              </excludes>
+              <pattern>com/clearspring/</pattern>
+              <shadedPattern>${shaded.package}.com.clearspring.</shadedPattern>
             </relocation>
+            <relocation>
+              <pattern>com/codahale/</pattern>
+              <shadedPattern>${shaded.package}.come.codahale.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/fasterxml/</pattern>
+              <shadedPattern>${shaded.package}.com.fasterxml.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/force/</pattern>
+              <shadedPattern>${shaded.package}.com.force.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/google/gson/</pattern>
+              <shadedPattern>${shaded.package}.com.google.gson.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/google/inject/</pattern>
+              <shadedPattern>${shaded.package}.com.google.inject.</shadedPattern>
+            </relocation>
+            <!-- This is protobuf 2.5.0 which is shaded to this package in hbase-shaded-client,
+             not the modified protobuf 3.x from hbase-thirdparty -->
+            <relocation>
+              <pattern>com/google/protobuf/</pattern>
+              <shadedPattern>${hbase.shaded.package}.com.google.protobuf.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/ibm/</pattern>
+              <shadedPattern>${shaded.package}.com.ibm.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/lmax/</pattern>
+              <shadedPattern>${shaded.package}.com.lmax.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/sun/jna/</pattern>
+              <shadedPattern>${shaded.package}.com.sun.jna.</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com/squareup</pattern>
+              <shadedPattern>${shaded.package}.com.squareup.</shadedPattern>
+            </relocation>
+
             <relocation>
               <pattern>io/</pattern>
               <shadedPattern>${shaded.package}.io.</shadedPattern>
