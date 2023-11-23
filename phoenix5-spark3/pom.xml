@@ -35,8 +35,8 @@
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
     <spark.version>${spark3.version}</spark.version>
-    <scala.version>2.12.10</scala.version>
-    <scala.binary.version>2.12</scala.binary.version>
+    <scala.version>${scala.version.for.spark3}</scala.version>
+    <scala.binary.version>${scala.binary.version.for.spark3}</scala.binary.version>
     <jodatime.version>2.10.5</jodatime.version>
   </properties>
 
