@@ -401,6 +401,14 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <!-- Why is this not provided transitively via Phoenix ? -->
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Mark every Hadoop jar as provided -->
     <dependency>
       <groupId>org.apache.hadoop</groupId>
