@@ -131,6 +131,13 @@
 
     <!-- Minicluster dependencies -->
     <dependency>
+      <!-- Why is this not provided transitively via Phoenix ? -->
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-it</artifactId>
       <type>test-jar</type>
@@ -233,6 +240,7 @@
             <ignoredDependency>org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}</ignoredDependency>
             <ignoredDependency>org.apache.hbase:hbase-it</ignoredDependency>
             <ignoredDependency>org.apache.omid:*</ignoredDependency>
+            <ignoredDependency>org.apache.zookeeper:zookeeper</ignoredDependency>
           </ignoredDependencies>
         </configuration>
       </plugin>
