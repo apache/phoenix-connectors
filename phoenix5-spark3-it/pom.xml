@@ -35,8 +35,8 @@
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
     <spark.version>${spark3.version}</spark.version>
-    <scala.version>2.12.10</scala.version>
-    <scala.binary.version>2.12</scala.binary.version>
+    <scala.version>${scala.version.for.spark3}</scala.version>
+    <scala.binary.version>${scala.binary.version.for.spark3}</scala.binary.version>
   </properties>
 
   <dependencies>
@@ -47,6 +47,17 @@
       <artifactId>spark-core_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- The shaded hadoop-client libraries conflict with the minicluster -->
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client-runtime</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>

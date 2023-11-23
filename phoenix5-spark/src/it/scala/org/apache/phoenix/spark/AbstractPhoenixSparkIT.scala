@@ -103,6 +103,7 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
     // We pass in a TenantId to allow the DDL to create tenant-specific tables/views
     setupTables("tenantSetup.sql", Some(TenantId))
 
+    //FIXME is this ever used ?
     val conf = new SparkConf()
       .setAppName("PhoenixSparkIT")
       .setMaster("local[2]") // 2 threads, some parallelism
@@ -113,6 +114,7 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
       .appName("PhoenixSparkIT")
       .master("local[2]") // 2 threads, some parallelism
       .config("spark.ui.showConsoleProgress", "false")
+      .config("spark.hadoopRDD.ignoreEmptySplits", "false")
       .getOrCreate()
   }
 

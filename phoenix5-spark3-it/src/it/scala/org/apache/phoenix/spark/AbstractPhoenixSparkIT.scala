@@ -108,6 +108,7 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
       .appName("PhoenixSparkIT")
       .master("local[2]") // 2 threads, some parallelism
       .config("spark.ui.showConsoleProgress", "false")
+      .config("spark.hadoopRDD.ignoreEmptySplits", "false")
       .getOrCreate()
   }
 
