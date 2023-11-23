@@ -38,6 +38,7 @@ val spark = SparkSession
   .builder()
   .appName("phoenix-test")
   .master("local")
+  .config("spark.hadoopRDD.ignoreEmptySplits", "false")
   .getOrCreate()
 
 // Load data from TABLE1
@@ -62,7 +63,8 @@ import org.apache.spark.sql.SQLContext;
 public class PhoenixSparkRead {
     
     public static void main() throws Exception {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
+        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test")
+            .set("spark.hadoopRDD.ignoreEmptySplits", "false");
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
         SQLContext sqlContext = new SQLContext(jsc);
         
@@ -109,6 +111,7 @@ val spark = SparkSession
   .builder()
   .appName("phoenix-test")
   .master("local")
+  .config("spark.hadoopRDD.ignoreEmptySplits", "false")
   .getOrCreate()
   
 // Load INPUT_TABLE
@@ -137,7 +140,8 @@ import org.apache.spark.sql.SQLContext;
 public class PhoenixSparkWriteFromInputTable {
     
     public static void main() throws Exception {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
+        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test")
+          .set("spark.hadoopRDD.ignoreEmptySplits", "false");
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
         SQLContext sqlContext = new SQLContext(jsc);
         
@@ -183,6 +187,7 @@ val spark = SparkSession
   .builder()
   .appName("phoenix-test")
   .master("local")
+  .config("spark.hadoopRDD.ignoreEmptySplits", "false")
   .getOrCreate()
   
 val dataSet = List(Row(1L, "1", 1), Row(2L, "2", 2), Row(3L, "3", 3))
@@ -223,7 +228,8 @@ import java.util.List;
 public class PhoenixSparkWriteFromRDDWithSchema {
  
     public static void main() throws Exception {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
+        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test")
+            .set("spark.hadoopRDD.ignoreEmptySplits", "false");
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
         SQLContext sqlContext = new SQLContext(jsc);
         SparkSession spark = sqlContext.sparkSession();
@@ -306,7 +312,8 @@ import org.apache.phoenix.spark._
 val configuration = new Configuration()
 // Can set Phoenix-specific settings, requires 'hbase.zookeeper.quorum'
 
-val sc = new SparkContext("local", "phoenix-test")
+val sparkConf = new SparkConf().set("spark.ui.showConsoleProgress", "false")
+val sc = new SparkContext("local", "phoenix-test", sparkConf)
 val sqlContext = new SQLContext(sc)
 
 // Load the columns 'ID' and 'COL1' from TABLE1 as a DataFrame
@@ -324,7 +331,8 @@ import org.apache.spark.sql.SQLContext
 import org.apache.phoenix.spark._
 import org.apache.spark.rdd.RDD
 
-val sc = new SparkContext("local", "phoenix-test")
+val sparkConf = new SparkConf().set("spark.ui.showConsoleProgress", "false")
+val sc = new SparkContext("local", "phoenix-test", sparkConf)
 
 // Load the columns 'ID' and 'COL1' from TABLE1 as an RDD
 val rdd: RDD[Map[String, AnyRef]] = sc.phoenixTableAsRDD(

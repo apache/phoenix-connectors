@@ -70,7 +70,8 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
     @Test
     public void basicWriteAndReadBackTest() throws SQLException {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
+        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test")
+                .set("spark.hadoopRDD.ignoreEmptySplits", "false");
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
         SQLContext sqlContext = new SQLContext(jsc);
         String tableName = generateUniqueName();
@@ -165,7 +166,8 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
     @Test
     @Ignore // Spark3 seems to be unable to handle mixed case colum names
     public void lowerCaseWriteTest() throws SQLException {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
+        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test")
+                .set("spark.hadoopRDD.ignoreEmptySplits", "false");
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
         SQLContext sqlContext = new SQLContext(jsc);
         String tableName = generateUniqueName();

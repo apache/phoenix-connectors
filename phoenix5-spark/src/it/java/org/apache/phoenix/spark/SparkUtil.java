@@ -45,7 +45,8 @@ public class SparkUtil {
 
     public static SparkSession getSparkSession() {
         return SparkSession.builder().appName(APP_NAME).master(NUM_EXECUTORS)
-                .config(UI_SHOW_CONSOLE_PROGRESS, false).getOrCreate();
+                .config(UI_SHOW_CONSOLE_PROGRESS, false)
+                .config("spark.hadoopRDD.ignoreEmptySplits", false).getOrCreate();
     }
 
     public static ResultSet executeQuery(Connection conn, QueryBuilder queryBuilder, String url, Configuration config)
