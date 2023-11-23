@@ -197,19 +197,25 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.0</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
+      <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${commons-io.version}</version>
+      <scope>test</scope>
     </dependency>
-
-    <!-- Test dependencies -->
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-core</artifactId>
@@ -386,12 +392,15 @@
           <ignoredUsedUndeclaredDependencies>
             <!-- I couldn't find it referenced anywhere in the phoenix-hive codebase -->
             <ignoredUsedUndeclaredDependency>
-              com.google.code.findbugs:jsr305
-            </ignoredUsedUndeclaredDependency>
-            <ignoredUsedUndeclaredDependency>
               org.apache.calcite.avatica:avatica
             </ignoredUsedUndeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.antlr:antlr-runtime
+            </ignoredUnusedDeclaredDependency>
           </ignoredUsedUndeclaredDependencies>
+          <ignoredNonTestScopedDependencies>
+              org.antlr:antlr-runtime
+          </ignoredNonTestScopedDependencies>
         </configuration>
       </plugin>
       <plugin>
