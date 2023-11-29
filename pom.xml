@@ -133,7 +133,7 @@
 
     <!-- Plugin options -->
     <numForkedUT>8</numForkedUT>
-    <numForkedIT>7</numForkedIT>
+    <numForkedIT>4</numForkedIT>
     <it.failIfNoSpecifiedTests>false</it.failIfNoSpecifiedTests>
     <surefire.failIfNoSpecifiedTests>false</surefire.failIfNoSpecifiedTests>
 
@@ -308,7 +308,6 @@
             <runOrder>alphabetical</runOrder>
             <redirectTestOutputToFile>${test.output.tofile}</redirectTestOutputToFile>
             <shutdown>kill</shutdown>
-            <testSourceDirectory>${basedir}/src/it/java</testSourceDirectory>
             <trimStackTrace>false</trimStackTrace>
           </configuration>
           <executions>
