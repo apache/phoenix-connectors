@@ -58,7 +58,7 @@
     <phoenix.version>5.1.3</phoenix.version>
     <omid.version>1.0.2</omid.version>
     <commons-beanutils.version>1.9.4</commons-beanutils.version>
-    <phoenix.thirdparty.version>2.0.0</phoenix.thirdparty.version>
+    <phoenix.thirdparty.version>2.1.0</phoenix.thirdparty.version>
     <!-- The should match the versions used to build HBase and Hadoop -->
     <hbase.version>2.4.16</hbase.version>
     <hbase.compat.version>2.4.1</hbase.compat.version>
