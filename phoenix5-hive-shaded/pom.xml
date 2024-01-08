@@ -286,6 +286,11 @@
       <artifactId>hbase-shaded-protobuf</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <!-- Other dependencies we don't want to shade in, but are not transitively excluded by the
     above for some reason -->
     <dependency>
