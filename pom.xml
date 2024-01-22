@@ -127,7 +127,7 @@
     <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
     <spotbugs-maven-plugin.version>4.8.1.0</spotbugs-maven-plugin.version>
     <spotbugs.version>4.8.2</spotbugs.version>
-    <maven-owasp-plugin.version>9.0.1</maven-owasp-plugin.version>
+    <maven-owasp-plugin.version>9.0.6</maven-owasp-plugin.version>
     <maven.bundle.version>3.3.0</maven.bundle.version>
 
     <!-- Plugin options -->
