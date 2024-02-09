@@ -609,4 +609,55 @@
         this should be kept in sync with Phoenix as much as possible -->
       </plugins>
   </build>
+    <profiles>
+    <profile>
+      <!-- This only applies when building with 5.1 -->
+      <id>exclude-tephra</id>
+      <activation>
+        <property>
+          <name>without.tephra</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.phoenix</groupId>
+          <artifactId>phoenix-core</artifactId>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-api</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-core-shaded</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-hbase-compat-2.0</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-hbase-compat-2.1</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-hbase-compat-2.2</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-hbase-compat-2.3</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.tephra</groupId>
+              <artifactId>tephra-hbase-compat-2.4</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.hbase.thirdparty</groupId>
+              <artifactId>hbase-shaded-jersey</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
