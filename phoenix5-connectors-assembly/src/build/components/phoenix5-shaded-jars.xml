@@ -22,27 +22,27 @@
 <component>
   <fileSets>
     <fileSet>
-      <directory>${project.basedir}/../phoenix5-spark/target</directory>
+      <directory>${project.basedir}/../phoenix5-spark-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-spark-${project.version}.jar</include>
-        <include>phoenix5-spark.jar</include>
+        <include>phoenix5-spark-shaded-${project.version}.jar</include>
+        <include>phoenix5-spark-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix5-spark3/target</directory>
+      <directory>${project.basedir}/../phoenix5-spark3-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-spark3-${project.version}.jar</include>
-        <include>phoenix5-spark3.jar</include>
+        <include>phoenix5-spark3-shaded-${project.version}.jar</include>
+        <include>phoenix5-spark3-shaded.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/../phoenix5-hive/target</directory>
+      <directory>${project.basedir}/../phoenix5-hive-shaded/target</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>phoenix5-hive-${project.version}.jar</include>
-        <include>phoenix5-hive.jar</include>
+        <include>phoenix5-hive-shaded-${project.version}.jar</include>
+        <include>phoenix5-hive-shaded.jar</include>
       </includes>
     </fileSet>
   </fileSets>

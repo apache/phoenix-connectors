@@ -24,7 +24,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
   <!--This 'all' id is not appended to the produced bundle because we do this: http://maven.apache.org/plugins/maven-assembly-plugin/faq.html#required-classifiers -->
-  <id>all</id>
+  <id>unshaded-only</id>
   <formats>
     <format>tar.gz</format>
   </formats>
@@ -33,6 +33,5 @@
 
   <componentDescriptors>
     <componentDescriptor>src/build/components/phoenix5-jars.xml</componentDescriptor>
-    <componentDescriptor>src/build/components/phoenix5-shaded-jars.xml</componentDescriptor>
   </componentDescriptors>
 </assembly>
