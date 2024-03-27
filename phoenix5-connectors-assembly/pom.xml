@@ -43,19 +43,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix5-hive-shaded</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix5-spark</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix5-spark-shaded</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix5-spark3-shaded</artifactId>
+      <artifactId>phoenix5-spark3</artifactId>
     </dependency>
   </dependencies>
 
@@ -67,6 +59,26 @@
         <executions>
           <execution>
             <id>hive without version</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>ln</executable>
+              <workingDirectory>${project.basedir}/../phoenix5-hive/target</workingDirectory>
+              <arguments>
+                <argument>-fnsv</argument>
+                <argument>
+                  phoenix5-hive-${project.version}.jar
+                </argument>
+                <argument>
+                  phoenix5-hive.jar
+                </argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>hive-shaded without version</id>
             <phase>package</phase>
             <goals>
               <goal>exec</goal>
@@ -93,6 +105,26 @@
             </goals>
             <configuration>
               <executable>ln</executable>
+              <workingDirectory>${project.basedir}/../phoenix5-spark/target</workingDirectory>
+              <arguments>
+                <argument>-fnsv</argument>
+                <argument>
+                  phoenix5-spark-${project.version}.jar
+                </argument>
+                <argument>
+                  phoenix5-spark.jar
+                </argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>spark-shaded without version</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>ln</executable>
               <workingDirectory>${project.basedir}/../phoenix5-spark-shaded/target</workingDirectory>
               <arguments>
                 <argument>-fnsv</argument>
@@ -106,7 +138,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>spark3 without version</id>
+            <id>spark3-shaded without version</id>
             <phase>package</phase>
             <goals>
               <goal>exec</goal>
@@ -124,7 +156,27 @@
                 </argument>
               </arguments>
             </configuration>
-          </execution>          
+          </execution>
+          <execution>
+            <id>spark3 without version</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>ln</executable>
+              <workingDirectory>${project.basedir}/../phoenix5-spark3/target</workingDirectory>
+              <arguments>
+                <argument>-fnsv</argument>
+                <argument>
+                  phoenix5-spark3-${project.version}.jar
+                </argument>
+                <argument>
+                  phoenix5-spark3.jar
+                </argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -137,7 +189,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <skipAssembly>${skip-phoenix5}</skipAssembly>
+              <skipAssembly>${skip-shaded-assembly}</skipAssembly>
               <descriptors>
                 <descriptor>src/build/package-phoenix5-connectors-to-tar-all.xml</descriptor>
               </descriptors>
@@ -146,8 +198,45 @@
               <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
+          <execution>
+            <id>package-phoenix5-unshaded-to-tar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/build/package-phoenix5-connectors-to-tar-unshaded.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>posix</tarLongFileMode>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>shaded-assembly</id>
+      <activation>
+        <property>
+          <name>!skip-shaded-assembly</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.phoenix</groupId>
+          <artifactId>phoenix5-hive-shaded</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.phoenix</groupId>
+          <artifactId>phoenix5-spark-shaded</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.phoenix</groupId>
+          <artifactId>phoenix5-spark3-shaded</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
