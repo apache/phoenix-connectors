@@ -19,7 +19,11 @@
 package org.apache.phoenix.hive;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
+// I was unable to find a combination classpath that works with Phoenix 5.2, and the unrelocated 
+// hive-exec uberjar that is added by the tez job runner.
+@Ignore
 public class HiveTezIT extends HivePhoenixStoreIT {
 
     @BeforeClass

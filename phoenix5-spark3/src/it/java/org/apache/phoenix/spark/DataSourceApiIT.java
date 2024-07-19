@@ -40,6 +40,7 @@ import java.util.Arrays;
 
 import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.JDBC_URL;
 import static org.apache.phoenix.spark.sql.connector.PhoenixDataSource.ZOOKEEPER_URL;
+import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_ZK;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 import static org.junit.Assert.*;
@@ -103,6 +104,13 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
             .save();
 
             // Use jdbcUrl
+            // In Phoenix 5.2+ getUrl() return a JDBC URL, in earlier versions it returns a ZK
+            // quorum
+            String jdbcUrl = getUrl();
+            if (!jdbcUrl.startsWith(JDBC_PROTOCOL)) {
+                jdbcUrl = JDBC_PROTOCOL_ZK + JDBC_PROTOCOL_SEPARATOR + jdbcUrl;
+            }
+
             Dataset<Row> df2 =
                     spark.createDataFrame(
                         Arrays.asList(RowFactory.create(2, "x")),
@@ -110,7 +118,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
             df2.write().format("phoenix").mode(SaveMode.Append)
                 .option("table", tableName)
-                .option(JDBC_URL, JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + getUrl())
+                .option(JDBC_URL, jdbcUrl)
                 .save();
 
             // Use default from hbase-site.xml
@@ -147,8 +155,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
             // Use jdbcUrl
             Dataset df2Read = spark.read().format("phoenix")
                     .option("table", tableName)
-                    .option(PhoenixDataSource.JDBC_URL,
-                                JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + getUrl())
+                    .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
                     .load();
 
             assertEquals(3l, df2Read.count());

@@ -50,7 +50,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.db.DBWritable;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.phoenix.compile.QueryPlan;
-import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
+import org.apache.phoenix.coprocessorclient.BaseScannerRegionObserverConstants;
 import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 import org.apache.phoenix.hive.ppd.PhoenixPredicateDecomposer;
 import org.apache.phoenix.hive.ql.index.IndexSearchCondition;
@@ -177,7 +177,7 @@ public class PhoenixInputFormat<T extends DBWritable> implements InputFormat<Wri
                     for (int i = 0, limit = scans.size(); i < limit; i++) {
                         LOG.debug("EXPECTED_UPPER_REGION_KEY[" + i + "] : " + Bytes
                                 .toStringBinary(scans.get(i).getAttribute
-                                        (BaseScannerRegionObserver.EXPECTED_UPPER_REGION_KEY)));
+                                        (BaseScannerRegionObserverConstants.EXPECTED_UPPER_REGION_KEY)));
                     }
                 }
 

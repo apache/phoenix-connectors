@@ -37,40 +37,27 @@
     <spark.version>${spark3.version}</spark.version>
     <scala.version>${scala.version.for.spark3}</scala.version>
     <scala.binary.version>${scala.binary.version.for.spark3}</scala.binary.version>
-    <jodatime.version>2.10.5</jodatime.version>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.phoenix.thirdparty</groupId>
-      <artifactId>phoenix-shaded-guava</artifactId>
-      <scope>provided</scope>
-    </dependency>
 
-    <!-- Scala dependencies -->
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Spark dependencies -->
+    <!-- Spark dependencies first to avoid jackson compatibility problems -->
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- The shaded hadoop-client libraries conflict with the minicluster -->
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client-runtime</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -97,6 +84,34 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Phoenix dependencies -->
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-core-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-core-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix.thirdparty</groupId>
+      <artifactId>phoenix-shaded-guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Scala dependencies -->
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- HBase dependencies -->
     <dependency>
       <groupId>org.apache.hbase</groupId>
@@ -114,25 +129,79 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Phoenix Test dependencies -->
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>2.5.0</version>
-      <scope>provided</scope>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-core</artifactId>
+      <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
 
-    <!-- Misc dependencies -->
+    <!-- Scala Test dependencies -->
     <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>${jodatime.version}</version>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-reflect</artifactId>
+      <version>${scala.version}</version>
+      <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.scalactic</groupId>
+      <artifactId>scalactic_${scala.binary.version}</artifactId>
+      <!-- Newer versions would require refactor -->
+      <version>3.1.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_${scala.binary.version}</artifactId>
+      <version>3.1.4</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Minicluster test dependencies -->
+    <dependency>
+      <!-- Why is this not provided transitively via Phoenix ? -->
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-testing-util</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-it</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-minicluster</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Misc test dependencies -->
+    <dependency>
+      <groupId>org.apache.omid</groupId>
+      <artifactId>omid-tso-server</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.omid</groupId>
+      <artifactId>omid-tso-server</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
-    <!-- for Unit Tests. ITs are run from another module -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -142,48 +211,96 @@
   </dependencies>
   <build>
     <plugins>
-        <plugin>
-          <groupId>net.alchim31.maven</groupId>
-          <artifactId>scala-maven-plugin</artifactId>
-          <configuration>
-            <charset>${project.build.sourceEncoding}</charset>
-            <jvmArgs>
-              <jvmArg>-Xmx1024m</jvmArg>
-            </jvmArgs>
-            <scalaVersion>${scala.version}</scalaVersion>
-            <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
-          </configuration>
-          <executions>
-            <execution>
-              <id>scala-compile-first</id>
-              <phase>process-resources</phase>
-              <goals>
-                <goal>add-source</goal>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
       <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <configuration>
-            <ignoreNonCompile>true</ignoreNonCompile>
-            <ignoredDependencies>
-              <ignoredDependency>org.apache.hadoop:hadoop-common</ignoredDependency>
-              <ignoredDependency>org.apache.hadoop:hadoop-mapreduce-client-core</ignoredDependency>
-            </ignoredDependencies>
-          </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <configuration>
+          <charset>${project.build.sourceEncoding}</charset>
+          <jvmArgs>
+            <jvmArg>-Xmx1024m</jvmArg>
+          </jvmArgs>
+          <scalaVersion>${scala.version}</scalaVersion>
+          <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+        </configuration>
+        <executions>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+          <junitxml>.</junitxml>
+          <filereports>WDF TestSuite.txt</filereports>
+          <skipTests>${skip.scalatest}</skipTests>
+        </configuration>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
             <configuration>
-                <skip>${skip.spark.javadoc}</skip>
+              <!-- Need this false until we can switch to JUnit 4.13 due 
+                to https://github.com/junit-team/junit4/issues/1223 -->
+              <parallel>false</parallel>
+              <tagsToExclude>Integration-Test</tagsToExclude>
+              <argLine>-XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
             </configuration>
-        </plugin>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <!-- Test runtime dependencies -->
+          <ignoredUnusedDeclaredDependencies>
+            <ignoredUnsedDeclaredDependency>org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}</ignoredUnsedDeclaredDependency>
+            <ignoredUnsedDeclaredDependency>org.apache.zookeeper:zookeeper</ignoredUnsedDeclaredDependency>
+            <ignoredUnsedDeclaredDependency>org.apache.hbase:hbase-testing-util</ignoredUnsedDeclaredDependency>
+            <ignoredUnsedDeclaredDependency>org.apache.hbase:hbase-it</ignoredUnsedDeclaredDependency>
+            <ignoredUnsedDeclaredDependency>org.apache.hadoop:hadoop-minicluster</ignoredUnsedDeclaredDependency>
+            <ignoredUnsedDeclaredDependency>org.apache.omid:omid-tso-server</ignoredUnsedDeclaredDependency>
+          </ignoredUnusedDeclaredDependencies>
+          <ignoredUsedUndeclaredDependencies>
+            <!-- No trace of these in the source. Perhaps used anonymously 
+              in chained method calls ? -->
+            <ignoredUsedUndeclaredDependency>joda-time:joda-time</ignoredUsedUndeclaredDependency>
+            <ignoredUsedUndeclaredDependency>org.apache.hadoop:hadoop-common</ignoredUsedUndeclaredDependency>
+            <ignoredUsedUndeclaredDependency>org.apache.hadoop:hadoop-mapreduce-client-core</ignoredUsedUndeclaredDependency>
+          </ignoredUsedUndeclaredDependencies>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>${skip.spark.javadoc}</skip>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-    <profiles>
+  <profiles>
     <profile>
       <!-- This only applies when building with 5.1 -->
       <id>exclude-tephra</id>
