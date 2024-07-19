@@ -17,7 +17,6 @@
  */
 package org.apache.phoenix.spark.sql.connector.reader;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,8 +32,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.compile.StatementContext;
-import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.coprocessor.generated.PTableProtos.PTable;
+import org.apache.phoenix.coprocessorclient.BaseScannerRegionObserverConstants;
 import org.apache.phoenix.iterate.ConcatResultIterator;
 import org.apache.phoenix.iterate.LookAheadResultIterator;
 import org.apache.phoenix.iterate.MapReduceParallelScanGrouper;
@@ -85,7 +84,7 @@ public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
             PTable pTable = null;
             try {
                 pTable = PTable.parseFrom(options.getPTableCacheBytes());
-            } catch (InvalidProtocolBufferException e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Parsing the PTable Cache Bytes is failing ", e);
             }
             org.apache.phoenix.schema.PTable table = PTableImpl.createFromProto(pTable);
@@ -121,7 +120,7 @@ public class PhoenixPartitionReader implements PartitionReader<InternalRow> {
                     .getQueryServices().getRenewLeaseThresholdMilliSeconds();
             for (Scan scan : scans) {
                 // For MR, skip the region boundary check exception if we encounter a split. ref: PHOENIX-2599
-                scan.setAttribute(BaseScannerRegionObserver.SKIP_REGION_BOUNDARY_CHECK, Bytes.toBytes(true));
+                scan.setAttribute(BaseScannerRegionObserverConstants.SKIP_REGION_BOUNDARY_CHECK, Bytes.toBytes(true));
 
                 PeekingResultIterator peekingResultIterator;
                 ScanMetricsHolder scanMetricsHolder =

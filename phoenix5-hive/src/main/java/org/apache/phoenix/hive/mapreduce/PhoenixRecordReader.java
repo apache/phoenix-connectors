@@ -33,7 +33,7 @@ import org.apache.hadoop.mapreduce.lib.db.DBWritable;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.compile.StatementContext;
-import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
+import org.apache.phoenix.coprocessorclient.BaseScannerRegionObserverConstants;
 import org.apache.phoenix.hive.PhoenixRowKey;
 import org.apache.phoenix.hive.util.PhoenixStorageHandlerUtil;
 import org.apache.phoenix.iterate.ConcatResultIterator;
@@ -99,8 +99,8 @@ public class PhoenixRecordReader<T extends DBWritable> implements
 
             for (int i = 0, limit = scans.size(); i < limit; i++) {
                 LOG.debug("EXPECTED_UPPER_REGION_KEY[" + i + "] : " +
-                        Bytes.toStringBinary(scans.get(i).getAttribute(BaseScannerRegionObserver
-                                .EXPECTED_UPPER_REGION_KEY)));
+                        Bytes.toStringBinary(scans.get(i).getAttribute(
+                            BaseScannerRegionObserverConstants.EXPECTED_UPPER_REGION_KEY)));
             }
         }
 
@@ -113,8 +113,8 @@ public class PhoenixRecordReader<T extends DBWritable> implements
             long renewScannerLeaseThreshold = queryPlan.getContext().getConnection()
                     .getQueryServices().getRenewLeaseThresholdMilliSeconds();
             for (Scan scan : scans) {
-                scan.setAttribute(BaseScannerRegionObserver.SKIP_REGION_BOUNDARY_CHECK, Bytes
-                        .toBytes(true));
+                scan.setAttribute(BaseScannerRegionObserverConstants.SKIP_REGION_BOUNDARY_CHECK,
+                    Bytes.toBytes(true));
                 ScanMetricsHolder scanMetricsHolder = ScanMetricsHolder.getInstance(readMetrics, tableName, scan, ctx.getConnection().getLogLevel());
                 final TableResultIterator tableResultIterator = new TableResultIterator(
                         queryPlan.getContext().getConnection().getMutationState(), scan, scanMetricsHolder,

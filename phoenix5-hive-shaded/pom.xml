@@ -48,16 +48,16 @@
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <!-- maven-shade-plugin doesn't inherit dependency settings, we must duplicate them to avoid
-    adding the provided dependencies -->
+    <!-- maven-shade-plugin doesn't inherit dependency settings, we must
+      duplicate them to avoid adding the provided dependencies -->
     <dependency>
       <groupId>org.apache.phoenix</groupId>
       <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
       <scope>runtime</scope>
       <optional>true</optional>
     </dependency>
-    <!-- Hive dependencies cannot be specified in the phoenix-hive-common, because of
-    hbase transitive dependency version conflicts -->
+    <!-- Hive dependencies cannot be specified in the phoenix-hive-common,
+      because of hbase transitive dependency version conflicts -->
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-cli</artifactId>
@@ -115,11 +115,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- Dependencies below should be the same for Hive, Spark and Spark3 shading config -->
-    <!-- Phoenix excludes commons-beanutils from the Omid dependency, but that's basically a bug.
-     We need to add it back, so that we don't depend on hadoop's common-beanutils, which may or
-     may not be shaded.
-     This can be removed once we use a Phoenix version that doesn't have this problem -->
+    <!-- Dependencies below should be the same for Hive, Spark and Spark3
+      shading config -->
+    <!-- Phoenix excludes commons-beanutils from the Omid dependency, but
+      that's basically a bug. We need to add it back, so that we don't depend on
+      hadoop's common-beanutils, which may or may not be shaded. This can be removed 
+      once we use a Phoenix version that doesn't have this problem -->
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
@@ -131,10 +132,10 @@
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
       <exclusions>
-          <exclusion>
-              <groupId>commons-beanutils</groupId>
-              <artifactId>commons-beanutils</artifactId>
-          </exclusion>
+        <exclusion>
+          <groupId>commons-beanutils</groupId>
+          <artifactId>commons-beanutils</artifactId>
+        </exclusion>
       </exclusions>
       <scope>provided</scope>
     </dependency>
@@ -291,8 +292,8 @@
       <artifactId>protobuf-java</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- Other dependencies we don't want to shade in, but are not transitively excluded by the
-    above for some reason -->
+    <!-- Other dependencies we don't want to shade in, but are not transitively
+      excluded by the above for some reason -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -308,7 +309,7 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -362,26 +363,26 @@
           </filters>
           <transformers>
             <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+              implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
             <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>csv-bulk-load-config.properties</resource>
               <file>
                 ${project.basedir}/../config/csv-bulk-load-config.properties
               </file>
             </transformer>
             <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>README.md</resource>
               <file>${project.basedir}/../README.md</file>
             </transformer>
             <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>LICENSE.txt</resource>
               <file>${project.basedir}/../LICENSE</file>
             </transformer>
             <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>NOTICE</resource>
               <file>${project.basedir}/../NOTICE</file>
             </transformer>
@@ -412,11 +413,10 @@
                 <exclude>org/apache/phoenix/**</exclude>
                 <exclude>org/apache/omid/**</exclude>
                 <!-- Do want/need to expose Tephra as well ? -->
-                <!-- See PHOENIX-7118
-                 Depending on the Spark classpath we may need to leave this unshaded, relocate
-                 it under org/apache/hadoop/shaded/ or under org/apache/hadoop/hbase/shaded/.
-                 The only thing that is guaranteed not to work is relocating it under 
-                 ${shaded.package} -->
+                <!-- See PHOENIX-7118 Depending on the Spark classpath we
+                  may need to leave this unshaded, relocate it under org/apache/hadoop/shaded/
+                  or under org/apache/hadoop/hbase/shaded/. The only thing that is guaranteed
+                  not to work is relocating it under ${shaded.package} -->
                 <exclude>org/apache/commons/configuration2/**</exclude>
               </excludes>
             </relocation>
@@ -451,8 +451,8 @@
               <pattern>com/google/inject/</pattern>
               <shadedPattern>${shaded.package}.com.google.inject.</shadedPattern>
             </relocation>
-            <!-- This is protobuf 2.5.0 which is shaded to this package in hbase-shaded-client,
-             not the modified protobuf 3.x from hbase-thirdparty -->
+            <!-- This is protobuf 2.5.0 which is shaded to this package in
+              hbase-shaded-client, not the modified protobuf 3.x from hbase-thirdparty -->
             <relocation>
               <pattern>com/google/protobuf/</pattern>
               <shadedPattern>${hbase.shaded.package}.com.google.protobuf.</shadedPattern>
@@ -579,8 +579,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
           <execution>
-             <id>default-compile</id>
-             <phase>none</phase>
+            <id>default-compile</id>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>

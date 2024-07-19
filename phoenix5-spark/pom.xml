@@ -31,7 +31,7 @@
     <version>6.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoenix5-spark</artifactId>
-  <name>Phoenix Spark Connector for Phoenix 5</name>
+  <name>Phoenix Spark 2 Connector for Phoenix 5</name>
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
@@ -59,7 +59,8 @@
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_${scala.binary.version}</artifactId>
       <version>${spark.version}</version>
-        <exclusions>
+      <scope>provided</scope>
+      <exclusions>
         <!-- The shaded hadoop-client libraries conflict with hbase-shaded-mapreduce -->
         <exclusion>
           <groupId>org.apache.hadoop</groupId>
@@ -70,7 +71,6 @@
           <artifactId>hadoop-client-runtime</artifactId>
         </exclusion>
       </exclusions>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -99,7 +99,11 @@
 
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-core</artifactId>
+      <artifactId>phoenix-core-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-core-server</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.phoenix</groupId>
@@ -117,12 +121,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.omid</groupId>
-      <artifactId>omid-tso-server-hbase2.x</artifactId>
+      <artifactId>omid-tso-server</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.omid</groupId>
-      <artifactId>omid-tso-server-hbase2.x</artifactId>
+      <artifactId>omid-tso-server</artifactId>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
@@ -141,10 +145,10 @@
       <scope>test</scope>
     </dependency>
 
-
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
+      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -171,12 +175,12 @@
           <artifactId>netty</artifactId>
         </exclusion>
       </exclusions>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-mapreduce-client-core</artifactId>
+      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -203,13 +207,13 @@
           <artifactId>netty</artifactId>
         </exclusion>
       </exclusions>
-      <scope>provided</scope>
     </dependency>
 
 
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-client</artifactId>
+      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -285,6 +289,7 @@
     <dependency>
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-common</artifactId>
+      <scope>provided</scope>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -414,202 +419,159 @@
     </dependency>
 
     <dependency>
-      <!-- Why is this not provided transitively via Phoenix ? -->
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-testing-util</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <version>${zookeeper.version}</version>
       <scope>test</scope>
     </dependency>
 
-    <!-- Mark every Hadoop jar as provided -->
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-annotations</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-auth</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-yarn-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-distcp</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-common</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <!-- We want to take the implementation from Spark -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>2.5.0</version>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>add-test-source</id>
-              <phase>generate-sources</phase>
-              <goals>
-                <goal>add-test-source</goal>
-              </goals>
-              <configuration>
-                <sources>
-                  <source>src/it/java</source>
-                  <source>src/it/scala</source>
-                </sources>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <configuration>
-            <ignoreNonCompile>true</ignoreNonCompile>
-            <ignoredUnusedDeclaredDependencies>
-              <!-- These are all used -->
-              <ignoredUnusedDeclaredDependency>
-                org.apache.hadoop:hadoop-hdfs
-              </ignoredUnusedDeclaredDependency>
-              <ignoredUnusedDeclaredDependency>
-                org.apache.hbase:hbase-it
-              </ignoredUnusedDeclaredDependency>
-            </ignoredUnusedDeclaredDependencies>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>net.alchim31.maven</groupId>
-          <artifactId>scala-maven-plugin</artifactId>
-          <configuration>
-            <charset>${project.build.sourceEncoding}</charset>
-            <jvmArgs>
-              <jvmArg>-Xmx1024m</jvmArg>
-            </jvmArgs>
-            <scalaVersion>${scala.version}</scalaVersion>
-            <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
-          </configuration>
-          <executions>
-            <execution>
-              <id>scala-compile-first</id>
-              <phase>process-resources</phase>
-              <goals>
-                <goal>add-source</goal>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>scala-test-compile</id>
-              <phase>process-test-resources</phase>
-              <goals>
-                <goal>testCompile</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoredUnusedDeclaredDependencies>
+            <!-- These are test runtime dependencies that Maven has concept of -->
+            <ignoredUnusedDeclaredDependency>
+              org.apache.zookeeper:zookeeper
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.omid:omid-tso-server
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hadoop:hadoop-hdfs
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hbase:hbase-it
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hbase:hbase-testing-util
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.slf4j:slf4j-log4j12
+            </ignoredUnusedDeclaredDependency>
+          </ignoredUnusedDeclaredDependencies>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <configuration>
+          <charset>${project.build.sourceEncoding}</charset>
+          <jvmArgs>
+            <jvmArg>-Xmx1024m</jvmArg>
+          </jvmArgs>
+          <scalaVersion>${scala.version}</scalaVersion>
+          <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+        </configuration>
+        <executions>
+          <execution>
+            <id>scala-compile-first</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>add-source</goal>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>scala-test-compile</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-        <plugin>
-          <groupId>org.scalatest</groupId>
-          <artifactId>scalatest-maven-plugin</artifactId>
-          <version>1.0</version>
-          <configuration>
-            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-            <junitxml>.</junitxml>
-            <filereports>WDF TestSuite.txt</filereports>
-            <skipTests>${skip.scalatest}</skipTests>
-          </configuration>
-          <executions>
-            <execution>
-              <id>integration-test</id>
-              <phase>integration-test</phase>
-              <goals>
-                <goal>test</goal>
-              </goals>
-              <configuration>
-                <!-- Need this false until we can switch to JUnit 4.13 due 
-                  to https://github.com/junit-team/junit4/issues/1223 -->
-                <parallel>false</parallel>
-                <tagsToExclude>Integration-Test</tagsToExclude>
-                <argLine>-XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
-          </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
+      <plugin>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+          <junitxml>.</junitxml>
+          <filereports>WDF TestSuite.txt</filereports>
+          <skipTests>${skip.scalatest}</skipTests>
+        </configuration>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
             <configuration>
-                <skip>${skip.spark.javadoc}</skip>
+              <!-- Need this false until we can switch to JUnit 4.13 due
+                to https://github.com/junit-team/junit4/issues/1223 -->
+              <parallel>false</parallel>
+              <tagsToExclude>Integration-Test</tagsToExclude>
+              <argLine>-XX:ReservedCodeCacheSize=512m ${argLine}</argLine>
             </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>empty-javadoc-jar</id>
-              <phase>package</phase>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-              <configuration>
-                <classifier>javadoc</classifier>
-                <classesDirectory>${basedir}/javadoc</classesDirectory>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <!-- Taken from phoenix-client-parent
-        this should be kept in sync with Phoenix as much as possible -->
-      </plugins>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>${skip.spark.javadoc}</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>empty-javadoc-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>javadoc</classifier>
+              <classesDirectory>${basedir}/javadoc</classesDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Taken from phoenix-client-parent this should be kept in sync with
+        Phoenix as much as possible -->
+    </plugins>
   </build>
-    <profiles>
+  <profiles>
     <profile>
       <!-- This only applies when building with 5.1 -->
       <id>exclude-tephra</id>

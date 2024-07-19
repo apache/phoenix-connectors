@@ -20,7 +20,7 @@ package org.apache.phoenix.hive.util;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.phoenix.coprocessor.MetaDataProtocol.MetaDataMutationResult;
+import org.apache.phoenix.coprocessorclient.MetaDataProtocol.MetaDataMutationResult;
 import org.apache.phoenix.hive.constants.PhoenixStorageHandlerConstants;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.schema.MetaDataClient;

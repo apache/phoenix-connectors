@@ -31,57 +31,94 @@
     <version>6.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoenix5-hive</artifactId>
-  <name>Phoenix Hive Connector for Phoenix 5</name>
+  <name>Phoenix Hive 3 Connector for Phoenix 5</name>
 
   <properties>
     <top.dir>${project.basedir}/..</top.dir>
     <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     <tez.version>0.9.1</tez.version>
     <commons-lang3.version>3.9</commons-lang3.version>
-    <hive.version>${hive3.version}</hive.version>
     <calcite.version>1.16.0</calcite.version>
   </properties>
 
   <dependencies>
+    <!-- Phoenix dependencies -->
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
-      <scope>runtime</scope>
-      <optional>true</optional>
+      <artifactId>phoenix-core-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-core-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.phoenix.thirdparty</groupId>
+      <artifactId>phoenix-shaded-guava</artifactId>
     </dependency>
 
+    <!-- HBase dependencies -->
     <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-cli</artifactId>
-      <version>${hive.version}</version>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-protocol</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-client</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-mapreduce</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Hadoop dependencies -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-client-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Hive dependencies -->
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-common</artifactId>
       <version>${hive.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <!-- Hadoop won't work with Guava 19 -->
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-exec</artifactId>
       <version>${hive.version}</version>
       <scope>provided</scope>
-    </dependency>
-
-    <!-- These three dependencies are falsely flagged by dependency plugin -->
-    <dependency>
-      <groupId> org.apache.hive</groupId>
-      <artifactId>hive-serde</artifactId>
-      <version>${hive.version}</version>
       <exclusions>
-        <!-- Fix conflict with Minicluster -->
         <exclusion>
-          <groupId>io.netty</groupId>
+          <groupId>org.eclipse.jetty</groupId>
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId> org.apache.hive</groupId>
@@ -95,108 +132,133 @@
       <version>${hive.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!-- These are actually different between phoenix 5 and phoenix 4 -->
+    <!-- Needed to get the older Derby that Hive requires -->
     <dependency>
       <groupId> org.apache.hive</groupId>
       <artifactId>hive-standalone-metastore</artifactId>
       <version>${hive.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- logging API -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-mapreduce</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-zookeeper</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-mapreduce-client-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-protocol-shaded</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-endpoint</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs-client</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-minicluster</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.zookeeper</groupId>
-      <artifactId>zookeeper</artifactId>
-      <version>${zookeeper.version}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
+    <!-- Phoenix Test dependencies -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-testing-util</artifactId>
-      <scope>test</scope>
+      <groupId>org.apache.phoenix</groupId>
+      <artifactId>phoenix-core</artifactId>
+      <classifier>tests</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-core</artifactId>
+      <artifactId>phoenix-hbase-compat-${hbase.compat.version}</artifactId>
+      <scope>test</scope>
     </dependency>
 
+    <!-- HBase test dependencies -->
     <dependency>
-      <groupId>org.apache.phoenix.thirdparty</groupId>
-      <artifactId>phoenix-shaded-guava</artifactId>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-zookeeper</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-testing-util</artifactId>
+      <scope>test</scope> <!-- ? -->
     </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-server</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-it</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Hadoop test dependencies -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty</artifactId>
+        </exclusion>
+      </exclusions>
+      <type>test-jar</type>
+      <scope>test</scope> <!-- ? -->
+    </dependency>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>${commons-lang3.version}</version>
     </dependency>
+
+    <!-- Hive test dependencies -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-protocol</artifactId>
-      <scope>provided</scope>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-cli</artifactId>
+      <version>${hive.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
+    <!-- Maybe needed for (ignored) Tez Test ? -->
+    <!-- <dependency> -->
+    <!-- <groupId> org.apache.hive</groupId> -->
+    <!-- <artifactId>hive-llap-client</artifactId> -->
+    <!-- <version>${hive.version}</version> -->
+    <!-- <exclusions> -->
+    <!-- <exclusion> -->
+    <!-- <groupId>com.google.guava</groupId> -->
+    <!-- <artifactId>guava</artifactId> -->
+    <!-- </exclusion> -->
+    <!-- </exclusions> -->
+    <!-- <scope>test</scope> -->
+    <!-- </dependency> -->
+    <!-- <dependency> -->
+    <!-- <groupId> org.apache.hive</groupId> -->
+    <!-- <artifactId>hive-serde</artifactId> -->
+    <!-- <version>${hive.version}</version> -->
+    <!-- <exclusions> -->
+    <!-- Fix conflict with Minicluster -->
+    <!-- <exclusion> -->
+    <!-- <groupId>io.netty</groupId> -->
+    <!-- <artifactId>*</artifactId> -->
+    <!-- </exclusion> -->
+    <!-- </exclusions> -->
+    <!-- <scope>test</scope> -->
+    <!-- </dependency> -->
+    <!-- <dependency> -->
+    <!-- <groupId> org.apache.hive</groupId> -->
+    <!-- <artifactId>hive-storage-api</artifactId> -->
+    <!-- <version>${hive-storage.version}</version> -->
+    <!-- <scope>test</scope> -->
+    <!-- </dependency> -->
+
+    <!-- Misc test dependencies -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-client</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-common</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-      <scope>provided</scope>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+      <version>${zookeeper.version}</version>
+      <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Test dependencies -->
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -215,218 +277,58 @@
       <version>${commons-io.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.phoenix</groupId>
-      <artifactId>phoenix-core</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.omid</groupId>
-      <artifactId>omid-tso-server-hbase2.x</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.omid</groupId>
-      <artifactId>omid-tso-server-hbase2.x</artifactId>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-server</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-it</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>io.netty</groupId>
-          <artifactId>netty</artifactId>
-        </exclusion>
-      </exclusions>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tez</groupId>
-      <artifactId>tez-tests</artifactId>
-      <scope>test</scope>
-      <version>${tez.version}</version>
-      <type>test-jar</type>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tez</groupId>
-      <artifactId>tez-dag</artifactId>
-      <scope>test</scope>
-      <version>${tez.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-yarn-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+
+    <!-- Logging test dependencies -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <scope>provided</scope>
+      <scope>test</scope>
+      <version>${log4j2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-1.2-api</artifactId>
+      <scope>test</scope>
       <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <scope>provided</scope>
+      <scope>test</scope>
       <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
-      <scope>provided</scope>
+      <scope>test</scope>
       <version>${log4j2.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
 
-<!-- Mark every HBase and Hadoop jar as provided -->
     <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-annotations</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-metrics-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-metrics</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-server</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-hadoop-compat</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-hadoop2-compat</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase.thirdparty</groupId>
-      <artifactId>hbase-shaded-miscellaneous</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hbase.thirdparty</groupId>
-      <artifactId>hbase-shaded-protobuf</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-annotations</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-auth</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-yarn-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <scope>provided</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <configuration>
-          <ignoreNonCompile>true</ignoreNonCompile>
-          <ignoredUnusedDeclaredDependencies>
-            <ignoredUnusedDeclaredDependency>
-               org.slf4j:slf4j-api
-            </ignoredUnusedDeclaredDependency>
-            <ignoredUnusedDeclaredDependency>
-              org.apache.commons:commons-lang3
-            </ignoredUnusedDeclaredDependency>
-          </ignoredUnusedDeclaredDependencies>
-          <ignoredUsedUndeclaredDependencies>
-            <!-- I couldn't find it referenced anywhere in the phoenix-hive codebase -->
-            <ignoredUsedUndeclaredDependency>
-              org.apache.calcite.avatica:avatica
-            </ignoredUsedUndeclaredDependency>
-            <ignoredUnusedDeclaredDependency>
-              org.antlr:antlr-runtime
-            </ignoredUnusedDeclaredDependency>
-          </ignoredUsedUndeclaredDependencies>
-          <ignoredNonTestScopedDependencies>
-              org.antlr:antlr-runtime
-          </ignoredNonTestScopedDependencies>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-parent-test-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${project.parent.basedir}/src/it/java</source>
-                <source>${project.parent.basedir}/src/test/java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <!-- The Hbase + Hive minicluster setup seems very fragile, so
-          we make sure to run everything as serially as possible -->
+            we make sure to run everything as serially as possible -->
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
         </configuration>
@@ -436,7 +338,8 @@
             <configuration>
               <forkCount>1</forkCount>
               <reuseForks>false</reuseForks>
-              <groups>org.apache.phoenix.end2end.ParallelStatsDisabledTest</groups>
+              <groups>
+                org.apache.phoenix.end2end.ParallelStatsDisabledTest</groups>
             </configuration>
             <goals>
               <goal>integration-test</goal>
@@ -446,42 +349,83 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/test-classes
-              </outputDirectory>
-              <overwrite>true</overwrite>
-              <resources>
-                <resource>
-                  <directory>${project.parent.basedir}/src/test/resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <ignoredUnusedDeclaredDependencies>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hbase:hbase-testing-util
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hbase:hbase-it:test-jar
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hadoop:hadoop-hdfs
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.phoenix:phoenix-hbase-compat-${hbase.compat.version}
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hive.shims:hive-shims-common
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hive:hive-standalone-metastore
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.hive:hive-storage-api
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.logging.log4j:log4j-core
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.logging.log4j:log4j-slf4j-impl
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.logging.log4j:log4j-slf4j-impl
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.logging.log4j:log4j-1.2-api
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.logging.log4j:log4j-slf4j-impl
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.apache.commons:commons-lang3
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              org.slf4j:slf4j-api
+            </ignoredUnusedDeclaredDependency>
+            ignoredUnusedDeclaredDependency>
+          </ignoredUnusedDeclaredDependencies>
+          <ignoredUsedUndeclaredDependencies>
+            <ignoredUsedUndeclaredDependency>
+              org.antlr:antlr-runtime
+            </ignoredUsedUndeclaredDependency>
+            <!-- I couldn't find it referenced anywhere in the phoenix-hivecodebase -->
+            <ignoredUsedUndeclaredDependency>
+              org.apache.calcite.avatica:avatica
+            </ignoredUsedUndeclaredDependency>
+          </ignoredUsedUndeclaredDependencies>
+          <ignoredNonTestScopedDependencies>
+            <ignoredNonTestScopedDependency>
+              org.antlr:antlr-runtime
+            </ignoredNonTestScopedDependency>
+          </ignoredNonTestScopedDependencies>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <!-- This may not work due to bootclasspath issues. Make sure to
+          compile phoenix5-hive with JDK8 -->
         <configuration>
           <source>8</source>
           <target>8</target>
         </configuration>
       </plugin>
-      <!-- Taken from phoenix-client-parent
-      this should be kept in sync with Phoenix as much as possible -->
     </plugins>
   </build>
 
-   <dependencyManagement>
+  <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.apache.calcite</groupId>
@@ -489,7 +433,8 @@
         <version>${calcite.version}</version>
         <exclusions>
           <exclusion>
-            <!-- PHOENIX-6478: exclude a dependency that is not required and not available at Maven Central -->
+            <!-- PHOENIX-6478: exclude a dependency that is not required
+              and not available at Maven Central -->
             <groupId>org.pentaho</groupId>
             <artifactId>pentaho-aggdesigner-algorithm</artifactId>
           </exclusion>
