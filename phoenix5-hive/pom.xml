@@ -135,6 +135,7 @@
       <version>${hive.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- Needed to get the older Derby that Hive requires -->
     <dependency>
       <groupId> org.apache.hive</groupId>
       <artifactId>hive-standalone-metastore</artifactId>
@@ -219,20 +220,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- Needed to get the older Derby that Hive requires -->
-<!--    <dependency>-->
-<!--      <groupId> org.apache.hive</groupId>-->
-<!--      <artifactId>hive-standalone-metastore</artifactId>-->
-<!--      <version>${hive.version}</version>-->
-<!--      <scope>test</scope>-->
-<!--      <exclusions>-->
-<!--         Hadoop won't work with Guava 19 -->
-<!--        <exclusion>-->
-<!--          <groupId>com.google.guava</groupId>-->
-<!--          <artifactId>guava</artifactId>-->
-<!--        </exclusion>-->
-<!--      </exclusions>-->
-<!--    </dependency>-->
 
     <!-- Maybe needed for (ignored) Tez Test ? -->
     <!-- <dependency> -->
