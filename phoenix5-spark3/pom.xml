@@ -37,6 +37,7 @@
     <spark.version>${spark3.version}</spark.version>
     <scala.version>${scala.version.for.spark3}</scala.version>
     <scala.binary.version>${scala.binary.version.for.spark3}</scala.binary.version>
+    <jodatime.version>2.10.5</jodatime.version>
   </properties>
 
   <dependencies>
@@ -127,6 +128,26 @@
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-mapreduce</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+
+    <!-- Hadoop dependencies -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-mapreduce-client-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    
+    <!-- Misc dependencies -->
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>${jodatime.version}</version>
     </dependency>
 
     <!-- Phoenix Test dependencies -->
@@ -282,13 +303,6 @@
             <ignoredUnsedDeclaredDependency>org.apache.hadoop:hadoop-minicluster</ignoredUnsedDeclaredDependency>
             <ignoredUnsedDeclaredDependency>org.apache.omid:omid-tso-server</ignoredUnsedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
-          <ignoredUsedUndeclaredDependencies>
-            <!-- No trace of these in the source. Perhaps used anonymously 
-              in chained method calls ? -->
-            <ignoredUsedUndeclaredDependency>joda-time:joda-time</ignoredUsedUndeclaredDependency>
-            <ignoredUsedUndeclaredDependency>org.apache.hadoop:hadoop-common</ignoredUsedUndeclaredDependency>
-            <ignoredUsedUndeclaredDependency>org.apache.hadoop:hadoop-mapreduce-client-core</ignoredUsedUndeclaredDependency>
-          </ignoredUsedUndeclaredDependencies>
         </configuration>
       </plugin>
       <plugin>

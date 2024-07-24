@@ -449,8 +449,7 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
           <ignoredUnusedDeclaredDependencies>
-            <!-- These are test runtime dependencies that Maven has conecnt 
-              of -->
+            <!-- These are test runtime dependencies that Maven has concept of -->
             <ignoredUnusedDeclaredDependency>
               org.apache.zookeeper:zookeeper
             </ignoredUnusedDeclaredDependency>
