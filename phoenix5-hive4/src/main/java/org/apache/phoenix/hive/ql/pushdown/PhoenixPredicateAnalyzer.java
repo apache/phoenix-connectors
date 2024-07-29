@@ -15,17 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hive.ql.index;
+package org.apache.phoenix.hive.ql.pushdown;
 
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
 import org.apache.hadoop.hive.ql.lib.DefaultGraphWalker;
 import org.apache.hadoop.hive.ql.lib.DefaultRuleDispatcher;
-import org.apache.hadoop.hive.ql.lib.Dispatcher;
-import org.apache.hadoop.hive.ql.lib.GraphWalker;
+import org.apache.hadoop.hive.ql.lib.SemanticDispatcher;
+import org.apache.hadoop.hive.ql.lib.SemanticGraphWalker;
 import org.apache.hadoop.hive.ql.lib.Node;
-import org.apache.hadoop.hive.ql.lib.NodeProcessor;
+import org.apache.hadoop.hive.ql.lib.SemanticNodeProcessor;
 import org.apache.hadoop.hive.ql.lib.NodeProcessorCtx;
-import org.apache.hadoop.hive.ql.lib.Rule;
+import org.apache.hadoop.hive.ql.lib.SemanticRule;
+import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.plan.ExprNodeColumnDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
@@ -45,6 +46,7 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToBinary;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToChar;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToDate;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToDecimal;
+import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToString;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToUnixTimeStamp;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToUtcTimestamp;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFToVarchar;
@@ -64,14 +66,11 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
- * Clone of org.apache.hadoop.hive.ql.index.IndexPredicateAnalyzer with modifying
- * analyzePredicate method.
- *
- *
+ * Based on org.apache.hadoop.hive.ql.index.IndexPredicateAnalyzer.
  */
-public class IndexPredicateAnalyzer {
+public class PhoenixPredicateAnalyzer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IndexPredicateAnalyzer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhoenixPredicateAnalyzer.class);
 
     private final Set<String> udfNames;
     private final Map<String, Set<String>> columnToUDFs;
@@ -79,7 +78,7 @@ public class IndexPredicateAnalyzer {
 
     private boolean acceptsFields;
 
-    public IndexPredicateAnalyzer() {
+    public PhoenixPredicateAnalyzer() {
         udfNames = new HashSet<String>();
         columnToUDFs = new HashMap<String, Set<String>>();
     }
@@ -142,17 +141,18 @@ public class IndexPredicateAnalyzer {
      * @return residual predicate which could not be translated to
      * searchConditions
      */
-    public ExprNodeDesc analyzePredicate(ExprNodeDesc predicate, final List<IndexSearchCondition>
+    public ExprNodeDesc analyzePredicate(ExprNodeDesc predicate, final List<PhoenixSearchCondition>
             searchConditions) {
 
-        Map<Rule, NodeProcessor> opRules = new LinkedHashMap<Rule, NodeProcessor>();
-        NodeProcessor nodeProcessor = new NodeProcessor() {
+        Map<SemanticRule, SemanticNodeProcessor> opRules = new LinkedHashMap<SemanticRule, SemanticNodeProcessor>();
+        SemanticNodeProcessor nodeProcessor = new SemanticNodeProcessor() {
             @Override
             public Object process(Node nd, Stack<Node> stack, NodeProcessorCtx procCtx, Object...
                     nodeOutputs) throws SemanticException {
 
                 // We can only push down stuff which appears as part of
                 // a pure conjunction: reject OR, CASE, etc.
+                // TODO PHOENIX-7380 Do not limit pushdown to conjunctions in Hive connector
                 for (Node ancestor : stack) {
                     if (nd == ancestor) {
                         break;
@@ -166,8 +166,8 @@ public class IndexPredicateAnalyzer {
             }
         };
 
-        Dispatcher disp = new DefaultRuleDispatcher(nodeProcessor, opRules, null);
-        GraphWalker ogw = new DefaultGraphWalker(disp);
+        SemanticDispatcher disp = new DefaultRuleDispatcher(nodeProcessor, opRules, null);
+        SemanticGraphWalker ogw = new DefaultGraphWalker(disp);
         ArrayList<Node> topNodes = new ArrayList<Node>();
         topNodes.add(predicate);
         HashMap<Node, Object> nodeOutput = new HashMap<Node, Object>();
@@ -197,11 +197,12 @@ public class IndexPredicateAnalyzer {
         }
         GenericUDF udf = funcDesc.getGenericUDF();
         // check if its a simple cast expression.
-        if ((udf instanceof GenericUDFBridge || udf instanceof GenericUDFToBinary || udf
-                instanceof GenericUDFToChar
-                || udf instanceof GenericUDFToVarchar || udf instanceof GenericUDFToDecimal
-                || udf instanceof GenericUDFToDate || udf instanceof GenericUDFToUnixTimeStamp
-                || udf instanceof GenericUDFToUtcTimestamp) && funcDesc.getChildren().size() == 1
+    if ((udf instanceof GenericUDFBridge || udf instanceof GenericUDFToBinary
+        || udf instanceof GenericUDFToString
+        || udf instanceof GenericUDFToChar || udf instanceof GenericUDFToVarchar
+        || udf instanceof GenericUDFToDecimal || udf instanceof GenericUDFToDate
+        || udf instanceof GenericUDFToUnixTimeStamp || udf instanceof GenericUDFToUtcTimestamp)
+        && funcDesc.getChildren().size() == 1
                 && funcDesc.getChildren().get(0) instanceof ExprNodeColumnDesc) {
             return expr.getChildren().get(0);
         }
@@ -209,7 +210,7 @@ public class IndexPredicateAnalyzer {
     }
 
     private void processingBetweenOperator(ExprNodeGenericFuncDesc expr,
-                                           List<IndexSearchCondition> searchConditions, Object...
+                                           List<PhoenixSearchCondition> searchConditions, Object...
                                                    nodeOutputs) {
         String[] fields = null;
 
@@ -230,7 +231,7 @@ public class IndexPredicateAnalyzer {
     }
 
     private void addSearchConditionIfPossible(ExprNodeGenericFuncDesc expr,
-                                              List<IndexSearchCondition> searchConditions,
+                                              List<PhoenixSearchCondition> searchConditions,
                                               String[] fields,
                                               boolean isNot,
                                               ExprNodeDesc columnNodeDesc,
@@ -251,7 +252,7 @@ public class IndexPredicateAnalyzer {
             }
         }
 
-        searchConditions.add(new IndexSearchCondition(columnDesc, udfName, constantDescs,
+        searchConditions.add(new PhoenixSearchCondition(columnDesc, udfName, constantDescs,
                 expr, fields, isNot));
     }
 
@@ -274,7 +275,7 @@ public class IndexPredicateAnalyzer {
         return constantDescs;
     }
 
-    private void processingInOperator(ExprNodeGenericFuncDesc expr, List<IndexSearchCondition>
+    private void processingInOperator(ExprNodeGenericFuncDesc expr, List<PhoenixSearchCondition>
             searchConditions, boolean isNot, Object... nodeOutputs) {
         ExprNodeDesc columnDesc;
         String[] fields = null;
@@ -308,7 +309,7 @@ public class IndexPredicateAnalyzer {
                 Arrays.copyOfRange(nodeOutputs, 1, nodeOutputs.length));
     }
 
-    private void processingNullOperator(ExprNodeGenericFuncDesc expr, List<IndexSearchCondition>
+    private void processingNullOperator(ExprNodeGenericFuncDesc expr, List<PhoenixSearchCondition>
             searchConditions, Object... nodeOutputs) {
         ExprNodeDesc columnDesc = null;
         String[] fields = null;
@@ -328,7 +329,7 @@ public class IndexPredicateAnalyzer {
     }
 
     private void processingNotNullOperator(ExprNodeGenericFuncDesc expr,
-                                           List<IndexSearchCondition> searchConditions, Object...
+                                           List<PhoenixSearchCondition> searchConditions, Object...
                                                    nodeOutputs) {
         ExprNodeDesc columnDesc;
         String[] fields = null;
@@ -347,29 +348,29 @@ public class IndexPredicateAnalyzer {
         addSearchConditionIfPossible(expr, searchConditions, fields, true, columnDesc, null);
     }
 
-    private ExprNodeDesc analyzeExpr(ExprNodeGenericFuncDesc expr, List<IndexSearchCondition>
+    private ExprNodeDesc analyzeExpr(ExprNodeGenericFuncDesc expr, List<PhoenixSearchCondition>
             searchConditions, Object... nodeOutputs) throws SemanticException {
 
         if (FunctionRegistry.isOpAnd(expr)) {
             List<ExprNodeDesc> residuals = new ArrayList<>();
             // GenericUDFOPAnd can expect more than 2 arguments after HIVE-11398
-            for (Object nodeOutput : nodeOutputs) {
+            for (Object residual : nodeOutputs) {
                 // The null value of nodeOutput means the predicate is pushed down to Phoenix. So
                 // we don't need to add it to the residual predicate list
-                if (nodeOutput != null) {
-                    residuals.add((ExprNodeDesc) nodeOutput);
+                if (null != residual) {
+                    residuals.add((ExprNodeDesc) residual);
                 }
             }
             if (residuals.size() == 0) {
-                //All children were pushed down
                 return null;
-            }
-            if (residuals.size() == 1) {
-                //A single child remains
+            } else  if (residuals.size() == 1) {
                 return residuals.get(0);
+            } else {
+                return new ExprNodeGenericFuncDesc(
+                    TypeInfoFactory.booleanTypeInfo,
+                    FunctionRegistry.getGenericUDFForAnd(),
+                    residuals);
             }
-            return new ExprNodeGenericFuncDesc(TypeInfoFactory.booleanTypeInfo, FunctionRegistry
-                    .getGenericUDFForAnd(), residuals);
         }
 
         GenericUDF genericUDF = expr.getGenericUDF();
@@ -454,7 +455,7 @@ public class IndexPredicateAnalyzer {
         list.add(expr2);
         expr = new ExprNodeGenericFuncDesc(expr.getTypeInfo(), expr.getGenericUDF(), list);
 
-        searchConditions.add(new IndexSearchCondition(columnDesc, udfName, constantDesc, expr,
+        searchConditions.add(new PhoenixSearchCondition(columnDesc, udfName, constantDesc, expr,
                 fields));
 
         // we converted the expression to a search condition, so
@@ -473,12 +474,12 @@ public class IndexPredicateAnalyzer {
      * @param searchConditions (typically produced by analyzePredicate)
      * @return ExprNodeGenericFuncDesc form of search conditions
      */
-    public ExprNodeGenericFuncDesc translateSearchConditions(List<IndexSearchCondition>
+    public ExprNodeGenericFuncDesc translateSearchConditions(List<PhoenixSearchCondition>
                                                                      searchConditions) {
 
         ExprNodeGenericFuncDesc expr = null;
 
-        for (IndexSearchCondition searchCondition : searchConditions) {
+        for (PhoenixSearchCondition searchCondition : searchConditions) {
             if (expr == null) {
                 expr = searchCondition.getComparisonExpr();
                 continue;
@@ -487,10 +488,10 @@ public class IndexPredicateAnalyzer {
             List<ExprNodeDesc> children = new ArrayList<ExprNodeDesc>();
             children.add(expr);
             children.add(searchCondition.getComparisonExpr());
-            expr = new ExprNodeGenericFuncDesc(TypeInfoFactory.booleanTypeInfo, FunctionRegistry
-                    .getGenericUDFForAnd(), children);
+            expr = new ExprNodeGenericFuncDesc(TypeInfoFactory.booleanTypeInfo,
+                FunctionRegistry.getGenericUDFForAnd(),
+                children);
         }
-
         return expr;
     }
 
@@ -502,8 +503,8 @@ public class IndexPredicateAnalyzer {
         boolean validate(ExprNodeFieldDesc exprNodeDesc);
     }
 
-    public static IndexPredicateAnalyzer createAnalyzer(boolean equalOnly) {
-        IndexPredicateAnalyzer analyzer = new IndexPredicateAnalyzer();
+    public static PhoenixPredicateAnalyzer createAnalyzer(boolean equalOnly) {
+        PhoenixPredicateAnalyzer analyzer = new PhoenixPredicateAnalyzer();
         analyzer.addComparisonOp("org.apache.hadoop.hive.ql.udf.generic.GenericUDFOPEqual");
 
         if (equalOnly) {

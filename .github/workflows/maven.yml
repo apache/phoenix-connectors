@@ -22,14 +22,15 @@ on:
 jobs:
   build:
     # upgrade to ubuntu-latest after removing Phoenix 4 support
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v1
     - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
-        java-version: 1.8
-    - name: Rebuild HBase
-      run: /bin/bash dev/rebuild_hbase.sh 2.4.16
+        java-version: 8
+        distribution: 'temurin'
     - name: Test
-      run: mvn -B -fae clean install
+      run: |
+        mvn -v
+        mvn -B -fae clean install

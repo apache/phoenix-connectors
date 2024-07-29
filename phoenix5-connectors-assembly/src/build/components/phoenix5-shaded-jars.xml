@@ -45,5 +45,13 @@
         <include>phoenix5-hive-shaded.jar</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../phoenix5-hive4-shaded/target</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>phoenix5-hive4-shaded-${project.version}.jar</include>
+        <include>phoenix5-hive4-shaded.jar</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </component>

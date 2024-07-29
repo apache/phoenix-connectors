@@ -15,19 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hive.ql.index;
+package org.apache.phoenix.hive.ql.pushdown;
 
+import java.util.Collections;
+
+import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
+import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.plan.ExprNodeColumnDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeConstantDesc;
 import org.apache.hadoop.hive.ql.plan.ExprNodeGenericFuncDesc;
-import org.apache.phoenix.compat.HiveCompatUtil;
+import org.apache.hadoop.hive.ql.udf.generic.GenericUDFIn;
+import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 
 /**
  * IndexSearchCondition represents an individual search condition found by
- * {@link IndexPredicateAnalyzer}.
+ * {@link PhoenixPredicateAnalyzer}.
  *
  */
-public class IndexSearchCondition {
+public class PhoenixSearchCondition {
     private ExprNodeColumnDesc columnDesc;
     private String comparisonOp;
     private ExprNodeConstantDesc constantDesc;
@@ -39,13 +44,13 @@ public class IndexSearchCondition {
     private ExprNodeConstantDesc[] multiConstants;
     protected boolean isNot;
 
-    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public PhoenixSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc[] multiConstants, ExprNodeGenericFuncDesc
                                         comparisonExpr, boolean isNot) {
         this(columnDesc, comparisonOp, multiConstants, comparisonExpr, null, isNot);
     }
 
-    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public PhoenixSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc[] multiConstants, ExprNodeGenericFuncDesc
                                         comparisonExpr, String[] fields, boolean isNot) {
         this.columnDesc = columnDesc;
@@ -69,7 +74,7 @@ public class IndexSearchCondition {
     }
     //////////////////////////////////////////////////////////////////////////////
 
-    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public PhoenixSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc constantDesc, ExprNodeGenericFuncDesc
                                         comparisonExpr) {
         this(columnDesc, comparisonOp, constantDesc, comparisonExpr, null);
@@ -90,7 +95,7 @@ public class IndexSearchCondition {
      * @param constantDesc   constant value to search for
      * @param comparisonExpr the original comparison expression
      */
-    public IndexSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
+    public PhoenixSearchCondition(ExprNodeColumnDesc columnDesc, String comparisonOp,
                                 ExprNodeConstantDesc constantDesc, ExprNodeGenericFuncDesc
                                         comparisonExpr, String[] fields) {
 
@@ -138,8 +143,18 @@ public class IndexSearchCondition {
         return comparisonExpr.getExprString();
     }
 
-    public ExprNodeGenericFuncDesc getComparisonExpr()
-    {
-        return HiveCompatUtil.getComparisonExpr(comparisonExpr, isNot);
+    public ExprNodeGenericFuncDesc getComparisonExpr() {
+        ExprNodeGenericFuncDesc ret = comparisonExpr;
+        try {
+            if (GenericUDFIn.class == comparisonExpr.getGenericUDF().getClass() && isNot) {
+                ret =
+                        new ExprNodeGenericFuncDesc(TypeInfoFactory.booleanTypeInfo,
+                                FunctionRegistry.getFunctionInfo("not").getGenericUDF(),
+                                Collections.singletonList(comparisonExpr));
+            }
+        } catch (SemanticException e) {
+            throw new RuntimeException("hive operator -- never be thrown", e);
+        }
+        return ret;
     }
 }

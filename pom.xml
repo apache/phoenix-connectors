@@ -68,6 +68,8 @@
       infinite loop -->
     <module>phoenix5-hive</module>
     <module>phoenix5-hive-shaded</module>
+    <module>phoenix5-hive4</module>
+    <module>phoenix5-hive4-shaded</module>
     <module>phoenix5-spark</module>
     <module>phoenix5-spark-shaded</module>
     <module>phoenix5-spark3</module>
@@ -118,7 +120,7 @@
 
     <!-- Dependency versions -->
     <hive3.version>3.1.3</hive3.version>
-    <hive.version>${hive3.version}</hive.version>
+    <hive4.version>4.0.0</hive4.version>
     <hive3-storage.version>2.7.0</hive3-storage.version>
     <hive-storage.version>${hive3-storage.version}</hive-storage.version>
     <spark.version>2.4.8</spark.version>
@@ -127,7 +129,6 @@
     <spark3.version>3.2.4</spark3.version>
     <scala.version.for.spark3>2.12.18</scala.version.for.spark3>
     <scala.binary.version.for.spark3>2.12</scala.binary.version.for.spark3>
-
     <log4j.version>1.2.17</log4j.version>
     <log4j2.version>2.23.1</log4j2.version>
     <disruptor.version>3.3.6</disruptor.version>
@@ -595,14 +596,19 @@
         <artifactId>phoenix5-hive</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <!-- <dependency> -->
-      <!-- <groupId>org.apache.phoenix</groupId> -->
-      <!-- <artifactId>phoenix5-hive-it</artifactId> -->
-      <!-- <version>${project.version}</version> -->
-      <!-- </dependency> -->
       <dependency>
         <groupId>org.apache.phoenix</groupId>
         <artifactId>phoenix5-hive-shaded</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix5-hive4</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.phoenix</groupId>
+        <artifactId>phoenix5-hive4-shaded</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

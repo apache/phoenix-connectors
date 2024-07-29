@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,25 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.compat;
 
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hadoop.hive.ql.QueryState;
+package org.apache.phoenix.hive;
 
-public class MyResult {
-    private final HiveConf conf;
-    private final QueryState queryState;
+import static org.junit.Assert.fail;
 
-    public MyResult(HiveConf conf, QueryState queryState) {
-        this.conf = conf;
-        this.queryState = queryState;
+import org.apache.hadoop.hive.ql.QTestMiniClusters;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+
+public class HiveMapReduceIT extends HivePhoenixStoreIT {
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        setup(QTestMiniClusters.MiniClusterType.MR);
     }
 
-    public HiveConf getFirst() {
-        return conf;
-    }
+    @Override
+    @Test
+    @Ignore
+    /**
+     * Ignoring because projection pushdown is incorrect for MR when there are multiple aliases (ref:HIVE-18872)
+     */
+    public void testJoinColumnMaps() throws Exception {
 
-    public QueryState getSecond() {
-        return queryState;
     }
 }
