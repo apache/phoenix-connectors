@@ -39,6 +39,7 @@
     <tez.version>0.9.1</tez.version>
     <commons-lang3.version>3.9</commons-lang3.version>
     <calcite.version>1.16.0</calcite.version>
+    <hive.version>${hive3.version}</hive.version>
   </properties>
 
   <dependencies>

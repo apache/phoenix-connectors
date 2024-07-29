@@ -15,26 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hive.ql.index;
+package org.apache.hadoop.hive.ql.dataset;
 
-import org.apache.phoenix.hive.ql.index.IndexPredicateAnalyzer.FieldValidator;
+/**
+ * Dataset: simple class representation of a dataset
+ */
+public class Dataset {
+  public static final String INIT_FILE_NAME = "load.hive.sql";
+  public static final String CLEANUP_FILE_NAME = "cleanup.hive.sql";
 
-import java.util.List;
+  private String table;
 
-public class PredicateAnalyzerFactory {
-    public static IndexPredicateAnalyzer createPredicateAnalyzer(List<String> ppdColumnList,
-                                                                 FieldValidator fieldValdator) {
-        // Create analyzer for conditions  =, <, <=, >, >=
-        IndexPredicateAnalyzer analyzer = IndexPredicateAnalyzer.createAnalyzer(false);
+  public Dataset(String table) {
+    this.table = table;
+  }
 
-        for (String columnName : ppdColumnList) {
-            analyzer.allowColumnName(columnName);
-        }
-
-        analyzer.setAcceptsFields(true);
-        analyzer.setFieldValidator(fieldValdator);
-
-        return analyzer;
-    }
-
+  public String getTable(){
+    return table;
+  }
 }

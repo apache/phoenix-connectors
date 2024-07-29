@@ -45,5 +45,13 @@
         <include>phoenix5-hive.jar</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../phoenix5-hive4/target</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>phoenix5-hive4-${project.version}.jar</include>
+        <include>phoenix5-hive4.jar</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </component>

@@ -90,7 +90,8 @@ import org.apache.hadoop.hive.common.io.SortPrintStream;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.conf.HiveConf.ConfVars;
 import org.apache.hadoop.hive.llap.io.api.LlapProxy;
-import org.apache.hadoop.hive.metastore.Warehouse;
+import org.apache.hadoop.hive.metastore.conf.MetastoreConf;
+import org.apache.hadoop.hive.ql.cache.results.QueryResultsCache;
 import org.apache.hadoop.hive.ql.exec.FunctionRegistry;
 import org.apache.hadoop.hive.ql.exec.Task;
 import org.apache.hadoop.hive.ql.exec.Utilities;
@@ -118,8 +119,6 @@ import org.apache.hadoop.hive.shims.HadoopShims;
 import org.apache.hadoop.hive.shims.ShimLoader;
 import org.apache.hive.common.util.StreamPrinter;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.phoenix.compat.HiveCompatUtil;
-import org.apache.phoenix.compat.MyResult;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -156,7 +155,9 @@ public class QTestUtil {
 
   public static final String PATH_HDFS_REGEX = "(hdfs://)([a-zA-Z0-9:/_\\-\\.=])+";
   public static final String PATH_HDFS_WITH_DATE_USER_GROUP_REGEX = "([a-z]+) ([a-z]+)([ ]+)([0-9]+) ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}) " + PATH_HDFS_REGEX;
-  private static String DEFAULT_DATABASE_NAME = HiveCompatUtil.getDefaultDatabaseName();
+  private static String DEFAULT_DATABASE_NAME =
+          org.apache.hadoop.hive.metastore.Warehouse.DEFAULT_DATABASE_NAME;
+
 
   private String testWarehouse;
   private final String testFiles;
@@ -525,7 +526,7 @@ public class QTestUtil {
     this.srcTables=getSrcTables();
     this.srcUDFs = getSrcUDFs();
 
-    MyResult result = HiveCompatUtil.doSetup(confDir);
+    MyResult result = doSetup(confDir);
     conf = result.getFirst();
     queryState = result.getSecond();
 
@@ -638,7 +639,7 @@ public class QTestUtil {
     }
 
     if (clusterType.getCoreClusterType() == CoreClusterType.TEZ){
-      HiveCompatUtil.destroyTEZSession(SessionState.get());
+      SessionState.get().getTezSession().destroy();
     }
 
     setup.tearDown();
@@ -948,11 +949,11 @@ public class QTestUtil {
       return;
     }
 
-    HiveCompatUtil.cleanupQueryResultCache();
+    QueryResultsCache.cleanupInstance();
 
     // allocate and initialize a new conf since a test can
     // modify conf by using 'set' commands
-    conf = HiveCompatUtil.getHiveConf();
+    conf = new HiveConf(IDriver.class);
     initConf();
     initConfFromSetup();
 
@@ -1024,7 +1025,7 @@ public class QTestUtil {
 
   protected void runCreateTableCmd(String createTableCmd) throws Exception {
     int ecode = 0;
-    ecode = HiveCompatUtil.getDriverResponseCode(drv, createTableCmd);
+    ecode = getDriverResponseCode(drv, createTableCmd);
     if (ecode != 0) {
       throw new Exception("create table command: " + createTableCmd
           + " failed with exit code= " + ecode);
@@ -1035,8 +1036,8 @@ public class QTestUtil {
 
   protected void runCmd(String cmd) throws Exception {
     int ecode = 0;
-    ecode = HiveCompatUtil.getDriverResponseCode(drv, cmd);
-    HiveCompatUtil.closeDriver(drv);
+    ecode = getDriverResponseCode(drv, cmd);
+    ((IDriver)drv).close();
     if (ecode != 0) {
       throw new Exception("command: " + cmd
           + " failed with exit code= " + ecode);
@@ -1085,7 +1086,7 @@ public class QTestUtil {
     }
 
     // Create views registry
-    HiveCompatUtil.initHiveMaterializedViewsRegistry();
+    HiveMaterializedViewsRegistry.get().init();
 
     testWarehouse = conf.getVar(HiveConf.ConfVars.METASTOREWAREHOUSE);
     String execEngine = conf.get("hive.execution.engine");
@@ -1093,7 +1094,7 @@ public class QTestUtil {
     SessionState.start(conf);
     conf.set("hive.execution.engine", execEngine);
     db = Hive.get(conf);
-    drv = HiveCompatUtil.getDriver(conf);
+    drv = DriverFactory.newDriver(conf);
     pd = new ParseDriver();
     sem = new SemanticAnalyzer(queryState);
   }
@@ -1250,7 +1251,7 @@ public class QTestUtil {
   }
 
   public int execute(String tname) {
-    return HiveCompatUtil.getDriverResponseCode(drv, qMap.get(tname));
+    return getDriverResponseCode(drv, qMap.get(tname));
   }
 
   public int executeClient(String tname1, String tname2) {
@@ -1420,7 +1421,7 @@ public class QTestUtil {
     db = Hive.get(conf);
 
     // Move all data from dest4_sequencefile to dest4
-    HiveCompatUtil.getDriverResponseCode(drv, "FROM dest4_sequencefile INSERT OVERWRITE TABLE dest4 SELECT dest4_sequencefile.*");
+    getDriverResponseCode(drv, "FROM dest4_sequencefile INSERT OVERWRITE TABLE dest4 SELECT dest4_sequencefile.*");
 
 
     // Drop dest4_sequencefile
@@ -1881,7 +1882,7 @@ public class QTestUtil {
 
   public void resetParser() throws SemanticException {
     pd = new ParseDriver();
-    queryState = HiveCompatUtil.getQueryState(conf);
+    queryState = new QueryState.Builder().withHiveConf(conf).build();
     sem = new SemanticAnalyzer(queryState);
   }
 
@@ -2480,4 +2481,39 @@ public class QTestUtil {
       }
     }
 
+  public int getDriverResponseCode(Object drv, String createTableCmd){
+      IDriver driver = (IDriver) drv;
+      return driver.run(createTableCmd).getResponseCode();
+  }
+
+  public static MyResult doSetup(String confDir) throws MalformedURLException {
+      // HIVE-14443 move this fall-back logic to CliConfigs
+      if (confDir != null && !confDir.isEmpty()) {
+          HiveConf.setHiveSiteLocation(new URL("file://"+ new File(confDir).toURI().getPath() + "/hive-site.xml"));
+          MetastoreConf.setHiveSiteLocation(HiveConf.getHiveSiteLocation());
+          System.out.println("Setting hive-site: "+ HiveConf.getHiveSiteLocation());
+      }
+
+      QueryState queryState = new QueryState.Builder().withHiveConf(new HiveConf(IDriver.class)).build();
+      HiveConf conf = queryState.getConf();
+      return new MyResult(conf, queryState);
+  }
+
+  public static class MyResult {
+      private final HiveConf conf;
+      private final QueryState queryState;
+
+      public MyResult(HiveConf conf, QueryState queryState) {
+          this.conf = conf;
+          this.queryState = queryState;
+      }
+
+      public HiveConf getFirst() {
+          return conf;
+      }
+
+      public QueryState getSecond() {
+          return queryState;
+      }
+  }
 }
