@@ -33,15 +33,16 @@ StructType, TimestampType}
 
 object SparkSchemaUtil {
 
-  def phoenixSchemaToCatalystSchema(columnList: Seq[ColumnInfo], dateAsTimestamp: Boolean = false) : StructType = {
+  def phoenixSchemaToCatalystSchema(columnList: Seq[ColumnInfo], dateAsTimestamp: Boolean = false, doNotMapColumnFamily: Boolean = false): StructType = {
     val structFields = columnList.map(ci => {
       val structType = phoenixTypeToCatalystType(ci, dateAsTimestamp)
-      StructField(normalizeColumnName(ci.getColumnName), structType)
+      val columnName = normalizeColumnName(ci.getColumnName, doNotMapColumnFamily)
+      StructField(columnName, structType)
     })
     new StructType(structFields.toArray)
   }
 
-  def normalizeColumnName(columnName: String) = {
+  private def normalizeColumnName(columnName: String, doNotMapColumnFamily: Boolean ) = {
     val unescapedColumnName = SchemaUtil.getUnEscapedFullColumnName(columnName)
     var normalizedColumnName = ""
     if (unescapedColumnName.indexOf(QueryConstants.NAME_SEPARATOR) < 0) {
@@ -50,14 +51,14 @@ object SparkSchemaUtil {
     else {
       // split by separator to get the column family and column name
       val tokens = unescapedColumnName.split(QueryConstants.NAME_SEPARATOR_REGEX)
-      normalizedColumnName = if (tokens(0) == "0") tokens(1) else unescapedColumnName
+      normalizedColumnName = if (tokens(0) == "0" || doNotMapColumnFamily) tokens(1) else unescapedColumnName
     }
     normalizedColumnName
   }
 
 
   // Lookup table for Phoenix types to Spark catalyst types
-  def phoenixTypeToCatalystType(columnInfo: ColumnInfo, dateAsTimestamp: Boolean): DataType = columnInfo.getPDataType match {
+  private def phoenixTypeToCatalystType(columnInfo: ColumnInfo, dateAsTimestamp: Boolean): DataType = columnInfo.getPDataType match {
     case t if t.isInstanceOf[PVarchar] || t.isInstanceOf[PChar] => StringType
     case t if t.isInstanceOf[PLong] || t.isInstanceOf[PUnsignedLong] => LongType
     case t if t.isInstanceOf[PInteger] || t.isInstanceOf[PUnsignedInt] => IntegerType

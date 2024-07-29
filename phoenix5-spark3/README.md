@@ -302,6 +302,16 @@ to executors as a comma-separated list against the key `phoenixConfigs` i.e (Pho
     Note that the same property values will be used for both the driver and all executors and
     these configurations are used each time a connection is made (both on the driver and executors).
 
+- As of [PHOENIX-7377](https://issues.apache.org/jira/browse/PHOENIX-7377), you can pass boolean parameter to avoid mapping
+  non default family columns to `columnFamily.columnName` by setting the key `doNotMapColumnFamily` to `true` (default value: `false`), for ex:
+    ```scala
+    df = spark
+      .sqlContext
+      .read
+      .format("phoenix")
+      .options(Map("table" -> "Table1", "jdbcUrl" -> "jdbc:phoenix:phoenix-server:2181", "doNotMapColumnFamily" -> "true"))
+      .load;
+    ```
 ## Limitations
 
 - Basic support for column and predicate pushdown using the Data Source API
