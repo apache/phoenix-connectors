@@ -916,9 +916,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
   }
 
   test("Skip column family name when convert schema") {
-    val phoenixSchema = List(
-      new ColumnInfo("columFamily.columnName", PVarchar.INSTANCE.getSqlType)
-    )
+    val phoenixSchema = List(new ColumnInfo("columFamily.columnName", PVarchar.INSTANCE.getSqlType))
 
     val catalystSchema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(phoenixSchema, escapeColumnFamily = true)
 
@@ -928,9 +926,7 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
   }
 
   test("Do not skip column family name when convert schema\"") {
-    val phoenixSchema = List(
-      new ColumnInfo("columFamily.columnName", PVarchar.INSTANCE.getSqlType)
-    )
+    val phoenixSchema = List(new ColumnInfo("columFamily.columnName", PVarchar.INSTANCE.getSqlType))
 
     val catalystSchema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(phoenixSchema)
 
@@ -945,7 +941,6 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
         Map("table" -> SchemaUtil.getEscapedArgument("TABLE_WITH_COL_FAMILY"),
           "escapeColumnFamily" -> "true",
           PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress)).load
-
 
     val schema = df.schema
 
@@ -963,7 +958,6 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
         Map("table" -> SchemaUtil.getEscapedArgument("TABLE_WITH_COL_FAMILY"),
           "escapeColumnFamily" -> "false",
           PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress)).load
-
 
     val schema = df.schema
 
