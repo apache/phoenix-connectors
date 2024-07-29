@@ -48,7 +48,7 @@ public class PhoenixTestingDataSource extends PhoenixDataSource {
         try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
-            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
+            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, false);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);

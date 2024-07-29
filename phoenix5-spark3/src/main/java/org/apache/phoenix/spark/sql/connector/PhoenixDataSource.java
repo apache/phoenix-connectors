@@ -64,6 +64,7 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
         String tableName = options.get("table");
         String tenant = options.get(PhoenixRuntime.TENANT_ID_ATTRIB);
         boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
+        boolean escapeColumnFamily = Boolean.parseBoolean(options.getOrDefault("escapeColumnFamily", Boolean.toString(false)));
         Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         if (tenant != null) {
             overriddenProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenant);
@@ -75,7 +76,7 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
         try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
-            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
+            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, escapeColumnFamily);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
