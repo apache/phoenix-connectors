@@ -29,7 +29,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
 
 /**
  * IndexSearchCondition represents an individual search condition found by
- * {@link IndexPredicateAnalyzer}.
+ * {@link PhoenixPredicateAnalyzer}.
  *
  */
 public class PhoenixSearchCondition {

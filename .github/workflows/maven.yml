@@ -29,7 +29,6 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: 8
-        # cannot ignore javadoc violations on Zulu
         distribution: 'temurin'
     - name: Test
       run: |

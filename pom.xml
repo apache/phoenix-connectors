@@ -361,9 +361,6 @@
           <configuration>
             <source>8</source>
             <quiet>true</quiet>
-            <!-- Without this javadoc warnings fail the build on most JDKs.
-            Remove once javadoc is cleaned up -->
-            <additionalJOptions>-Xdoclint:none</additionalJOptions>
           </configuration>
         </plugin>
         <plugin>
@@ -430,6 +427,9 @@
             <goals>
               <goal>jar</goal>
             </goals>
+            <configuration>
+              <additionalparam>${javadoc.opts}</additionalparam>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -986,6 +986,16 @@
       </activation>
       <properties>
         <argLine>${phoenix-surefire.jdk11.flags} ${phoenix-surefire.jdk17.flags} ${phoenix-surefire.jdk17.tuning.flags} ${phoenix-surefire.argLine}</argLine>
+      </properties>
+    </profile>
+    <!-- disable doclint with 1.8+ JDKs -->
+    <profile>
+      <id>java8-doclint-disabled</id>
+      <activation>
+        <jdk>[1.8,)</jdk>
+      </activation>
+      <properties>
+        <javadoc.opts>-Xdoclint:none</javadoc.opts>
       </properties>
     </profile>
     <!-- Skip Javadoc for 1.8+ See PHOENIX-6922 -->
