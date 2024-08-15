@@ -361,6 +361,8 @@
           <configuration>
             <source>8</source>
             <quiet>true</quiet>
+            <!-- Without this javadoc warnings fail the build on most JDKs.
+            Remove once javadoc is cleaned up -->
             <additionalJOptions>-Xdoclint:none</additionalJOptions>
           </configuration>
         </plugin>
