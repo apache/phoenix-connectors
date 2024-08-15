@@ -361,7 +361,7 @@
           <configuration>
             <source>8</source>
             <quiet>true</quiet>
-            <additionalparam>-Xdoclint:none</additionalparam>
+            <additionalJOptions>-Xdoclint:none</additionalJOptions>
           </configuration>
         </plugin>
         <plugin>
