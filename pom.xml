@@ -361,6 +361,7 @@
           <configuration>
             <source>8</source>
             <quiet>true</quiet>
+            <additionalparam>-Xdoclint:none</additionalparam>
           </configuration>
         </plugin>
         <plugin>
@@ -427,9 +428,6 @@
             <goals>
               <goal>jar</goal>
             </goals>
-            <configuration>
-              <additionalparam>-Xdoclint:none</additionalparam>
-            </configuration>
           </execution>
         </executions>
       </plugin>
