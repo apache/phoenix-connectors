@@ -913,4 +913,58 @@ class PhoenixSparkIT extends AbstractPhoenixSparkIT {
     df.count() shouldEqual 1
   }
 
+  test("Skip column family name when converting schema") {
+    val phoenixSchema = List(new ColumnInfo("columFamily.columnName", PVarchar.INSTANCE.getSqlType))
+
+    val catalystSchema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(phoenixSchema, doNotMapColumnFamily = true)
+
+    val expected = new StructType(List(StructField("columnName", StringType, nullable = true)).toArray)
+
+    catalystSchema shouldEqual expected
+  }
+
+  test("Do not skip column family name when converting schema\"") {
+    val phoenixSchema = List(new ColumnInfo("columFamily.columnName", PVarchar.INSTANCE.getSqlType))
+
+    val catalystSchema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(phoenixSchema)
+
+    val expected = new StructType(List(StructField("columFamily.columnName", StringType, nullable = true)).toArray)
+
+    catalystSchema shouldEqual expected
+  }
+
+  test("Can read data and map column to columnName") {
+    val df = spark.read.format("phoenix")
+      .options(
+        Map("table" -> SchemaUtil.getEscapedArgument("TABLE_WITH_COL_FAMILY"),
+          "doNotMapColumnFamily" -> "true",
+          PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress)).load
+
+    val schema = df.schema
+
+    val expected = new StructType(List(
+      StructField("ID", LongType, nullable = true),
+      StructField("COL1", StringType, nullable = true)
+    ).toArray)
+
+    schema shouldEqual expected
+  }
+
+  test("Can read data and map column to colFamily.columnName") {
+    val df = spark.read.format("phoenix")
+      .options(
+        Map("table" -> SchemaUtil.getEscapedArgument("TABLE_WITH_COL_FAMILY"),
+          "doNotMapColumnFamily" -> "false",
+          PhoenixDataSource.ZOOKEEPER_URL -> quorumAddress)).load
+
+    val schema = df.schema
+
+    val expected = new StructType(List(
+      StructField("ID", LongType, nullable = true),
+      StructField("DATA.COL1", StringType, nullable = true)
+    ).toArray)
+
+    schema shouldEqual expected
+  }
+
 }

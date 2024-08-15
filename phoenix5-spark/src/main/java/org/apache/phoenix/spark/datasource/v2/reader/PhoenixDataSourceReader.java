@@ -68,6 +68,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
     private final String jdbcUrl;
     private final boolean dateAsTimestamp;
     private final Properties overriddenProps;
+    private final boolean doNotMapColumnFamily;
 
     private StructType schema;
     private Filter[] pushedFilters = new Filter[]{};
@@ -83,6 +84,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         this.tableName = options.tableName().get();
         this.jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
         this.dateAsTimestamp = options.getBoolean("dateAsTimestamp", false);
+        this.doNotMapColumnFamily = options.getBoolean("doNotMapColumnFamily", false);
         this.overriddenProps = PhoenixDataSource.extractPhoenixHBaseConfFromOptions(options);
         setSchema();
     }
@@ -94,7 +96,7 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
-            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp);
+            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, doNotMapColumnFamily);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
