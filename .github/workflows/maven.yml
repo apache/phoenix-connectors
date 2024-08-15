@@ -21,8 +21,7 @@ on:
 
 jobs:
   build:
-    # upgrade to ubuntu-latest after removing Phoenix 4 support
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-lastest
     steps:
     - uses: actions/checkout@v1
     - name: Set up JDK 1.8
