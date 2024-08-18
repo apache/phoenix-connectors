@@ -19,7 +19,7 @@ package org.apache.phoenix.spark
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.sources.{BaseRelation, PrunedFilteredScan, Filter}
+import org.apache.spark.sql.sources.{BaseRelation, Filter, PrunedFilteredScan}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SQLContext}
 

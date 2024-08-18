@@ -17,9 +17,15 @@
  */
 package org.apache.phoenix.spark.sql.connector;
 
+import org.apache.phoenix.schema.PColumn;
+import org.apache.phoenix.schema.PTable;
+import org.apache.phoenix.spark.SparkSchemaUtil;
+import org.apache.phoenix.util.SchemaUtil;
+import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.sources.BaseRelation;
+import org.apache.spark.sql.sources.RelationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.phoenix.spark.SparkSchemaUtil;
 import org.apache.phoenix.util.ColumnInfo;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.connector.catalog.Table;
@@ -34,9 +40,7 @@ import scala.collection.Seq;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL;
 import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
@@ -44,7 +48,7 @@ import static org.apache.phoenix.util.PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
 /**
  * Implements the DataSourceV2 api to read and write from Phoenix tables
  */
-public class PhoenixDataSource implements TableProvider, DataSourceRegister {
+public class PhoenixDataSource implements TableProvider, DataSourceRegister, RelationProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(PhoenixDataSource.class);
     public static final String SKIP_NORMALIZING_IDENTIFIER = "skipNormalizingIdentifier";
@@ -52,19 +56,22 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
     public static final String ZOOKEEPER_URL = "zkUrl";
     public static final String JDBC_URL = "jdbcUrl";
     public static final String PHOENIX_CONFIGS = "phoenixconfigs";
-    protected StructType schema;
+    public static final String TABLE = "table";
+    public static final String DATE_AS_TIME_STAMP = "dateAsTimestamp";
+    public static final String DO_NOT_MAP_COLUMN_FAMILY = "doNotMapColumnFamily";
+    public static final String TENANT_ID = "TenantId";
 
     @Override
-    public StructType inferSchema(CaseInsensitiveStringMap options){
-        if (options.get("table") == null) {
+    public StructType inferSchema(CaseInsensitiveStringMap options) {
+        if (options.get(TABLE) == null) {
             throw new RuntimeException("No Phoenix option " + "Table" + " defined");
         }
 
         String jdbcUrl = getJdbcUrlFromOptions(options);
-        String tableName = options.get("table");
-        String tenant = options.get(PhoenixRuntime.TENANT_ID_ATTRIB);
-        boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
-        boolean doNotMapColumnFamily = Boolean.parseBoolean(options.getOrDefault("doNotMapColumnFamily", Boolean.toString(false)));
+        String tableName = options.get(TABLE);
+        String tenant = options.get(TENANT_ID);
+        boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault(DATE_AS_TIME_STAMP, Boolean.toString(false)));
+        boolean doNotMapColumnFamily = Boolean.parseBoolean(options.getOrDefault(DO_NOT_MAP_COLUMN_FAMILY, Boolean.toString(false)));
         Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         if (tenant != null) {
             overriddenProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenant);
@@ -74,14 +81,13 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
          * Sets the schema using all the table columns before any column pruning has been done
          */
         try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
-            List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
+            List<ColumnInfo> columnInfos = generateColumnInfo(conn, tableName);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
-            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, doNotMapColumnFamily);
-        }
-        catch (SQLException e) {
+            StructType schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, doNotMapColumnFamily);
+            return schema;
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return schema;
     }
 
     public static String getJdbcUrlFromOptions(Map<String, String> options) {
@@ -111,8 +117,7 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
     }
 
     @Override
-    public Table getTable( StructType schema, Transform[] transforms, Map<String, String> properties)
-    {
+    public Table getTable(StructType schema, Transform[] transforms, Map<String, String> properties) {
         return new PhoenixTable(schema, properties);
     }
 
@@ -122,10 +127,11 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
      * {@link PhoenixDataSource#PHOENIX_CONFIGS}. The corresponding value should be a
      * comma-separated string containing property names and property values. For example:
      * prop1=val1,prop2=val2,prop3=val3
+     *
      * @param options DataSource options passed in
      * @return Properties map
      */
-    public static Properties extractPhoenixHBaseConfFromOptions(final Map<String,String> options) {
+    public static Properties extractPhoenixHBaseConfFromOptions(final Map<String, String> options) {
         Properties confToSet = new Properties();
         if (options != null) {
             String phoenixConfigs = options.get(PHOENIX_CONFIGS);
@@ -153,4 +159,34 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister {
     public String shortName() {
         return "phoenix";
     }
+
+    @Override
+    public BaseRelation createRelation(SQLContext sqlContext, scala.collection.immutable.Map<String, String> parameters) {
+
+        return new PhoenixSparkSqlRelation(
+                sqlContext.sparkSession(),
+                inferSchema(new CaseInsensitiveStringMap(JavaConverters.mapAsJavaMap(parameters))),
+                parameters);
+    }
+
+    //TODO Method PhoenixRuntime.generateColumnInfo skip only salt column, add skip tenant_id column.
+    private List<ColumnInfo> generateColumnInfo(Connection conn, String tableName) throws SQLException {
+        List<ColumnInfo> columnInfos = new ArrayList<>();
+        PTable table = PhoenixRuntime.getTable(conn, SchemaUtil.normalizeFullTableName(tableName));
+        int startOffset = 0;
+
+        if(table.getTenantId()!=null) {
+            startOffset++;
+        }
+        if(table.getBucketNum()!=null){
+            startOffset++;
+        }
+
+        for (int offset = startOffset; offset < table.getColumns().size(); offset++) {
+            PColumn column = table.getColumns().get(offset);
+            columnInfos.add(PhoenixRuntime.getColumnInfo(column));
+        }
+        return columnInfos;
+    }
+
 }

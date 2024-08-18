@@ -29,8 +29,6 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.execution.SparkPlan;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
-import scala.Option;
-import scala.collection.JavaConverters;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -67,7 +65,7 @@ public class SparkUtil {
         // since we don't set the predicate filtering is done after rows are returned from spark
         Dataset phoenixDataSet = getSparkSession().read().format("phoenix")
                 .option(DataSourceOptions.TABLE_KEY, queryBuilder.getFullTableName())
-                .option(PhoenixDataSource.ZOOKEEPER_URL, url).load();
+                .option(PhoenixDataSource.JDBC_URL, url).load();
 
         phoenixDataSet.createOrReplaceTempView(queryBuilder.getFullTableName());
         Dataset<Row> dataset = sqlContext.sql(queryBuilder.build());

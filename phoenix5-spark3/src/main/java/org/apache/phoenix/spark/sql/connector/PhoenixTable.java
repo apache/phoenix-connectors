@@ -37,17 +37,17 @@ import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
 
-public class PhoenixTable implements SupportsRead, SupportsWrite{
+public class PhoenixTable implements SupportsRead, SupportsWrite {
 
-    private final Map<String,String> options;
+    private final Map<String, String> options;
     private final String tableName;
     private final StructType schema;
     private static final Set<TableCapability> CAPABILITIES =
-      ImmutableSet.of(BATCH_READ, BATCH_WRITE, ACCEPT_ANY_SCHEMA);
+            ImmutableSet.of(BATCH_READ, BATCH_WRITE, ACCEPT_ANY_SCHEMA);
 
-    public PhoenixTable(StructType schema, Map<String,String> options) {
+    public PhoenixTable(StructType schema, Map<String, String> options) {
         this.options = options;
-        this.tableName = options.get("table");
+        this.tableName = options.get(PhoenixDataSource.TABLE);
         this.schema = schema;
     }
 

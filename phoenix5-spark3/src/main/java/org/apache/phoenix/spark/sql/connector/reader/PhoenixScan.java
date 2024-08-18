@@ -71,12 +71,12 @@ public class PhoenixScan implements Scan, Batch {
         this.whereClause = whereClause;
         this.overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         this.jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
-        this.tableName = options.get("table");
+        this.tableName = options.get(PhoenixDataSource.TABLE);
     }
 
     private void populateOverriddenProperties(){
         currentScnValue = options.get(PhoenixConfigurationUtil.CURRENT_SCN_VALUE);
-        tenantId = options.get(PhoenixConfigurationUtil.MAPREDUCE_TENANT_ID);
+        tenantId = options.get(PhoenixDataSource.TENANT_ID);
         // Generate splits based off statistics, or just region splits?
         splitByStats = options.getBoolean(
                 PhoenixConfigurationUtil.MAPREDUCE_SPLIT_BY_STATS, PhoenixConfigurationUtil.DEFAULT_SPLIT_BY_STATS);

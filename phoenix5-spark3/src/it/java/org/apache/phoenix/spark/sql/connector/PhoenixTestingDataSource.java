@@ -41,19 +41,18 @@ public class PhoenixTestingDataSource extends PhoenixDataSource {
 
     @Override
     public StructType inferSchema(CaseInsensitiveStringMap options) {
-        String tableName = options.get("table");
+        String tableName = options.get(PhoenixDataSource.TABLE);
         String jdbcUrl = getJdbcUrlFromOptions(options);
-        boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault("dateAsTimestamp", Boolean.toString(false)));
+        boolean dateAsTimestamp = Boolean.parseBoolean(options.getOrDefault(PhoenixDataSource.DATE_AS_TIME_STAMP, Boolean.toString(false)));
         Properties overriddenProps = extractPhoenixHBaseConfFromOptions(options);
         try (Connection conn = DriverManager.getConnection(jdbcUrl, overriddenProps)) {
             List<ColumnInfo> columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, null);
             Seq<ColumnInfo> columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator()).asScala().toSeq();
-            schema = SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, false);
+            return SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq, dateAsTimestamp, false);
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return schema;
     }
 
     @Override

@@ -14,15 +14,14 @@
 package org.apache.phoenix.spark
 
 import java.sql.{Connection, DriverManager}
-import java.util.Properties
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HConstants;
+import java.util.{Properties, TimeZone}
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.hbase.HConstants
 import org.apache.phoenix.query.BaseTest
+import org.apache.phoenix.spark.datasource.v2.writer.PhoenixTestingDataSourceWriter
 import org.apache.phoenix.util.PhoenixRuntime
-import org.apache.phoenix.util.ReadOnlyProps;
-import org.apache.spark.sql.{SQLContext, SparkSession}
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.phoenix.util.ReadOnlyProps
+import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
 
@@ -31,6 +30,8 @@ object PhoenixSparkITHelper extends BaseTest {
   def getTestClusterConfig = new Configuration(BaseTest.config);
 
   def doSetup = {
+    // Set-up fixed timezone for DATE and TIMESTAMP tests
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     // The @ClassRule doesn't seem to be getting picked up, force creation here before setup
     BaseTest.tmpFolder.create()
     BaseTest.setUpTestDriver(ReadOnlyProps.EMPTY_PROPS);
@@ -64,9 +65,9 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
     conf
   }
 
-  lazy val quorumAddress = {
-    ConfigurationUtil.getZookeeperURL(hbaseConfiguration).get
-  }
+  lazy val jdbcUrl = PhoenixSparkITHelper.getUrl
+
+  lazy val quorumAddress = ConfigurationUtil.getZookeeperURL(hbaseConfiguration).get
 
   // Runs SQL commands located in the file defined in the sqlSource argument
   // Optional argument tenantId used for running tenant-specific SQL
@@ -93,6 +94,11 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
     conn.commit()
   }
 
+  before{
+    // Reset batch counter after each test
+    PhoenixTestingDataSourceWriter.TOTAL_BATCHES_COMMITTED_COUNT = 0
+  }
+
   override def beforeAll() {
     PhoenixSparkITHelper.doSetup
 
@@ -102,12 +108,6 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
     setupTables("transactionTableSetup.sql", None)
     // We pass in a TenantId to allow the DDL to create tenant-specific tables/views
     setupTables("tenantSetup.sql", Some(TenantId))
-
-    //FIXME is this ever used ?
-    val conf = new SparkConf()
-      .setAppName("PhoenixSparkIT")
-      .setMaster("local[2]") // 2 threads, some parallelism
-      .set("spark.ui.showConsoleProgress", "false") // Disable printing stage progress
 
     spark = SparkSession
       .builder()

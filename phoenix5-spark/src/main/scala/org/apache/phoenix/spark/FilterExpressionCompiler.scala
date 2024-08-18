@@ -17,14 +17,12 @@
  */
 package org.apache.phoenix.spark
 
-import java.sql.Date
-import java.sql.Timestamp
-import java.text.Format
-
-import org.apache.phoenix.util.{DateUtil, SchemaUtil}
 import org.apache.phoenix.util.StringUtil.escapeStringConstant
-import org.apache.spark.sql.sources.{And, EqualTo, Filter, GreaterThan, GreaterThanOrEqual, In,
-IsNotNull, IsNull, LessThan, LessThanOrEqual, Not, Or, StringContains, StringEndsWith, StringStartsWith}
+import org.apache.phoenix.util.{DateUtil, SchemaUtil}
+import org.apache.spark.sql.sources._
+
+import java.sql.{Date, Timestamp}
+import java.text.Format
 
 class FilterExpressionCompiler() {
 

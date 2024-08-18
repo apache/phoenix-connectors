@@ -18,7 +18,6 @@
 package org.apache.phoenix.spark.datasource.v2.writer;
 
 import org.apache.phoenix.spark.datasource.v2.PhoenixDataSource;
-import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.sources.v2.DataSourceOptions;
@@ -69,7 +68,7 @@ public class PhoenixDataSourceWriter implements DataSourceWriter {
     private PhoenixDataSourceWriteOptions createPhoenixDataSourceWriteOptions(DataSourceOptions options,
                                                                               StructType schema) {
         String scn = options.get(CURRENT_SCN_VALUE).orElse(null);
-        String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB).orElse(null);
+        String tenantId = options.get(PhoenixDataSource.TENANT_ID).orElse(null);
         String jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
         boolean skipNormalizingIdentifier = options.getBoolean(SKIP_NORMALIZING_IDENTIFIER, false);
         return new PhoenixDataSourceWriteOptions.Builder()

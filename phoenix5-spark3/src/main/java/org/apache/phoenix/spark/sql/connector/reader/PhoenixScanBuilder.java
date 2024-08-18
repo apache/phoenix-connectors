@@ -60,7 +60,8 @@ public class PhoenixScanBuilder implements ScanBuilder, SupportsPushDownFilters,
 
     @Override
     public void pruneColumns(StructType requiredSchema) {
-        this.schema = requiredSchema;
+        if (requiredSchema.fields() != null && requiredSchema.fields().length != 0)
+            this.schema = requiredSchema;
     }
 
     @VisibleForTesting

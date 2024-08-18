@@ -13,43 +13,104 @@
  */
 package org.apache.phoenix.spark
 
-import org.apache.phoenix.util.PhoenixRuntime
-import org.apache.spark.sql.SQLContext
+import org.apache.phoenix.spark.sql.connector.PhoenixDataSource
+import org.apache.spark.sql.{Row, SaveMode}
 
 import scala.collection.mutable.ListBuffer
 
 /**
-  * Sub-class of PhoenixSparkIT used for tenant-specific tests
-  *
-  * Note: All schema related variables (table name, column names, default data, etc) are coupled with
-  * phoenix-spark/src/it/resources/tenantSetup.sql
-  *
-  * Note: If running directly from an IDE, these are the recommended VM parameters:
-  * -Xmx1536m -XX:MaxPermSize=512m -XX:ReservedCodeCacheSize=512m
-  *
-  */
+ * Sub-class of PhoenixSparkIT used for tenant-specific tests
+ *
+ * Note: All schema related variables (table name, column names, default data, etc) are coupled with
+ * phoenix-spark/src/it/resources/tenantSetup.sql
+ *
+ * Note: If running directly from an IDE, these are the recommended VM parameters:
+ * -Xmx1536m -XX:MaxPermSize=512m -XX:ReservedCodeCacheSize=512m
+ *
+ */
 class PhoenixSparkITTenantSpecific extends AbstractPhoenixSparkIT {
 
   // Tenant-specific schema info
   val OrgIdCol = "ORGANIZATION_ID"
   val TenantOnlyCol = "TENANT_ONLY_COL"
   val TenantTable = "TENANT_VIEW"
+  val TenantTableWithSalt = "TENANT_VIEW_WITH_SALT"
 
   // Data set for tests that write to Phoenix
   val TestDataSet = List(("testOrg1", "data1"), ("testOrg2", "data2"), ("testOrg3", "data3"))
-  val TestDataSet2 = List(("testOrg1", "data1", TenantId, "g1"), ("testOrg2", "data2", TenantId, "g3"),
-    ("testOrg3", "data3", TenantId, "g3"))
+  val TestDataSet2 = List(("testOrg4", "data4"), ("testOrg5", "data5"))
 
-  /**
-    * Helper method used by write tests to verify content written.
-    * Assumes the caller has written the TestDataSet (defined above) to Phoenix
-    * and that 1 row of default data exists (upserted after table creation in tenantSetup.sql)
-    */
-  def verifyResults(): Unit = {
-    // Contains the default data upserted into the tenant-specific table in tenantSetup.sql and the data upserted by tests
-    val VerificationDataSet = List(("defaultOrg", "defaultData")) ::: TestDataSet
+  val sqlTableName = "TENANT_TABLE"
 
-    val SelectStatement = "SELECT " + OrgIdCol + "," + TenantOnlyCol + " FROM " + TenantTable
+  after {
+    spark.sql(s"DROP TABLE IF EXISTS  $sqlTableName")
+  }
+
+  /** ************** */
+  /** Read tests * */
+  /** ************** */
+
+  test("Can read from tenant-specific table as DataFrame") {
+    val expected = Array(Row.fromSeq(Seq("defaultOrg", "defaultData")))
+    val df = spark.read
+      .format("phoenix")
+      .option(PhoenixDataSource.TABLE, TenantTable)
+      .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
+      .option(PhoenixDataSource.TENANT_ID, TenantId)
+      .load()
+      .select(OrgIdCol, TenantOnlyCol)
+
+    // There should only be 1 row upserted in tenantSetup.sql
+    val result = df.collect()
+    expected shouldEqual result
+  }
+
+  test("Can read from tenant-specific and salted table as DataFrame") {
+    val expected = Array(Row.fromSeq(Seq("defaultOrg", "defaultData")))
+    val df = spark.read
+      .format("phoenix")
+      .option(PhoenixDataSource.TABLE, TenantTableWithSalt)
+      .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
+      .option(PhoenixDataSource.TENANT_ID, TenantId)
+      .load()
+      .select(OrgIdCol, TenantOnlyCol)
+
+    // There should only be 1 row upserted in tenantSetup.sql
+    val result = df.collect()
+    expected shouldEqual result
+  }
+
+  test("Can read from tenant table using spark-sql") {
+
+    val expected = Array(Row.fromSeq(Seq("defaultOrg", "defaultData")))
+
+    spark.sql(s"CREATE TABLE $sqlTableName USING phoenix " +
+      s"OPTIONS ('table' '$TenantTable', '${PhoenixDataSource.JDBC_URL}' '$jdbcUrl', '${PhoenixDataSource.TENANT_ID}' '${TenantId}')")
+
+    val dataFrame = spark.sql(s"SELECT $OrgIdCol,$TenantOnlyCol FROM $sqlTableName")
+
+    dataFrame.collect() shouldEqual expected
+  }
+
+  /** ************** */
+  /** Write tests * */
+  /** ************** */
+
+  test("Can write a DataFrame using 'DataFrame.write' to tenant-specific view") {
+    val sqlContext = spark.sqlContext
+    import sqlContext.implicits._
+
+    val df = spark.sparkContext.parallelize(TestDataSet).toDF(OrgIdCol, TenantOnlyCol)
+    df.write
+      .format("phoenix")
+      .mode(SaveMode.Append)
+      .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
+      .option(PhoenixDataSource.TABLE, TenantTable)
+      .option(PhoenixDataSource.TENANT_ID, TenantId)
+      .save()
+
+    val expected = List(("defaultOrg", "defaultData")) ::: TestDataSet
+    val SelectStatement = s"SELECT $OrgIdCol,$TenantOnlyCol FROM $TenantTable"
     val stmt = conn.createStatement()
     val rs = stmt.executeQuery(SelectStatement)
 
@@ -58,96 +119,55 @@ class PhoenixSparkITTenantSpecific extends AbstractPhoenixSparkIT {
       results.append((rs.getString(1), rs.getString(2)))
     }
     stmt.close()
-    results.toList shouldEqual VerificationDataSet
+    results.toList shouldEqual expected
   }
 
-  /*****************/
-  /** Read tests **/
-  /*****************/
-
-  test("Can read from tenant-specific table as DataFrame") {
-    val df = spark.sqlContext.phoenixTableAsDataFrame(
-      TenantTable,
-      Seq(OrgIdCol, TenantOnlyCol),
-      zkUrl = Some(quorumAddress),
-      tenantId = Some(TenantId),
-      conf = hbaseConfiguration)
-
-    // There should only be 1 row upserted in tenantSetup.sql
-    val count = df.count()
-    count shouldEqual 1L
-  }
-
-  test("Can read from tenant-specific table as RDD") {
-    val rdd = spark.sparkContext.phoenixTableAsRDD(
-      TenantTable,
-      Seq(OrgIdCol, TenantOnlyCol),
-      zkUrl = Some(quorumAddress),
-      tenantId = Some(TenantId),
-      conf = hbaseConfiguration)
-
-    // There should only be 1 row upserted in tenantSetup.sql
-    val count = rdd.count()
-    count shouldEqual 1L
-  }
-
-  /*****************/
-  /** Write tests **/
-  /*****************/
-
-  test("Can write a DataFrame using 'DataFrame.saveToPhoenix' to tenant-specific view") {
+  test("Can write a DataFrame using 'DataFrame.write' to tenant-specific with salt view") {
     val sqlContext = spark.sqlContext
     import sqlContext.implicits._
 
     val df = spark.sparkContext.parallelize(TestDataSet).toDF(OrgIdCol, TenantOnlyCol)
-    df.saveToPhoenix(TenantTable, zkUrl = Some(quorumAddress), tenantId = Some(TenantId))
-
-    verifyResults
-  }
-
-  ignore("Can write a DataFrame using 'DataFrame.write' to tenant-specific view - Spark2 sparse columns") {
-    val sqlContext = spark.sqlContext
-    import sqlContext.implicits._
-
-    val df = spark.sparkContext.parallelize(TestDataSet2).toDF(OrgIdCol, TenantOnlyCol);
-
     df.write
       .format("phoenix")
-      .mode("overwrite")
-      .option("table", TenantTable)
-      .option(PhoenixRuntime.TENANT_ID_ATTRIB, TenantId)
-      .option("zkUrl", PhoenixSparkITHelper.getUrl)
+      .mode(SaveMode.Append)
+      .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
+      .option(PhoenixDataSource.TABLE, TenantTableWithSalt)
+      .option(PhoenixDataSource.TENANT_ID, TenantId)
       .save()
 
-    verifyResults
+    val expected = List(("defaultOrg", "defaultData")) ::: TestDataSet
+    val SelectStatement = s"SELECT $OrgIdCol,$TenantOnlyCol FROM $TenantTableWithSalt"
+    val stmt = conn.createStatement()
+    val rs = stmt.executeQuery(SelectStatement)
+
+    val results = ListBuffer[(String, String)]()
+    while (rs.next()) {
+      results.append((rs.getString(1), rs.getString(2)))
+    }
+    stmt.close()
+    results.toList shouldEqual expected
   }
 
-  test("Can write a DataFrame using 'DataFrame.write' to tenant-specific view - Spark3 all columns") {
-    val sqlContext = spark.sqlContext
-    import sqlContext.implicits._
+  test("Can use write data into tenant table using spark SQL INSERT") {
+    spark.sql(s"CREATE TABLE $sqlTableName USING phoenix " +
+      s"OPTIONS ('table' '$TenantTable', '${PhoenixDataSource.JDBC_URL}' '$jdbcUrl', '${PhoenixDataSource.TENANT_ID}' '${TenantId}')")
 
-    val df = spark.sparkContext.parallelize(TestDataSet2).toDF(OrgIdCol, TenantOnlyCol, "TENANT_ID", "GLOBAL_COL1")
+    (TestDataSet ::: TestDataSet2).foreach(tuple => {
+      // Insert data
+      spark.sql(s"INSERT INTO $sqlTableName VALUES('${tuple._1}', NULL, '${tuple._2}')")
+    })
 
-    df.write
-      .format("phoenix")
-      .mode("append")
-      .option("table", TenantTable)
-      .option(PhoenixRuntime.TENANT_ID_ATTRIB, TenantId)
-      .option("zkUrl", PhoenixSparkITHelper.getUrl)
-      .save()
+    val expected = List(("defaultOrg", "defaultData")) ::: TestDataSet ::: TestDataSet2
+    val SelectStatement = s"SELECT $OrgIdCol,$TenantOnlyCol FROM $TenantTable"
+    val stmt = conn.createStatement()
+    val rs = stmt.executeQuery(SelectStatement)
 
+    val results = ListBuffer[(String, String)]()
+    while (rs.next()) {
+      results.append((rs.getString(1), rs.getString(2)))
+    }
+    stmt.close()
+    results.toList shouldEqual expected
   }
 
-  test("Can write an RDD to Phoenix tenant-specific view") {
-    spark.sparkContext
-      .parallelize(TestDataSet)
-      .saveToPhoenix(
-        TenantTable,
-        Seq(OrgIdCol, TenantOnlyCol),
-        hbaseConfiguration,
-        tenantId = Some(TenantId)
-      )
-
-    verifyResults
-  }
 }

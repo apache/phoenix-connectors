@@ -31,7 +31,6 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -148,7 +147,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
             Dataset df1Read = spark.read().format("phoenix")
                     .option("table", tableName)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
 
             assertEquals(3l, df1Read.count());
 
@@ -173,7 +172,6 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
     }
 
     @Test
-    @Ignore // Spark3 seems to be unable to handle mixed case colum names
     public void lowerCaseWriteTest() throws SQLException {
         SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test")
                 .set("spark.hadoopRDD.ignoreEmptySplits", "false");
@@ -205,7 +203,8 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                     .format("phoenix")
                     .mode(SaveMode.Overwrite)
                     .option("table", tableName)
-                    .option(ZOOKEEPER_URL, getUrl())
+                    .option(PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER,"true")
+                    .option(JDBC_URL, getUrl())
                     .save();
 
             try (Connection conn = DriverManager.getConnection(getUrl());
