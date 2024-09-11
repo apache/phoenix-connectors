@@ -41,7 +41,7 @@
     <tez.version>0.10.3</tez.version>
     <commons-lang3.version>3.9</commons-lang3.version>
     <calcite.version>1.25.0</calcite.version>
-    <commons-compress.version>1.23.0</commons-compress.version>
+    <commons-compress.version>1.26.0</commons-compress.version>
     <guava.version>33.2.1-jre</guava.version>
   </properties>
 
