@@ -14,8 +14,7 @@
 package org.apache.phoenix.spark
 
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.hbase.{HBaseConfiguration, HConstants}
-import org.apache.phoenix.jdbc.PhoenixEmbeddedDriver
+import org.apache.hadoop.hbase.HConstants
 import org.apache.phoenix.mapreduce.util.{ColumnInfoToStringEncoderDecoder, PhoenixConfigurationUtil}
 import org.apache.phoenix.query.HBaseFactoryProvider
 import org.apache.phoenix.util.{ColumnInfo, PhoenixRuntime}

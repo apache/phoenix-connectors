@@ -43,15 +43,9 @@ import org.apache.phoenix.util.QueryBuilder;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.util.CaseInsensitiveStringMap;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.Ignore;
-
-
-
-import scala.Option;
-import scala.collection.JavaConverters;
 
 @Category(ParallelStatsDisabledTest.class)
 public class OrderByIT extends BaseOrderByIT {
@@ -134,12 +128,12 @@ public class OrderByIT extends BaseOrderByIT {
                 Arrays.asList("A_STRING", "CF1.A", "CF1.B", "COL1", "CF2.C", "CF2.D"));
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName1)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName1)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName1);
             phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName2)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName2)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName2);
 
             String query =
@@ -250,12 +244,12 @@ public class OrderByIT extends BaseOrderByIT {
 
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                            .option("table", tableName1)
-                            .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                            .option(PhoenixDataSource.TABLE, tableName1)
+                            .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName1);
             phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName2)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName2)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName2);
 
             String query =
@@ -300,8 +294,8 @@ public class OrderByIT extends BaseOrderByIT {
             createTestTable(getUrl(), ddl);
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName1)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName1)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName1);
             String dml = "UPSERT INTO " + tableName1 + " VALUES(?,?,?,?,?)";
             PreparedStatement stmt = conn.prepareStatement(dml);
@@ -391,8 +385,8 @@ public class OrderByIT extends BaseOrderByIT {
 
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName);
             Dataset<Row> dataset =
                     sqlContext.sql("SELECT col1+col2, col4, a_string FROM " + tableName
@@ -453,8 +447,8 @@ public class OrderByIT extends BaseOrderByIT {
 
             SQLContext sqlContext = SparkUtil.getSparkSession().sqlContext();
             Dataset phoenixDataSet = SparkUtil.getSparkSession().read().format("phoenix")
-                    .option("table", tableName)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
             phoenixDataSet.createOrReplaceTempView(tableName);
             Dataset<Row> dataset =
                     sqlContext.sql("SELECT A_STRING, `CF1.A`, `CF1.B`, COL1, `CF2.C`, `CF2.D`, COL2 from "

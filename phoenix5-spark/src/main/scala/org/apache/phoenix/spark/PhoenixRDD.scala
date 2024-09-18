@@ -14,7 +14,6 @@
 package org.apache.phoenix.spark
 
 import java.sql.DriverManager
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.HConstants
 import org.apache.hadoop.io.NullWritable

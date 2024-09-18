@@ -31,7 +31,6 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -99,7 +98,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                         schema);
 
             df1.write().format("phoenix").mode(SaveMode.Append)
-            .option("table", tableName)
+            .option(PhoenixDataSource.TABLE, tableName)
             .option(ZOOKEEPER_URL, getUrl())
             .save();
 
@@ -117,7 +116,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                         schema);
 
             df2.write().format("phoenix").mode(SaveMode.Append)
-                .option("table", tableName)
+                .option(PhoenixDataSource.TABLE, tableName)
                 .option(JDBC_URL, jdbcUrl)
                 .save();
 
@@ -128,7 +127,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
                         schema);
 
             df3.write().format("phoenix").mode(SaveMode.Append)
-                .option("table", tableName)
+                .option(PhoenixDataSource.TABLE, tableName)
                 .save();
 
             try (Connection conn = DriverManager.getConnection(getUrl());
@@ -147,14 +146,14 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
             }
 
             Dataset df1Read = spark.read().format("phoenix")
-                    .option("table", tableName)
-                    .option(PhoenixDataSource.ZOOKEEPER_URL, getUrl()).load();
+                    .option(PhoenixDataSource.TABLE, tableName)
+                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
 
             assertEquals(3l, df1Read.count());
 
             // Use jdbcUrl
             Dataset df2Read = spark.read().format("phoenix")
-                    .option("table", tableName)
+                    .option(PhoenixDataSource.TABLE, tableName)
                     .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
                     .load();
 
@@ -162,7 +161,7 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
             // Use default
             Dataset df3Read = spark.read().format("phoenix")
-                    .option("table", tableName)
+                    .option(PhoenixDataSource.TABLE, tableName)
                     .load();
 
             assertEquals(3l, df3Read.count());
@@ -173,7 +172,6 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
     }
 
     @Test
-    @Ignore // Spark3 seems to be unable to handle mixed case colum names
     public void lowerCaseWriteTest() throws SQLException {
         SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
@@ -203,8 +201,9 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
             df.write()
                     .format("phoenix")
                     .mode(SaveMode.Append)
-                    .option("table", tableName)
-                    .option(ZOOKEEPER_URL, getUrl())
+                    .option(PhoenixDataSource.TABLE, tableName)
+                    .option(PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER,"true")
+                    .option(JDBC_URL, getUrl())
                     .save();
 
             try (Connection conn = DriverManager.getConnection(getUrl());

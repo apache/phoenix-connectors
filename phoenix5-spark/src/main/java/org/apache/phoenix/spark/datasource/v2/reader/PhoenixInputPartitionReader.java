@@ -32,7 +32,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.compile.StatementContext;
-import org.apache.phoenix.coprocessor.generated.PTableProtos;
 import org.apache.phoenix.coprocessor.generated.PTableProtos.PTable;
 import org.apache.phoenix.coprocessorclient.BaseScannerRegionObserverConstants;
 import org.apache.phoenix.iterate.ConcatResultIterator;

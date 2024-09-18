@@ -19,7 +19,6 @@ package org.apache.phoenix.spark.sql.connector.writer;
 
 import org.apache.phoenix.spark.sql.connector.PhoenixDataSource;
 import org.apache.phoenix.thirdparty.com.google.common.annotations.VisibleForTesting;
-import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.spark.sql.connector.write.BatchWrite;
 import org.apache.spark.sql.connector.write.DataWriterFactory;
 import org.apache.spark.sql.connector.write.LogicalWriteInfo;
@@ -59,9 +58,9 @@ public class PhoenixBatchWrite implements BatchWrite {
     private PhoenixDataSourceWriteOptions createPhoenixDataSourceWriteOptions(Map<String,String> options,
                                                                                          StructType schema) {
         String scn = options.get(CURRENT_SCN_VALUE);
-        String tenantId = options.get(PhoenixRuntime.TENANT_ID_ATTRIB);
+        String tenantId = options.get(PhoenixDataSource.TENANT_ID);
         String jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(options);
-        String tableName = options.get("table");
+        String tableName = options.get(PhoenixDataSource.TABLE);
         boolean skipNormalizingIdentifier = Boolean.parseBoolean(options.getOrDefault(SKIP_NORMALIZING_IDENTIFIER, Boolean.toString(false)));
         return new PhoenixDataSourceWriteOptions.Builder()
                 .setTableName(tableName)
