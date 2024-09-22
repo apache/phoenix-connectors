@@ -19,10 +19,31 @@ package org.apache.phoenix.spark
 
 import org.apache.phoenix.query.QueryConstants
 import org.apache.phoenix.schema.types._
-import org.apache.phoenix.util.{ColumnInfo, SchemaUtil}
+import org.apache.phoenix.util.{ColumnInfo, PhoenixRuntime, SchemaUtil}
 import org.apache.spark.sql.types._
 
+import java.sql.{Connection, DriverManager, SQLException}
+import java.util
+import java.util.{List, Properties}
+import scala.collection.JavaConverters
+import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.util.Try
+
 object SparkSchemaUtil {
+
+  def phoenixSchema(tableName: String, columnList: Seq[String], jdbcUrl: String, overriddenProps: Properties): StructType = {
+    try {
+      val conn = DriverManager.getConnection(jdbcUrl, overriddenProps)
+      try {
+        val columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, columnList.asJava)
+        val columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator).asScala.toSeq
+        SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq)
+      } catch {
+        case e: SQLException =>
+          throw new RuntimeException(e)
+      } finally if (conn != null) conn.close()
+    }
+  }
 
   def phoenixSchemaToCatalystSchema(columnList: Seq[ColumnInfo], dateAsTimestamp: Boolean = false, doNotMapColumnFamily: Boolean = false): StructType = {
     val structFields = columnList.map(ci => {
@@ -33,7 +54,7 @@ object SparkSchemaUtil {
     new StructType(structFields.toArray)
   }
 
-  private def normalizeColumnName(columnName: String, doNotMapColumnFamily: Boolean ) = {
+  private def normalizeColumnName(columnName: String, doNotMapColumnFamily: Boolean) = {
     val unescapedColumnName = SchemaUtil.getUnEscapedFullColumnName(columnName)
     var normalizedColumnName = ""
     if (unescapedColumnName.indexOf(QueryConstants.NAME_SEPARATOR) < 0) {
