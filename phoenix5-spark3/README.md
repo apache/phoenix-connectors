@@ -165,7 +165,9 @@ The `save` is method on DataFrame allows passing in a data source type. You can 
 specify which table to persist the DataFrame to. The column names are derived from
 the DataFrame's schema field names, and must match the Phoenix column names.
 
-The `save` method also takes a `SaveMode` option, for which only `SaveMode.Append` is supported.
+The `save` method also takes a `SaveMode` option, it is recommended to use `SaveMode.Append`.
+For maintaining compatibility with source type `"org.apache.phoenix.spark"`,
+`SaveMode.Overwrite` is accepted, but it behaves same way as `SaveMode.Append`.
 
 Given two Phoenix tables with the following DDL:
 
@@ -341,10 +343,9 @@ the deprected `zkUrl` parameter for backwards compatibility purposes. If neither
 it falls back to using connection defined by hbase-site.xml.
 - `"jdbcUrl"` expects a full Phoenix JDBC URL, i.e. "jdbc:phoenix" or "jdbc:phoenix:zkHost:zkport",
 while `"zkUrl"` expects the ZK quorum only, i.e. "zkHost:zkPort"
-- If you want to use DataSourceV1, you can use source type `"org.apache.phoenix.spark"`
-  instead of `"phoenix"`, however this is deprecated.
-  The `"org.apache.phoenix.spark"` datasource does not accept the `"jdbcUrl"` parameter,
-  only `"zkUrl"`
+- DataSourceV1 implementation was removed,
+source type `"org.apache.phoenix.spark"`
+use the DatasourceV2 since connector 6.0.0 release.
 - The (deprecated) functions `phoenixTableAsDataFrame`, `phoenixTableAsRDD` and
   `saveToPhoenix` use the deprecated `"org.apache.phoenix.spark"` datasource, and allow
   optionally specifying a `conf` Hadoop configuration parameter with custom Phoenix client settings,
