@@ -19,10 +19,29 @@ package org.apache.phoenix.spark
 
 import org.apache.phoenix.query.QueryConstants
 import org.apache.phoenix.schema.types._
-import org.apache.phoenix.util.{ColumnInfo, SchemaUtil}
+import org.apache.phoenix.util.{ColumnInfo, PhoenixRuntime, SchemaUtil}
 import org.apache.spark.sql.types._
 
+import java.sql.{DriverManager, SQLException}
+import java.util.Properties
+import scala.collection.JavaConverters
+import scala.collection.JavaConverters.seqAsJavaListConverter
+
 object SparkSchemaUtil {
+
+  def phoenixSchema(tableName: String, columnList: Seq[String], jdbcUrl: String, overriddenProps: Properties): StructType = {
+    try {
+      val conn = DriverManager.getConnection(jdbcUrl, overriddenProps)
+      try {
+        val columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, columnList.asJava)
+        val columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator).asScala.toSeq
+        SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq)
+      } catch {
+        case e: SQLException =>
+          throw new RuntimeException(e)
+      } finally if (conn != null) conn.close()
+    }
+  }
 
   def phoenixSchemaToCatalystSchema(columnList: Seq[ColumnInfo], dateAsTimestamp: Boolean = false, doNotMapColumnFamily: Boolean = false): StructType = {
     val structFields = columnList.map(ci => {
