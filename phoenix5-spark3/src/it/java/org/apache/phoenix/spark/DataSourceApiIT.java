@@ -73,109 +73,97 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
 
     @Test
     public void basicWriteAndReadBackTest() throws SQLException {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
-        JavaSparkContext jsc = new JavaSparkContext(sparkConf);
-        SQLContext sqlContext = new SQLContext(jsc);
+        SparkSession spark = SparkUtil.getSparkSession();
         String tableName = generateUniqueName();
-
         try (Connection conn = DriverManager.getConnection(getUrl());
                 Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(
                 "CREATE TABLE " + tableName + " (id INTEGER PRIMARY KEY, v1 VARCHAR)");
         }
+        StructType schema =
+                new StructType(new StructField[] {
+                        new StructField("id", DataTypes.IntegerType, false, Metadata.empty()),
+                        new StructField("v1", DataTypes.StringType, false, Metadata.empty()) });
 
-        try (SparkSession spark = sqlContext.sparkSession()) {
+        // Use old zkUrl
+        Dataset<Row> df1 =
+                spark.createDataFrame(
+                    Arrays.asList(RowFactory.create(1, "x")),
+                    schema);
 
-            StructType schema =
-                    new StructType(new StructField[] {
-                            new StructField("id", DataTypes.IntegerType, false, Metadata.empty()),
-                            new StructField("v1", DataTypes.StringType, false, Metadata.empty()) });
+        df1.write().format("phoenix").mode(SaveMode.Append)
+        .option(PhoenixDataSource.TABLE, tableName)
+        .option(ZOOKEEPER_URL, getUrl())
+        .save();
 
-            // Use old zkUrl
-            Dataset<Row> df1 =
-                    spark.createDataFrame(
-                        Arrays.asList(RowFactory.create(1, "x")),
-                        schema);
+        // Use jdbcUrl
+        // In Phoenix 5.2+ getUrl() return a JDBC URL, in earlier versions it returns a ZK
+        // quorum
+        String jdbcUrl = getUrl();
+        if (!jdbcUrl.startsWith(JDBC_PROTOCOL)) {
+            jdbcUrl = JDBC_PROTOCOL_ZK + JDBC_PROTOCOL_SEPARATOR + jdbcUrl;
+        }
 
-            df1.write().format("phoenix").mode(SaveMode.Append)
+        Dataset<Row> df2 =
+                spark.createDataFrame(
+                    Arrays.asList(RowFactory.create(2, "x")),
+                    schema);
+
+        df2.write().format("phoenix").mode(SaveMode.Append)
             .option(PhoenixDataSource.TABLE, tableName)
-            .option(ZOOKEEPER_URL, getUrl())
+            .option(JDBC_URL, jdbcUrl)
             .save();
 
-            // Use jdbcUrl
-            // In Phoenix 5.2+ getUrl() return a JDBC URL, in earlier versions it returns a ZK
-            // quorum
-            String jdbcUrl = getUrl();
-            if (!jdbcUrl.startsWith(JDBC_PROTOCOL)) {
-                jdbcUrl = JDBC_PROTOCOL_ZK + JDBC_PROTOCOL_SEPARATOR + jdbcUrl;
-            }
+        // Use default from hbase-site.xml
+        Dataset<Row> df3 =
+                spark.createDataFrame(
+                    Arrays.asList(RowFactory.create(3, "x")),
+                    schema);
 
-            Dataset<Row> df2 =
-                    spark.createDataFrame(
-                        Arrays.asList(RowFactory.create(2, "x")),
-                        schema);
+        df3.write().format("phoenix").mode(SaveMode.Append)
+            .option(PhoenixDataSource.TABLE, tableName)
+            .save();
 
-            df2.write().format("phoenix").mode(SaveMode.Append)
-                .option(PhoenixDataSource.TABLE, tableName)
-                .option(JDBC_URL, jdbcUrl)
-                .save();
-
-            // Use default from hbase-site.xml
-            Dataset<Row> df3 =
-                    spark.createDataFrame(
-                        Arrays.asList(RowFactory.create(3, "x")),
-                        schema);
-
-            df3.write().format("phoenix").mode(SaveMode.Append)
-                .option(PhoenixDataSource.TABLE, tableName)
-                .save();
-
-            try (Connection conn = DriverManager.getConnection(getUrl());
-                    Statement stmt = conn.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-                assertTrue(rs.next());
-                assertEquals(1, rs.getInt(1));
-                assertEquals("x", rs.getString(2));
-                assertTrue(rs.next());
-                assertEquals(2, rs.getInt(1));
-                assertEquals("x", rs.getString(2));
-                assertTrue(rs.next());
-                assertEquals(3, rs.getInt(1));
-                assertEquals("x", rs.getString(2));
-                assertFalse(rs.next());
-            }
-
-            Dataset df1Read = spark.read().format("phoenix")
-                    .option(PhoenixDataSource.TABLE, tableName)
-                    .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
-
-            assertEquals(3l, df1Read.count());
-
-            // Use jdbcUrl
-            Dataset df2Read = spark.read().format("phoenix")
-                    .option(PhoenixDataSource.TABLE, tableName)
-                    .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
-                    .load();
-
-            assertEquals(3l, df2Read.count());
-
-            // Use default
-            Dataset df3Read = spark.read().format("phoenix")
-                    .option(PhoenixDataSource.TABLE, tableName)
-                    .load();
-
-            assertEquals(3l, df3Read.count());
-
-        } finally {
-            jsc.stop();
+        try (Connection conn = DriverManager.getConnection(getUrl());
+                Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
+            assertTrue(rs.next());
+            assertEquals(1, rs.getInt(1));
+            assertEquals("x", rs.getString(2));
+            assertTrue(rs.next());
+            assertEquals(2, rs.getInt(1));
+            assertEquals("x", rs.getString(2));
+            assertTrue(rs.next());
+            assertEquals(3, rs.getInt(1));
+            assertEquals("x", rs.getString(2));
+            assertFalse(rs.next());
         }
+
+        Dataset df1Read = spark.read().format("phoenix")
+                .option(PhoenixDataSource.TABLE, tableName)
+                .option(PhoenixDataSource.JDBC_URL, getUrl()).load();
+
+        assertEquals(3l, df1Read.count());
+
+        // Use jdbcUrl
+        Dataset df2Read = spark.read().format("phoenix")
+                .option(PhoenixDataSource.TABLE, tableName)
+                .option(PhoenixDataSource.JDBC_URL, jdbcUrl)
+                .load();
+
+        assertEquals(3l, df2Read.count());
+
+        // Use default
+        Dataset df3Read = spark.read().format("phoenix")
+                .option(PhoenixDataSource.TABLE, tableName)
+                .load();
+
+        assertEquals(3l, df3Read.count());
     }
 
     @Test
     public void lowerCaseWriteTest() throws SQLException {
-        SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("phoenix-test");
-        JavaSparkContext jsc = new JavaSparkContext(sparkConf);
-        SQLContext sqlContext = new SQLContext(jsc);
+        SparkSession spark = SparkUtil.getSparkSession();
         String tableName = generateUniqueName();
 
         try (Connection conn = DriverManager.getConnection(getUrl());
@@ -183,42 +171,33 @@ public class DataSourceApiIT extends ParallelStatsDisabledIT {
             stmt.executeUpdate("CREATE TABLE " + tableName + " (id INTEGER PRIMARY KEY, v1 VARCHAR, \"v1\" VARCHAR)");
         }
 
-        try(SparkSession spark = sqlContext.sparkSession()) {
-            //Doesn't help
-            spark.conf().set("spark.sql.caseSensitive", true);
+        StructType schema = new StructType(new StructField[]{
+                new StructField("ID", DataTypes.IntegerType, false, Metadata.empty()),
+                new StructField("V1", DataTypes.StringType, false, Metadata.empty()),
+                new StructField("\"v1\"", DataTypes.StringType, false, Metadata.empty())
+        });
 
-            StructType schema = new StructType(new StructField[]{
-                    new StructField("ID", DataTypes.IntegerType, false, Metadata.empty()),
-                    new StructField("V1", DataTypes.StringType, false, Metadata.empty()),
-                    new StructField("\"v1\"", DataTypes.StringType, false, Metadata.empty())
-            });
+        Dataset<Row> df = spark.createDataFrame(
+                Arrays.asList(
+                        RowFactory.create(1, "x", "y")),
+                schema);
 
-            Dataset<Row> df = spark.createDataFrame(
-                    Arrays.asList(
-                            RowFactory.create(1, "x", "y")),
-                    schema);
+        df.write()
+                .format("phoenix")
+                .mode(SaveMode.Append)
+                .option(PhoenixDataSource.TABLE, tableName)
+                .option(PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER,"true")
+                .option(JDBC_URL, getUrl())
+                .save();
 
-            df.write()
-                    .format("phoenix")
-                    .mode(SaveMode.Append)
-                    .option(PhoenixDataSource.TABLE, tableName)
-                    .option(PhoenixDataSource.SKIP_NORMALIZING_IDENTIFIER,"true")
-                    .option(JDBC_URL, getUrl())
-                    .save();
-
-            try (Connection conn = DriverManager.getConnection(getUrl());
-                 Statement stmt = conn.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-                assertTrue(rs.next());
-                assertEquals(1, rs.getInt(1));
-                assertEquals("x", rs.getString(2));
-                assertEquals("y", rs.getString(3));
-                assertFalse(rs.next());
-            }
-
-
-        } finally {
-            jsc.stop();
+        try (Connection conn = DriverManager.getConnection(getUrl());
+             Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
+            assertTrue(rs.next());
+            assertEquals(1, rs.getInt(1));
+            assertEquals("x", rs.getString(2));
+            assertEquals("y", rs.getString(3));
+            assertFalse(rs.next());
         }
     }
 
