@@ -20,8 +20,6 @@ package org.apache.phoenix.spark.datasource.v2;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.phoenix.query.HBaseFactoryProvider;
-import org.apache.phoenix.spark.ConfigurationUtil;
 import org.apache.phoenix.spark.datasource.v2.reader.PhoenixDataSourceReader;
 import org.apache.phoenix.spark.datasource.v2.writer.PhoenixDataSourceWriter;
 import org.apache.phoenix.util.PhoenixRuntime;

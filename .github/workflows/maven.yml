@@ -34,3 +34,41 @@ jobs:
       run: |
         mvn -v
         mvn -B -fae clean install
+    - name: Phoenix5 Hive Report
+      uses: dorny/test-reporter@v1
+      env:
+        NODE_OPTIONS: --max_old_space_size=8192
+      if: success() || failure()
+      with:
+        name: Phoenix5 Hive Report
+        path: '${{ github.workspace }}/phoenix5-hive/target/*-reports/TEST-*.xml'
+        reporter: java-junit
+    - name: Phoenix5 Hive4 Report
+      uses: dorny/test-reporter@v1
+      env:
+        NODE_OPTIONS: --max_old_space_size=8192
+      if: success() || failure()
+      with:
+        name: Phoenix5 Hive4 Report
+        path: '${{ github.workspace }}/phoenix5-hive4/target/*-reports/TEST-*.xml'
+        reporter: java-junit
+    - name: Phoenix5 Spark2 Report
+      uses: dorny/test-reporter@v1
+      env:
+        NODE_OPTIONS: --max_old_space_size=8192
+      if: success() || failure()
+      with:
+        name: Phoenix5 Spark2 Report
+        # Exclude OrderByReverseOptimizationIT from report because result is too big ans results on out of memory error
+        path: '${{ github.workspace }}/phoenix5-spark/target/*-reports/TEST-!(*OrderByReverseOptimizationIT*).xml'
+        reporter: java-junit
+    - name: Phoenix5 Spark3 Report
+      uses: dorny/test-reporter@v1
+      env:
+        NODE_OPTIONS: --max_old_space_size=8192
+      if: success() || failure()
+      with:
+        name: Phoenix5 Spark3 Report
+        # Exclude OrderByReverseOptimizationIT from report because result is too big ans results on out of memory error
+        path: '${{ github.workspace }}/phoenix5-spark3/target/*-reports/TEST-!(*OrderByReverseOptimizationIT*).xml'
+        reporter: java-junit
