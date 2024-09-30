@@ -140,7 +140,7 @@
     <junit.version>4.13.2</junit.version>
     <jodatime.version>2.10.5</jodatime.version>
     <commons-cli.version>1.4</commons-cli.version>
-    <commons-compress.version>1.9</commons-compress.version>
+    <commons-compress.version>1.26.0</commons-compress.version>
     <!-- For hive -->
     <commons-io.version>2.11.0</commons-io.version>
 
