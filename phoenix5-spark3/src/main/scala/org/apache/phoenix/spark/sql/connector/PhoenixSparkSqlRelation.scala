@@ -25,7 +25,7 @@ case class PhoenixSparkSqlRelation(
     val batch = scanBuilder.build().toBatch
     val rdd = new DataSourceRDD(
       sqlContext.sparkContext,
-      batch.planInputPartitions(),
+      Seq(batch.planInputPartitions().toSeq),
       batch.createReaderFactory(),
       false,
       Map.empty
