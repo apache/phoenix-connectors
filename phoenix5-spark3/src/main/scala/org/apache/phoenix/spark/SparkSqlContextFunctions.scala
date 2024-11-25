@@ -18,7 +18,6 @@ import org.apache.spark.sql.{DataFrame, SQLContext}
 
 @deprecated("Use the DataSource V2 API implementation (see PhoenixDataSource)")
 class SparkSqlContextFunctions(@transient val sqlContext: SQLContext) extends Serializable {
-
   /*
   This will return a Spark DataFrame, with Phoenix types converted Spark SQL catalyst types
 
@@ -30,13 +29,13 @@ class SparkSqlContextFunctions(@transient val sqlContext: SQLContext) extends Se
     property will be used
  */
   def phoenixTableAsDataFrame(table: String, columns: Seq[String],
-                               predicate: Option[String] = None,
-                               zkUrl: Option[String] = None,
-                               tenantId: Option[String] = None,
-                               conf: Configuration = new Configuration): DataFrame = {
-
-    // Create the PhoenixRDD and convert it to a DataFrame
-    new PhoenixRDD(sqlContext.sparkContext, table, columns, predicate, zkUrl, conf, tenantId = tenantId)
-      .toDataFrame(sqlContext)
+                              predicate: Option[String] = None,
+                              zkUrl: Option[String] = None,
+                              tenantId: Option[String] = None,
+                              conf: Configuration = new Configuration): DataFrame = {
+    val df = PhoenixDataFrameHelper.createDataFrame(table, zkUrl, tenantId, conf)(sqlContext.sparkSession)
+    val dfWithSelectColumns = PhoenixDataFrameHelper.withSelectExpr(columns, df)
+    PhoenixDataFrameHelper.withWhereCondition(predicate, dfWithSelectColumns)
   }
+
 }
