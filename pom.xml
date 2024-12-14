@@ -44,13 +44,6 @@
     <url>http://www.apache.org</url>
   </organization>
 
-  <repositories>
-    <repository>
-      <id>apache release</id>
-      <url>https://repository.apache.org/content/repositories/releases/</url>
-    </repository>
-  </repositories>
-
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
