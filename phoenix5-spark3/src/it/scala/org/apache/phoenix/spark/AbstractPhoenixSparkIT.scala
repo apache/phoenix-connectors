@@ -67,7 +67,7 @@ class AbstractPhoenixSparkIT extends FunSuite with Matchers with BeforeAndAfter 
 
   lazy val jdbcUrl = PhoenixSparkITHelper.getUrl
 
-  lazy val quorumAddress = ConfigurationUtil.getZookeeperURL(hbaseConfiguration).get
+  lazy val quorumAddress = PhoenixSparkITHelper.getUrl
 
   def getZookeeperURL(conf: Configuration): Option[String] = {
     List(

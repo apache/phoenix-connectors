@@ -18,13 +18,12 @@
 package org.apache.phoenix.spark.sql.connector.writer;
 
 import org.apache.phoenix.thirdparty.com.google.common.annotations.VisibleForTesting;
-import org.apache.spark.sql.connector.write.BatchWrite;
-import org.apache.spark.sql.connector.write.LogicalWriteInfo;
-import org.apache.spark.sql.connector.write.WriteBuilder;
+import org.apache.spark.sql.connector.write.*;
+import org.apache.spark.sql.sources.Filter;
 
 import java.util.Map;
 
-public class PhoenixWriteBuilder implements WriteBuilder {
+public class PhoenixWriteBuilder implements WriteBuilder, SupportsOverwrite {
 
     private final LogicalWriteInfo writeInfo;
     private final Map<String,String> options;
@@ -48,4 +47,10 @@ public class PhoenixWriteBuilder implements WriteBuilder {
     Map<String,String> getOptions() {
         return options;
     }
+
+    @Override
+    public WriteBuilder overwrite(Filter[] filters) {
+        return this;
+    }
+
 }
