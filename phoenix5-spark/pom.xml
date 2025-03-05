@@ -478,6 +478,10 @@
             <ignoredUnusedDeclaredDependency>
               org.slf4j:slf4j-log4j12
             </ignoredUnusedDeclaredDependency>
+            <!--Workaround for Hadoop bug -->
+            <ignoredUnsedDeclaredDependency>
+              org.mockito:mockito-core
+            </ignoredUnsedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
         </configuration>
       </plugin>

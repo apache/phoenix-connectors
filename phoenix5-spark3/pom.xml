@@ -308,6 +308,9 @@
             <ignoredUnsedDeclaredDependency>org.apache.hbase:hbase-it</ignoredUnsedDeclaredDependency>
             <ignoredUnsedDeclaredDependency>org.apache.hadoop:hadoop-minicluster</ignoredUnsedDeclaredDependency>
             <ignoredUnsedDeclaredDependency>org.apache.omid:omid-tso-server</ignoredUnsedDeclaredDependency>
+            <ignoredUnsedDeclaredDependency>org.apache.omid:omid-tso-server</ignoredUnsedDeclaredDependency>
+            <!--Workaround for Hadoop bug -->
+            <ignoredUnsedDeclaredDependency>org.mockito:mockito-core</ignoredUnsedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
         </configuration>
       </plugin>
