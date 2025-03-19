@@ -162,7 +162,6 @@
     <hbase.shaded.package>org.apache.hadoop.hbase.shaded</hbase.shaded.package>
     <phoenix.main.version>5</phoenix.main.version>
 
-    <skip.scalatest>false</skip.scalatest>
     <skip.spark.javadoc>false</skip.spark.javadoc>
   </properties>
 
