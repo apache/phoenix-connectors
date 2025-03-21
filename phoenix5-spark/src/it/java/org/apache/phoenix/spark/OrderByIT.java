@@ -522,4 +522,16 @@ public class OrderByIT extends BaseOrderByIT {
     public void testOrderByNullable() throws SQLException {
 
     }
+
+    @Test
+    @Ignore
+    public void testOrderByReverseOptimization() throws Exception {
+        super.testOrderByReverseOptimization();
+    }
+
+    @Test
+    @Ignore
+    public void testOrderByReverseOptimizationWithNullsLast() throws Exception {
+        super.testOrderByReverseOptimizationWithNullsLast();
+    }
 }
