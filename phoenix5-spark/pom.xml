@@ -523,7 +523,7 @@
           <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
           <junitxml>.</junitxml>
           <filereports>WDF TestSuite.txt</filereports>
-          <skipTests>${skip.scalatest}</skipTests>
+          <skipTests>${skipTests}</skipTests>
         </configuration>
         <executions>
           <execution>
