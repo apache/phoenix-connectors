@@ -18,25 +18,25 @@ import org.apache.spark.sql.{DataFrame, SQLContext}
 
 @deprecated("Use the DataSource V2 API implementation (see PhoenixDataSource)")
 class SparkSqlContextFunctions(@transient val sqlContext: SQLContext) extends Serializable {
-
   /*
   This will return a Spark DataFrame, with Phoenix types converted Spark SQL catalyst types
 
   'table' is the corresponding Phoenix table
-  'columns' is a sequence of of columns to query
+  'columns' is a sequence of columns to query
   'predicate' is a set of statements to go after a WHERE clause, e.g. "TID = 123"
   'zkUrl' is an optional Zookeeper URL to use to connect to Phoenix
   'conf' is a Hadoop Configuration object. If zkUrl is not set, the "hbase.zookeeper.quorum"
     property will be used
  */
   def phoenixTableAsDataFrame(table: String, columns: Seq[String],
-                               predicate: Option[String] = None,
-                               zkUrl: Option[String] = None,
-                               tenantId: Option[String] = None,
-                               conf: Configuration = new Configuration): DataFrame = {
-
-    // Create the PhoenixRDD and convert it to a DataFrame
-    new PhoenixRDD(sqlContext.sparkContext, table, columns, predicate, zkUrl, conf, tenantId = tenantId)
-      .toDataFrame(sqlContext)
+                              predicate: Option[String] = None,
+                              zkUrl: Option[String] = None,
+                              tenantId: Option[String] = None,
+                              conf: Configuration = new Configuration): DataFrame = {
+    implicit val sparkSession = sqlContext.sparkSession
+    val df = PhoenixDataFrameHelper.createDataFrame(table, zkUrl, tenantId, conf)
+    val dfWithSelectColumns = PhoenixDataFrameHelper.withSelectExpr(columns, df)
+    PhoenixDataFrameHelper.withWhereCondition(predicate, dfWithSelectColumns)
   }
+
 }
