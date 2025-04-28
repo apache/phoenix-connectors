@@ -136,7 +136,7 @@
     <commons-compress.version>1.26.0</commons-compress.version>
     <!-- For hive -->
     <commons-io.version>2.11.0</commons-io.version>
-
+    <netty-bom.version>4.1.119.Final</netty-bom.version>
     <!-- Plugin versions -->
     <maven-build-helper-plugin.version>3.5.0</maven-build-helper-plugin.version>
     <scala-maven-plugin.version>4.8.1</scala-maven-plugin.version>
@@ -908,6 +908,17 @@
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-minikdc</artifactId>
         <version>${hadoop.version}</version>
+      </dependency>
+
+      <!-- We don't depend on netty directly, but we need this to avoid pulling in different
+      4.1.x versions of netty modules from the transitive dependencies
+      (ZK via Omid and ZK via Curator, or the Hive/Spark dependencies) -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty-bom.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
 
       <!-- General Dependencies -->
