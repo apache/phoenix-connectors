@@ -39,7 +39,6 @@
     <hive.version>${hive4.version}</hive.version>
     <hive-storage.version>${hive.version}</hive-storage.version>
     <tez.version>0.10.3</tez.version>
-    <commons-lang3.version>3.17.0</commons-lang3.version>
     <calcite.version>1.25.0</calcite.version>
     <guava.version>33.2.1-jre</guava.version>
   </properties>
@@ -228,7 +227,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>${commons-lang3.version}</version>
     </dependency>
 
     <!-- Hive test dependencies -->
