@@ -37,7 +37,6 @@
     <top.dir>${project.basedir}/..</top.dir>
     <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
     <tez.version>0.9.1</tez.version>
-    <commons-lang3.version>3.17.0</commons-lang3.version>
     <calcite.version>1.16.0</calcite.version>
     <hive.version>${hive3.version}</hive.version>
   </properties>
@@ -202,7 +201,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>${commons-lang3.version}</version>
     </dependency>
 
     <!-- Hive test dependencies -->

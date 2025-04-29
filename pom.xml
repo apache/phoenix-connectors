@@ -134,6 +134,7 @@
     <jodatime.version>2.10.5</jodatime.version>
     <commons-cli.version>1.4</commons-cli.version>
     <commons-compress.version>1.26.0</commons-compress.version>
+    <commons-lang3.version>3.17.0</commons-lang3.version>
     <!-- For hive -->
     <commons-io.version>2.11.0</commons-io.version>
 
@@ -954,6 +955,11 @@
         <groupId>com.lmax</groupId>
         <artifactId>disruptor</artifactId>
         <version>${disruptor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
