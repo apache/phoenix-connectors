@@ -124,6 +124,12 @@
       <artifactId>hive-exec</artifactId>
       <version>${hive.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId> org.apache.hive</groupId>
@@ -154,6 +160,11 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -219,6 +230,10 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-reload4j</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
       </exclusions>
       <type>test-jar</type>
       <scope>test</scope> <!-- ? -->
@@ -237,6 +252,12 @@
       <artifactId>hive-standalone-metastore-common</artifactId>
       <version>${hive.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
         <dependency>
             <groupId> org.apache.hive</groupId>
@@ -257,12 +278,24 @@
             <version>${hive.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
+            <exclusions>
+              <exclusion>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+              </exclusion>
+            </exclusions>
     </dependency>
             <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-standalone-metastore-server</artifactId>
             <version>${hive.version}</version>
             <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+              </exclusion>
+            </exclusions>
     </dependency>
             <dependency>
             <groupId>org.apache.hive.hcatalog</groupId>
@@ -277,6 +310,7 @@
             <version>${hive.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
+
         </dependency>
         <dependency>
             <groupId> org.apache.hive</groupId>
