@@ -84,6 +84,18 @@
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql-api_${scala.binary.version}</artifactId>
+      <version>${spark.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-common-utils_${scala.binary.version}</artifactId>
+      <version>${spark.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Phoenix dependencies -->
     <dependency>
@@ -109,6 +121,12 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-reflect</artifactId>
       <version>${scala.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -159,12 +177,6 @@
     </dependency>
 
     <!-- Scala Test dependencies -->
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-reflect</artifactId>
-      <version>${scala.version}</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.scalactic</groupId>
       <artifactId>scalactic_${scala.binary.version}</artifactId>
