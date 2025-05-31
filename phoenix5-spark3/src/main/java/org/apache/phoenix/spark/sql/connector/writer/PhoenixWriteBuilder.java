@@ -20,11 +20,28 @@ package org.apache.phoenix.spark.sql.connector.writer;
 import org.apache.phoenix.thirdparty.com.google.common.annotations.VisibleForTesting;
 import org.apache.spark.sql.connector.write.BatchWrite;
 import org.apache.spark.sql.connector.write.LogicalWriteInfo;
+import org.apache.spark.sql.connector.write.SupportsOverwrite;
 import org.apache.spark.sql.connector.write.WriteBuilder;
+import org.apache.spark.sql.sources.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class PhoenixWriteBuilder implements WriteBuilder {
+/**
+ * The PhoenixWriteBuilder class is responsible for constructing
+ * and configuring a write operation for Phoenix when interfacing
+ * with Spark's data source API.
+ * This class implements the WriteBuilder interface for write operations
+ * and SupportsOverwrite interface to handle overwrite behavior.
+ * The class facilitates the creation of a batch write operation
+ * that is configured with the provided logical writing information
+ * and options specific to the Phoenix data source.
+ * Note: Overwrite mode does not do truncate table
+ * and behaves the same as Append mode.
+ */
+public class PhoenixWriteBuilder implements WriteBuilder, SupportsOverwrite {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixWriteBuilder.class);
 
     private final LogicalWriteInfo writeInfo;
     private final Map<String,String> options;
@@ -48,4 +65,11 @@ public class PhoenixWriteBuilder implements WriteBuilder {
     Map<String,String> getOptions() {
         return options;
     }
+
+    @Override
+    public WriteBuilder overwrite(Filter[] filters) {
+        LOGGER.info("Overwrite mode specified. Ignoring Overwrite and treating it as Append.");
+        return this;
+    }
+
 }

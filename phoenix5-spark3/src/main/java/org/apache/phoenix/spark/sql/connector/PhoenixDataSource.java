@@ -161,7 +161,8 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister, Rel
     }
 
     @Override
-    public BaseRelation createRelation(SQLContext sqlContext, scala.collection.immutable.Map<String, String> parameters) {
+    public BaseRelation createRelation(SQLContext sqlContext,
+            scala.collection.immutable.Map<String, String> parameters) {
 
         return new PhoenixSparkSqlRelation(
                 sqlContext.sparkSession(),
@@ -175,10 +176,10 @@ public class PhoenixDataSource implements TableProvider, DataSourceRegister, Rel
         PTable table = PhoenixRuntime.getTable(conn, SchemaUtil.normalizeFullTableName(tableName));
         int startOffset = 0;
 
-        if(table.getTenantId()!=null) {
+        if (table.getTenantId() != null) {
             startOffset++;
         }
-        if(table.getBucketNum()!=null){
+        if (table.getBucketNum() != null) {
             startOffset++;
         }
 
