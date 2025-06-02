@@ -17,10 +17,6 @@
  */
 package org.apache.phoenix.spark.sql.connector;
 
-import static org.apache.spark.sql.connector.catalog.TableCapability.ACCEPT_ANY_SCHEMA;
-import static org.apache.spark.sql.connector.catalog.TableCapability.BATCH_READ;
-import static org.apache.spark.sql.connector.catalog.TableCapability.BATCH_WRITE;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -36,14 +32,19 @@ import org.apache.spark.sql.connector.write.WriteBuilder;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.sql.util.CaseInsensitiveStringMap;
 
+import static org.apache.spark.sql.connector.catalog.TableCapability.BATCH_READ;
+import static org.apache.spark.sql.connector.catalog.TableCapability.BATCH_WRITE;
+import static org.apache.spark.sql.connector.catalog.TableCapability.ACCEPT_ANY_SCHEMA;
+import static org.apache.spark.sql.connector.catalog.TableCapability.OVERWRITE_BY_FILTER;
 
 public class PhoenixTable implements SupportsRead, SupportsWrite {
 
     private final Map<String, String> options;
     private final String tableName;
     private final StructType schema;
-    private static final Set<TableCapability> CAPABILITIES =
-            ImmutableSet.of(BATCH_READ, BATCH_WRITE, ACCEPT_ANY_SCHEMA);
+    private static final Set<TableCapability>
+            CAPABILITIES =
+            ImmutableSet.of(BATCH_READ, BATCH_WRITE, ACCEPT_ANY_SCHEMA, OVERWRITE_BY_FILTER);
 
     public PhoenixTable(StructType schema, Map<String, String> options) {
         this.options = options;

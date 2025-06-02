@@ -25,7 +25,7 @@ import scala.collection.mutable.ListBuffer
   * -Xmx1536m -XX:MaxPermSize=512m -XX:ReservedCodeCacheSize=512m
   *
   */
-class PhoenixSparkDatasourceV1ITTenantSpecific extends AbstractPhoenixSparkIT {
+class PhoenixSparkV1ITTenantSpecific extends AbstractPhoenixSparkIT {
 
   // Tenant-specific schema info
   val OrgIdCol = "ORGANIZATION_ID"

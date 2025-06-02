@@ -33,7 +33,7 @@ object SparkSchemaUtil {
     new StructType(structFields.toArray)
   }
 
-  private def normalizeColumnName(columnName: String, doNotMapColumnFamily: Boolean ) = {
+  private def normalizeColumnName(columnName: String, doNotMapColumnFamily: Boolean) = {
     val unescapedColumnName = SchemaUtil.getUnEscapedFullColumnName(columnName)
     var normalizedColumnName = ""
     if (unescapedColumnName.indexOf(QueryConstants.NAME_SEPARATOR) < 0) {

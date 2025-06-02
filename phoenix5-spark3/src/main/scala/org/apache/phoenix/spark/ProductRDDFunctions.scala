@@ -14,51 +14,58 @@
 package org.apache.phoenix.spark
 
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.io.NullWritable
-import org.apache.phoenix.mapreduce.PhoenixOutputFormat
-import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil
+import org.apache.phoenix.spark.sql.connector.PhoenixDataSource
+import org.apache.phoenix.util.PhoenixRuntime
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{Row, SparkSession}
 
-import scala.collection.JavaConversions._
+import java.sql.{DriverManager, SQLException}
+import java.util.Properties
+import scala.collection.JavaConverters
+import scala.collection.JavaConverters.{asScalaIteratorConverter, mapAsJavaMapConverter}
+import scala.jdk.CollectionConverters.seqAsJavaListConverter
+import scala.util.{Failure, Success, Try}
 
 @deprecated("Use the DataSource V2 API implementation (see PhoenixDataSource)")
 class ProductRDDFunctions[A <: Product](data: RDD[A]) extends Serializable {
-
-  def saveToPhoenix(tableName: String, cols: Seq[String],
-                    conf: Configuration = new Configuration, zkUrl: Option[String] = None, tenantId: Option[String] = None)
-                    : Unit = {
-
-    // Create a configuration object to use for saving
-    @transient val outConfig = ConfigurationUtil.getOutputConfiguration(tableName, cols, zkUrl, tenantId, Some(conf))
-
-    // Retrieve the zookeeper URL
-    val zkUrlFinal = ConfigurationUtil.getZookeeperURL(outConfig)
-
-    // Map the row objects into PhoenixRecordWritable
-    val phxRDD = data.mapPartitions{ rows =>
-
-      // Create a within-partition config to retrieve the ColumnInfo list
-      @transient val partitionConfig = ConfigurationUtil.getOutputConfiguration(tableName, cols, zkUrlFinal, tenantId)
-      @transient val columns = PhoenixConfigurationUtil.getUpsertColumnMetadataList(partitionConfig).toList
-
-      rows.map { row =>
-        val rec = new PhoenixRecordWritable(columns)
-        row.productIterator.foreach { e => rec.add(e) }
-        (null, rec)
-      }
+  def saveToPhoenix(tableName: String,
+                    cols: Seq[String],
+                    conf: Configuration = new Configuration,
+                    zkUrl: Option[String] = None,
+                    tenantId: Option[String] = None): Unit = {
+    val sparkSession: SparkSession = SparkSession.builder().config(data.sparkContext.getConf).getOrCreate()
+    val dsOptions = Map(PhoenixDataSource.JDBC_URL -> zkUrl.orNull).asJava
+    val jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(dsOptions)
+    val confAsMap = conf.iterator().asScala.map(c => (c.getKey -> c.getValue)).toMap.asJava
+    val confToSet = new Properties()
+    confToSet.putAll(confAsMap)
+    if (tenantId.isDefined) {
+      confToSet.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId.get)
     }
-
-    // Save it
-    phxRDD.saveAsNewAPIHadoopFile(
-      Option(
-        conf.get("mapreduce.output.fileoutputformat.outputdir")
-      ).getOrElse(
-        Option(conf.get("mapred.output.dir")).getOrElse("")
-      ),
-      classOf[NullWritable],
-      classOf[PhoenixRecordWritable],
-      classOf[PhoenixOutputFormat[PhoenixRecordWritable]],
-      outConfig
-    )
+    val schema: StructType = catalystSchema(tableName, cols, jdbcUrl, confToSet)
+    val dataFrame = sparkSession.createDataFrame(data.map(Row.fromTuple), schema).selectExpr(cols: _*)
+    new DataFrameFunctions(dataFrame)
+      .saveToPhoenix(
+        tableName = tableName,
+        conf = conf,
+        zkUrl = zkUrl,
+        tenantId = tenantId
+      )
   }
+
+  private def catalystSchema(tableName: String, columnList: Seq[String], jdbcUrl: String, overriddenProps: Properties): StructType = {
+    Try(DriverManager.getConnection(jdbcUrl, overriddenProps)) match {
+      case Success(conn) => try {
+        val columnInfos = PhoenixRuntime.generateColumnInfo(conn, tableName, columnList.asJava)
+        val columnInfoSeq = JavaConverters.asScalaIteratorConverter(columnInfos.iterator).asScala.toSeq
+        SparkSchemaUtil.phoenixSchemaToCatalystSchema(columnInfoSeq)
+      } catch {
+        case e: SQLException =>
+          throw new RuntimeException(e)
+      } finally if (conn != null) conn.close()
+      case Failure(e) => throw new RuntimeException(e)
+    }
+  }
+
 }

@@ -16,6 +16,7 @@ package org.apache.phoenix.spark
 import org.apache.hadoop.conf.Configuration
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SparkSession
 
 @deprecated("Use the DataSource V2 API implementation (see PhoenixDataSource)")
 class SparkContextFunctions(@transient val sc: SparkContext) extends Serializable {
@@ -32,11 +33,25 @@ class SparkContextFunctions(@transient val sc: SparkContext) extends Serializabl
       property will be used
    */
 
-  def phoenixTableAsRDD(table: String, columns: Seq[String], predicate: Option[String] = None,
-                        zkUrl: Option[String] = None, tenantId: Option[String] = None, conf: Configuration = new Configuration())
-                        : RDD[Map[String, AnyRef]] = {
+  def phoenixTableAsRDD(table: String,
+                        columns: Seq[String],
+                        predicate: Option[String] = None,
+                        zkUrl: Option[String] = None,
+                        tenantId: Option[String] = None,
+                        conf: Configuration = new Configuration()): RDD[Map[String, AnyRef]] = {
 
-    // Create a PhoenixRDD, but only return the serializable 'result' map
-    new PhoenixRDD(sc, table, columns, predicate, zkUrl, conf, tenantId = tenantId).map(_.result)
+    val sparkSession = SparkSession.builder().config(sc.getConf).getOrCreate()
+    val dataFrame = sparkSession.sqlContext.phoenixTableAsDataFrame(
+      table = table,
+      columns = columns,
+      predicate = predicate,
+      zkUrl = zkUrl,
+      tenantId = tenantId,
+      conf = conf
+    )
+
+    dataFrame
+      .rdd
+      .map(row => row.getValuesMap(row.schema.fieldNames))
   }
 }

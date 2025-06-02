@@ -218,10 +218,10 @@ public class PhoenixDataSourceReader implements DataSourceReader, SupportsPushDo
         PTable table = PhoenixRuntime.getTable(conn, SchemaUtil.normalizeFullTableName(tableName));
         int startOffset = 0;
 
-        if(table.getTenantId()!=null) {
+        if (table.getTenantId() != null) {
             startOffset++;
         }
-        if(table.getBucketNum()!=null){
+        if (table.getBucketNum() != null) {
             startOffset++;
         }
 
