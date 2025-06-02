@@ -1060,6 +1060,23 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>hbase-2.6</id>
+      <activation>
+        <property>
+          <name>hbase.compat.version</name>
+          <value>2.6.0</value>
+        </property>
+      </activation>
+      <properties>
+        <hbase.version>2.6.0-hadoop3</hbase.version>
+        <hbase.compat.version>2.6.0</hbase.compat.version>
+        <hbase-thirdparty-version>4.1.7</hbase-thirdparty-version>
+      </properties>
+      <dependencies>
+        <!-- Add any dependencies specific to HBase 2.6 here -->
+      </dependencies>
+    </profile>
   </profiles>
 
   <reporting>
