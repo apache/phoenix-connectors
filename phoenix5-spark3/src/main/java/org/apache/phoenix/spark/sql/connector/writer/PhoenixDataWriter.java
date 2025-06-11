@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.InternalRow;
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder;
-import org.apache.spark.sql.catalyst.encoders.RowEncoder$;
+import org.apache.spark.sql.catalyst.types.DataTypeUtils;
 import org.apache.spark.sql.execution.datasources.SparkJdbcUtil;
 import org.apache.spark.sql.execution.datasources.jdbc.PhoenixJdbcDialect$;
 import org.apache.spark.sql.connector.write.DataWriter;
@@ -67,10 +67,11 @@ public class PhoenixDataWriter implements DataWriter<InternalRow> {
         this.schema = options.getSchema();
 
         List<Attribute> attrs = new ArrayList<>();
-        for (AttributeReference ref : scala.collection.JavaConverters.seqAsJavaListConverter(schema.toAttributes()).asJava()) {
+        for (AttributeReference ref : scala.collection.JavaConverters.seqAsJavaListConverter(
+            DataTypeUtils.toAttributes(schema)).asJava()) {
             attrs.add(ref.toAttribute());
         }
-        encoder = RowEncoder$.MODULE$.apply(schema).resolveAndBind( scala.collection.JavaConverters.asScalaIteratorConverter(attrs.iterator()).asScala().toSeq(), SimpleAnalyzer$.MODULE$);
+        encoder = ExpressionEncoder.apply(schema).resolveAndBind( scala.collection.JavaConverters.asScalaIteratorConverter(attrs.iterator()).asScala().toSeq(), SimpleAnalyzer$.MODULE$);
         try {
             this.conn = DriverManager.getConnection(jdbcUrl, connectionProps);
             List<String> colNames =  new ArrayList<>(Arrays.asList(options.getSchema().names()));
