@@ -123,7 +123,7 @@
     <scala.version.for.spark3>2.12.18</scala.version.for.spark3>
     <scala.binary.version.for.spark3>2.12</scala.binary.version.for.spark3>
     <log4j.version>1.2.17</log4j.version>
-    <log4j2.version>2.23.1</log4j2.version>
+    <log4j2.version>2.25.3</log4j2.version>
     <disruptor.version>3.3.6</disruptor.version>
     <slf4j.version>1.7.36</slf4j.version>
     <commons-collections.version>3.2.2</commons-collections.version>
