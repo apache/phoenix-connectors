@@ -39,7 +39,7 @@ class ProductRDDFunctions[A <: Product](data: RDD[A]) extends Serializable {
     val jdbcUrl = PhoenixDataSource.getJdbcUrlFromOptions(dsOptions)
     val confAsMap = conf.iterator().asScala.map(c => (c.getKey -> c.getValue)).toMap.asJava
     val confToSet = new Properties()
-    confToSet.putAll(confAsMap)
+    confToSet.putAll(confAsMap.asInstanceOf[java.util.Map[_, _]])
     if (tenantId.isDefined) {
       confToSet.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId.get)
     }

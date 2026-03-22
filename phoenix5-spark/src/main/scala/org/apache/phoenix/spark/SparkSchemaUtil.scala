@@ -19,10 +19,23 @@ package org.apache.phoenix.spark
 
 import org.apache.phoenix.query.QueryConstants
 import org.apache.phoenix.schema.types._
-import org.apache.phoenix.util.{ColumnInfo, SchemaUtil}
+import org.apache.phoenix.util.ColumnInfo
 import org.apache.spark.sql.types._
 
 object SparkSchemaUtil {
+
+  /**
+   * Removes double-quote escaping from a full column name.
+   * Inlined here for compatibility across Phoenix versions:
+   * - Phoenix 5.2.x had SchemaUtil.getUnEscapedFullColumnName()
+   * - Phoenix 5.3.0+ renamed it to SchemaUtil.getUnEscapedFullName()
+   * This implementation matches the Phoenix 5.3.0 behavior exactly.
+   */
+  private def getUnEscapedFullColumnName(fullColumnName: String): String = {
+    require(fullColumnName != null && fullColumnName.nonEmpty,
+      "Given name cannot be null or empty")
+    fullColumnName.replaceAll("\"", "").trim
+  }
 
   def phoenixSchemaToCatalystSchema(columnList: Seq[ColumnInfo], dateAsTimestamp: Boolean = false, doNotMapColumnFamily: Boolean = false): StructType = {
     val structFields = columnList.map(ci => {
@@ -34,7 +47,7 @@ object SparkSchemaUtil {
   }
 
   private def normalizeColumnName(columnName: String, doNotMapColumnFamily: Boolean) = {
-    val unescapedColumnName = SchemaUtil.getUnEscapedFullColumnName(columnName)
+    val unescapedColumnName = getUnEscapedFullColumnName(columnName)
     var normalizedColumnName = ""
     if (unescapedColumnName.indexOf(QueryConstants.NAME_SEPARATOR) < 0) {
       normalizedColumnName = unescapedColumnName
